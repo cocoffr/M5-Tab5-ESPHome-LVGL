@@ -149,6 +149,24 @@ obj:
                       - label: { id: lbl_alarm_next, text: "", align: TOP_LEFT, x: 16, y: "${ 244 * (corps_h | int) // 598 }", width: "${ demi_w | int - 32 }", styles: style_police_date }
                       - label: { id: lbl_alarm_next_sub, text: "", align: TOP_LEFT, x: 16, y: "${ 308 * (corps_h | int) // 598 }", width: "${ demi_w | int - 32 }", long_mode: WRAP, styles: style_text_dim }
 
+                      - button:
+                          id: btn_alarm_enable2
+                          align: TOP_LEFT
+                          x: 16
+                          y: ${ 394 * (corps_h | int) // 598 }
+                          width: ${ demi_w | int - 32 }
+                          height: ${ 70 * (corps_h | int) // 598 }
+                          radius: 14
+                          pad_all: 0
+                          styles: style_clim_btn
+                          pressed: { bg_opa: 30% }
+                          on_short_click:
+                            - switch.toggle: tab5_alarm2_enabled
+                          widgets:
+                            - label: { id: icon_alarm_enable2, text: "\U000F0020", align: LEFT_MID, x: 28, text_font: mdi_font_32 }
+                            - label: { id: lbl_alarm_enable2, text: "Réveil 2 · 07:30", align: LEFT_MID, x: 78, width: "${ demi_w | int - 118 }", text_font: roboto_26_b, styles: style_text_dim }
+
+
                       # Test grandeur nature : passe par la VRAIE machine d'état (calque,
                       # crescendo, arrêt à la voix), pas par un raccourci — tester autre chose
                       # que ce qui sonnera n'aurait aucune valeur.
