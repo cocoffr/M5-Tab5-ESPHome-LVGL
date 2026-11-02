@@ -588,6 +588,9 @@ script:
             u.lbl_enable = id(lbl_alarm_enable);
             u.lbl_next = id(lbl_alarm_next);
             u.lbl_next_sub = id(lbl_alarm_next_sub);
+            u.btn_enable2 = id(btn_alarm_enable2);
+            u.icon_enable2 = id(icon_alarm_enable2);
+            u.lbl_enable2 = id(lbl_alarm_enable2);
             u.mode[AlarmMode::FIXE] = id(btn_alarm_mode_0);
             u.mode[AlarmMode::TRAVAIL] = id(btn_alarm_mode_1);
             u.mode[AlarmMode::EMBAUCHE] = id(btn_alarm_mode_2);
