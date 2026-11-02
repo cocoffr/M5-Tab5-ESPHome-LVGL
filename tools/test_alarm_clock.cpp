@@ -110,6 +110,7 @@ static void reset() {
     alarm_reset_state();
     rdv_clear();
     g_alarm_cfg = AlarmCfg{};
+    g_alarm_cfg_2 = AlarmCfg{};
     for (auto& d : cal_jours_data) d = DayForecastData{};
     cal_jours_anchor_day = -1;
 }
