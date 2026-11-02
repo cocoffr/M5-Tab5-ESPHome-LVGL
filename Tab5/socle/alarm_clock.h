@@ -155,10 +155,12 @@ bool alarm_calendar_ready();
 
 // « Demain 05:15 » / « Aujourd'hui 07:00 » / « Mercredi 05:15 » / « Désactivé »
 std::string alarm_next_label(time_t now);
+std::string alarm_next_label_for(int alarm_id, time_t now);
 // « mercredi 6 août · Travail 06:45 – 15:30 » / « … · repos » / « … · en attente
 // du calendrier ». Les DEUX libellés annoncent la répétition en cours quand il y
 // en a une : c'est elle qui va sonner, pas le réveil du lendemain.
 std::string alarm_next_detail(time_t now);
+std::string alarm_next_detail_for(int alarm_id, time_t now);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Préréglages de jours — le select exposé à HA, les 7 chips sur la dalle
