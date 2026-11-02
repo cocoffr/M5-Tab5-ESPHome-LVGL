@@ -190,6 +190,16 @@ number:
     step: 5
 
   - <<: *reglage_valeur
+    id: tab5_alarm2_snooze_min
+    name: "Réveil 2 : répétition"
+    icon: mdi:alarm-snooze
+    unit_of_measurement: "min"
+    initial_value: 9
+    min_value: 1
+    max_value: 30
+    step: 1
+
+  - <<: *reglage_valeur
     id: tab5_alarm_rest_hours
     name: "Réveil : repos mini après la fermeture"
     icon: mdi:sleep
@@ -519,6 +529,7 @@ script:
           g_alarm_cfg_2.fixed_min = tmin(*id(tab5_alarm2_time), 7 * 60 + 30);
           g_alarm_cfg_2.mode = (int) id(tab5_alarm2_mode).active_index().value_or(0);
           g_alarm_cfg_2.days_mask = id(alarm2_days_mask);
+          g_alarm_cfg_2.snooze_min = num(id(tab5_alarm2_snooze_min).state, 9);
 
 
           // Bornes incohérentes (« jamais après » avant « jamais avant ») :
