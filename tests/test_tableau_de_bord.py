@@ -413,7 +413,11 @@ def test_entites_suffixees_par_ha():
     maison = _maison({"tab5": etats})
     references = verifier.entites_du_tableau(yaml.safe_load(_rendre(maison)))
     tablette = {e.entity_id for e in etats}
-    sans = {e for e in tablette if any(e.startswith(f"{d}.") and e.endswith(f"_{s}_2") for d, s in SANS_CARTE)}
+    # HA peut suffixer un entity_id déjà occupé : les entités de la tablette
+    # portent alors _2, _3… après leur nom firmware (y compris les nouveaux réglages).
+    sans = {e for e in tablette if any(
+        e.startswith(f"{d}.") and re.search(rf"_{re.escape(s)}_2$", e)
+        for d, s in SANS_CARTE)}
     assert tablette - sans <= references, sorted(tablette - sans - references)
 
 
