@@ -1344,11 +1344,31 @@ static void test_deux_reveils_independants() {
     expect(alarm_snooze_count_for(0) == 0, "réveil 1 : arrêt indépendant du réveil 2");
 }
 
+
+static void test_due_any_arbitration() {
+    reset();
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 7 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    alarm_invalidate();
+    const time_t due = at(2026, 11, 4, 7, 0);
+    now_is(due - 1);
+    expect(alarm_due_any(g_now) == -1, "arbitrage : aucune sonnerie avant l'heure");
+    now_is(due);
+    expect(alarm_due_any(g_now) == 0, "arbitrage : réveil 1 prioritaire à échéance égale");
+    expect(alarm_next_ring_for(1, due) == due, "arbitrage : échéance du réveil 2 conservée");
+    now_is(due + 1);
+    expect(alarm_due_any(g_now) == 1, "arbitrage : réveil 2 sonne ensuite");
+}
+
 int main() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);  // Europe/Paris, comme le firmware
     tzset();
     tab5_time_source = fake_time;
 
+    test_due_any_arbitration();
     test_deux_reveils_independants();
     test_dates();
     test_heure_fixe_jours_coches();
