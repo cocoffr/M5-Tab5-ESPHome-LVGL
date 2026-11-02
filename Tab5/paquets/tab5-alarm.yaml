@@ -95,7 +95,7 @@ switch:
       # sonnerie en train de retentir — sinon la bascule ne « rend » pas la main.
       - lambda: |-
           auto t = id(sntp_time).now();
-          if (t.is_valid()) alarm_dismiss(t.timestamp);
+          if (t.is_valid()) alarm_dismiss_for(id(alarm_active_id), t.timestamp);
       - if:
           condition:
             lambda: 'return id(alarm_ringing);'
@@ -530,6 +530,7 @@ script:
           id(tab5_alarm2_next_sensor).update();
           id(alarm_skip_before) = alarm_skip_floor();
           id(alarm2_skip_before) = alarm_skip_floor_for(1);
+          id(alarm2_skip_before) = alarm_skip_floor_for(1);
       - script.execute: tab5_alarm_sync_ui
 
   # ─── Repeinture du popup + de la pastille d'état ──────────────────────────
@@ -758,7 +759,7 @@ script:
           id(alarm_ring_started) = millis();
           id(tab5_alarm_is_ringing).publish_state(true);
           auto t = id(sntp_time).now();
-          id(alarm_ring_sub) = t.is_valid() ? alarm_next_detail(t.timestamp) : std::string("");
+          id(alarm_ring_sub) = t.is_valid() ? alarm_next_detail_for(id(alarm_active_id), t.timestamp) : std::string("");
       # L'écran peut être éteint (extinction sur absence WiFi) : le rallumer fait
       # partie du réveil, pas du confort.
       - light.turn_on: backlight
@@ -961,7 +962,7 @@ script:
           id: speaker_player
       - lambda: |-
           auto t = id(sntp_time).now();
-          if (t.is_valid()) alarm_snooze(t.timestamp, g_alarm_cfg.snooze_min);
+          if (t.is_valid()) alarm_snooze_for(id(alarm_active_id), t.timestamp, g_alarm_cfg_2.snooze_min);
       - homeassistant.event:
           event: esphome.tab5_alarm_snooze
       - script.execute: tab5_alarm_ring_cleanup
@@ -1042,7 +1043,7 @@ script:
           if (montrer)
             alarm_ring_show(ui, now, id(alarm_ring_sub));
           else
-            alarm_ring_refresh(ui, now, g_alarm_cfg.snooze_min, alarm_snooze_count());
+            alarm_ring_refresh(ui, now, g_alarm_cfg.snooze_min, alarm_snooze_count_for(id(alarm_active_id)));
           // La sonnerie ne compte pas comme une inactivité : sans ça, le retour
           // auto pourrait fermer des fenêtres sous l'overlay pendant qu'il sonne.
           ui_mark_activity();
