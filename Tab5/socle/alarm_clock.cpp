@@ -236,73 +236,52 @@ void alarm_hhmm(int minute_of_day, char* out, size_t n) {
   snprintf(out, n, "%02u:%02u", m / 60u, m % 60u);
 }
 
-std::string alarm_next_label(time_t now) {
-  // Une répétition en cours PASSE DEVANT le prochain réveil calculé : c'est elle
-  // qui va sonner. Annoncer « Demain 05:15 » pendant qu'une répétition court
-  // dans 6 minutes serait le seul moment où cet écran mentirait.
-  if (runtime(0).snooze_until > now) {
+std::string alarm_next_label_for(int alarm_id, time_t now) {
+  const AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (s.snooze_until > now) {
     struct tm t;
-    if (localtime_r(&runtime(0).snooze_until, &t) != nullptr) {
-      const int reste = static_cast<int>((runtime(0).snooze_until - now + 59) / 60);
+    if (localtime_r(&s.snooze_until, &t) != nullptr) {
+      const int reste = static_cast<int>((s.snooze_until - now + 59) / 60);
       char buf[96];
-      snprintf(buf, sizeof(buf), tr("R\xC3\xA9p\xC3\xA9tition %02d:%02d (%d min)"), t.tm_hour, t.tm_min, reste);
+      snprintf(buf, sizeof(buf), tr("Répétition %02d:%02d (%d min)"), t.tm_hour, t.tm_min, reste);
       return std::string(buf);
     }
   }
-  if (!config(0).enabled) return tr("D\xC3\xA9sactiv\xC3\xA9");
-  if (alarm_next_ring_for(0, now) == 0) return tr("Aucune sonnerie pr\xC3\xA9vue");
-
+  if (!c.enabled) return tr("Désactivé");
+  if (alarm_next_ring_for(alarm_id, now) == 0) return tr("Aucune sonnerie prévue");
   char h[8];
-  alarm_hhmm(runtime(0).next_min, h, sizeof(h));
-
-  if (runtime(0).next_offset == 0) {
-    return tr_fill("Aujourd'hui {heure}", {{"heure", h}});
-  }
-  if (runtime(0).next_offset == 1) {
-    return tr_fill("Demain {heure}", {{"heure", h}});
-  }
+  alarm_hhmm(s.next_min, h, sizeof(h));
+  if (s.next_offset == 0) return tr_fill("Aujourd'hui {heure}", {{"heure", h}});
+  if (s.next_offset == 1) return tr_fill("Demain {heure}", {{"heure", h}});
   struct tm day;
-  if (!local_day_from_offset(runtime(0).next_offset, day)) return std::string(h);
-  // Majuscule initiale sur le jour : c'est un début de libellé.
+  if (!local_day_from_offset(s.next_offset, day)) return std::string(h);
   return fr_capitalized(day_long_utf8(day.tm_wday)) + " " + h;
 }
+std::string alarm_next_label(time_t now) { return alarm_next_label_for(0, now); }
 
-std::string alarm_next_detail(time_t now) {
-  if (runtime(0).snooze_until > now) {
+std::string alarm_next_detail_for(int alarm_id, time_t now) {
+  const AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (s.snooze_until > now) {
     char buf[128];
-    snprintf(buf, sizeof(buf),
-             tr("R\xC3\xA9p\xC3\xA9tition n\xC2\xB0%d \xC2\xB7 « Arr\xC3\xAAter » pour reprendre le cycle normal"),
-             runtime(0).snooze_count);
+    snprintf(buf, sizeof(buf), tr("Répétition n°%d · « Arrêter » pour reprendre le cycle normal"), s.snooze_count);
     return std::string(buf);
   }
-  if (!config(0).enabled) return tr("Touchez l'interrupteur pour l'armer");
-  if (alarm_next_ring_for(0, now) == 0) return tr("Aucun jour retenu dans les 8 prochains");
-
-  // « jeudi 1er octobre » : même libellé que les titres de jours (tab5_core.cpp),
-  // qui connaît le seul ordinal du français. Vide si le jour est hors bornes.
-  const std::string date = format_long_day_label(runtime(0).next_offset);
+  if (!c.enabled) return tr("Touchez l'interrupteur pour l'armer");
+  if (alarm_next_ring_for(alarm_id, now) == 0) return tr("Aucun jour retenu dans les 8 prochains");
+  const std::string date = format_long_day_label(s.next_offset);
   if (date.empty()) return "";
-
-  if (!alarm_calendar_ready()) {
-    return date + " \xC2\xB7 " + tr("en attente du calendrier");
-  }
-  // Jour non couvert (données trop vieilles pour aller jusque-là) : la sonnerie a
-  // été calculée sur l'heure fixe, comme sans calendrier.
-  const int idx = cal_index_for_offset(runtime(0).next_offset);
-  if (idx < 0) {
-    return date + " \xC2\xB7 " + tr("en attente du calendrier");
-  }
-  if (cal_jours_data[idx].est_repos) {
-    return date + " \xC2\xB7 " + tr("repos");
-  }
+  if (!alarm_calendar_ready()) return date + " · " + tr("en attente du calendrier");
+  const int idx = cal_index_for_offset(s.next_offset);
+  if (idx < 0) return date + " · " + tr("en attente du calendrier");
+  if (cal_jours_data[idx].est_repos) return date + " · " + tr("repos");
   const std::string& h = cal_jours_data[idx].heures_ouverture;
-  if (h.size() >= 11) {
-    // « Travail 06:45 – 15:30 » : tiret demi-cadratin UTF-8, comme le popup
-    // calendrier (cal_render_day_detail).
-    return date + " \xC2\xB7 " + tr("Travail") + " " + h.substr(0, 5) + " \xE2\x80\x93 " + h.substr(6, 5);
-  }
-  return date + " \xC2\xB7 " + tr("Travail (horaire inconnu)");
+  if (h.size() >= 11)
+    return date + " · " + tr("Travail") + " " + h.substr(0, 5) + " – " + h.substr(6, 5);
+  return date + " · " + tr("Travail (horaire inconnu)");
 }
+std::string alarm_next_detail(time_t now) { return alarm_next_detail_for(0, now); }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Préréglages de jours
