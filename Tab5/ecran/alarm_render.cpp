@@ -235,7 +235,7 @@ void alarm_render_settings(time_t now, bool crescendo, bool tts_on, bool rdv_on)
 
     if (u.btn_enable2 != nullptr) highlight_button_border(u.btn_enable2, g_alarm_cfg_2.enabled, UIColor.SUCCESS);
     if (u.icon_enable2 != nullptr) {
-        ui_text(u.icon_enable2, g_alarm_cfg_2.enabled ? "\\U000F0020" : "\\U000F0023");
+        ui_text(u.icon_enable2, g_alarm_cfg_2.enabled ? "\U000F0020" : "\U000F0023");
         ui_text_color(u.icon_enable2, g_alarm_cfg_2.enabled ? UIColor.SUCCESS : UIColor.TEXT_DIM);
     }
     if (u.lbl_enable2 != nullptr) {
