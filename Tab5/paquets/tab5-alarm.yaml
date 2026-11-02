@@ -98,7 +98,7 @@ switch:
           if (t.is_valid()) alarm_dismiss_for(id(alarm_active_id), t.timestamp);
       - if:
           condition:
-            lambda: 'return id(alarm_ringing);'
+            lambda: 'return id(alarm_ringing) && id(alarm_active_id) == 0;'
           then:
             - script.execute: tab5_alarm_stop
       - script.execute: tab5_alarm_refresh
@@ -114,6 +114,11 @@ switch:
       - lambda: |-
           auto t = id(sntp_time).now();
           if (t.is_valid()) alarm_dismiss_for(1, t.timestamp);
+      - if:
+          condition:
+            lambda: 'return id(alarm_ringing) && id(alarm_active_id) == 1;'
+          then:
+            - script.execute: tab5_alarm_stop
       - script.execute: tab5_alarm_refresh
 
   - <<: *reglage_bascule
@@ -1121,7 +1126,10 @@ interval:
             lambda: |-
               auto t = id(sntp_time).now();
               if (!t.is_valid() || id(alarm_ringing)) return false;
-              return alarm_due((time_t) t.timestamp);
+              const int due = alarm_due_any((time_t) t.timestamp);
+              if (due < 0) return false;
+              id(alarm_active_id) = due;
+              return true;
           then:
             # Sonnerie planifiée (ou retour de snooze) : l'arrêt DOIT dismiss.
             - globals.set:
