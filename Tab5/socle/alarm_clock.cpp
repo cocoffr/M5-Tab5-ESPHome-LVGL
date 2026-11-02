@@ -173,6 +173,14 @@ bool alarm_due_for(int alarm_id, time_t now) {
   return ring;
 }
 bool alarm_due(time_t now) { return alarm_due_for(0, now); }
+int alarm_due_any(time_t now) {
+  // Les deux fonctions sont appelées à chaque tick pour maintenir leur trace temporelle.
+  const bool first = alarm_due_for(0, now);
+  const bool second = alarm_due_for(1, now);
+  // En cas d'égalité exacte, le réveil 1 est prioritaire ; le second reste
+  // programmé pour le prochain tick, sans perdre son échéance.
+  return first ? 0 : (second ? 1 : -1);
+}
 
 void alarm_snooze_for(int alarm_id, time_t now, int minutes) {
   if (minutes < 1) minutes = 1;
