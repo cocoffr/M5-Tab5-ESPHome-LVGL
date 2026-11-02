@@ -326,6 +326,24 @@ text_sensor:
       return {s};
 
   - platform: template
+    id: tab5_alarm2_next_sensor
+    name: "Prochain réveil 2"
+    icon: mdi:alarm-check
+    entity_category: diagnostic
+    update_interval: 60s
+    lambda: |-
+      static std::string last;
+      auto t = id(sntp_time).now();
+      std::string s;
+      {
+        const I18nPourHa en;
+        s = t.is_valid() ? alarm_next_label_for(1, t.timestamp) : std::string(tr("Heure non synchronisée"));
+      }
+      if (s == last) return {};
+      last = s;
+      return {s};
+
+  - platform: template
     id: tab5_rdv_next_sensor
     name: "Prochain rendez-vous"
     icon: mdi:calendar-clock
