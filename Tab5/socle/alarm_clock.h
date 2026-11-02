@@ -111,6 +111,8 @@ time_t alarm_next_ring_for(int alarm_id, time_t now);
 // le réveil de 06:45. Un réveil vieux de plusieurs heures n'est jamais rattrapé.
 bool alarm_due(time_t now);
 bool alarm_due_for(int alarm_id, time_t now);
+// Vérifie les deux alarmes et retourne l'index de celle qui doit sonner (-1 sinon).
+int alarm_due_any(time_t now);
 constexpr int ALARM_GRACE_S = 120;
 
 // Répète la sonnerie dans `minutes` (au moins 1). Toujours armé : il n'y a pas
