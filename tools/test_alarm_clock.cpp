@@ -1364,11 +1364,30 @@ static void test_due_any_arbitration() {
     expect(alarm_due_any(g_now) == 1, "arbitrage : réveil 2 sonne ensuite");
 }
 
+
+static void test_libelle_reveil_2() {
+    reset();
+    g_alarm_cfg.enabled = false;
+    g_alarm_cfg_2.enabled = true;
+    g_alarm_cfg_2.mode = AlarmMode::FIXE;
+    g_alarm_cfg_2.fixed_min = 7 * 60 + 15;
+    g_alarm_cfg_2.days_mask = 0x7F;
+    alarm_invalidate();
+    const time_t now = at(2026, 11, 5, 6, 0);
+    now_is(now);
+    const std::string label = alarm_next_label_for(1, now);
+    expect(label.find("07:15") != std::string::npos,
+           "libellé du réveil 2 : utilise sa propre heure");
+    expect(alarm_next_label_for(0, now).find("Désactivé") != std::string::npos,
+           "libellé du réveil 1 : indépendant du réveil 2");
+}
+
 int main() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);  // Europe/Paris, comme le firmware
     tzset();
     tab5_time_source = fake_time;
 
+    test_libelle_reveil_2();
     test_due_any_arbitration();
     test_deux_reveils_independants();
     test_dates();
