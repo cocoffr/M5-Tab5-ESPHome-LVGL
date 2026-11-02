@@ -233,6 +233,20 @@ void alarm_render_settings(time_t now, bool crescendo, bool tts_on, bool rdv_on)
     if (u.lbl_next != nullptr) ui_text(u.lbl_next, alarm_next_label(now).c_str());
     if (u.lbl_next_sub != nullptr) ui_text(u.lbl_next_sub, alarm_next_detail(now).c_str());
 
+    if (u.btn_enable2 != nullptr) highlight_button_border(u.btn_enable2, g_alarm_cfg_2.enabled, UIColor.SUCCESS);
+    if (u.icon_enable2 != nullptr) {
+        ui_text(u.icon_enable2, g_alarm_cfg_2.enabled ? "\\U000F0020" : "\\U000F0023");
+        ui_text_color(u.icon_enable2, g_alarm_cfg_2.enabled ? UIColor.SUCCESS : UIColor.TEXT_DIM);
+    }
+    if (u.lbl_enable2 != nullptr) {
+        char second[48];
+        char hhmm[8];
+        alarm_hhmm(g_alarm_cfg_2.fixed_min, hhmm, sizeof(hhmm));
+        snprintf(second, sizeof(second), tr("Réveil 2 · %s"), hhmm);
+        ui_text(u.lbl_enable2, second);
+        ui_text_color(u.lbl_enable2, g_alarm_cfg_2.enabled ? UIColor.SUCCESS : UIColor.TEXT_DIM);
+    }
+
     for (int k = 0; k < REVEIL_NB_ROULEAUX; k++) peindre_rouleau(k, valeur_rouleau(k));
 
     // ── Page Jours ──
