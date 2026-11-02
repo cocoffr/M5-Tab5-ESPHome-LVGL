@@ -4,12 +4,11 @@
 Les tests couvrent la logique de sauvegarde, d'installation, de restauration, les traductions,
 le manifeste et le comportement du composant. Le scénario dans un vrai Home Assistant est
 vérifié par tools/installation_ha/verifier_integration.py.
+"""
 import importlib.util
 import json
 import re
 import sys
-import sys
-import zipfile
 from pathlib import Path
 
 import pytest
