@@ -57,6 +57,9 @@ struct ReveilUI {
     lv_obj_t* lbl_enable = nullptr;
     lv_obj_t* lbl_next = nullptr;                       // « Demain 05:15 »
     lv_obj_t* lbl_next_sub = nullptr;                   // « mercredi 6 août · Travail 06:45 – 15:30 »
+    lv_obj_t* btn_enable2 = nullptr;                    // bascule compacte du réveil 2
+    lv_obj_t* icon_enable2 = nullptr;
+    lv_obj_t* lbl_enable2 = nullptr;
   // Page Jours
     lv_obj_t* mode[AlarmMode::COUNT] = {};
     lv_obj_t* lbl_mode_hint = nullptr;                  // phrase qui explique le mode retenu
