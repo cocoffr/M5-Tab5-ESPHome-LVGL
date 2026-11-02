@@ -434,6 +434,9 @@ button:
     on_press:
       # Test = pas une sonnerie planifiée : l'arrêt ne doit PAS dismiss.
       - globals.set:
+          id: alarm_active_id
+          value: '0'
+      - globals.set:
           id: alarm_ring_scheduled
           value: 'false'
       - globals.set:
@@ -529,6 +532,7 @@ script:
       # Le select des jours reflète le masque courant (ou « Custom »), par son INDEX :
       # le texte de l'option est celui de HA (ADR-0070), le firmware ne le lit jamais.
       - lambda: 'id(tab5_alarm_days).publish_state((size_t) alarm_days_preset_index(id(alarm_days_mask)));'
+      - lambda: 'id(tab5_alarm2_days).publish_state((size_t) alarm_days_preset_index(id(alarm2_days_mask)));'
       - lambda: |-
           id(tab5_alarm_next_sensor).update();
           id(tab5_alarm2_next_sensor).update();
