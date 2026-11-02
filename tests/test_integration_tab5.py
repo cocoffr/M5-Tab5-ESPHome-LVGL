@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Intégration « Tab5 » : installation et mise à jour des fichiers Home Assistant.
+
+Les tests couvrent la logique de sauvegarde, d'installation, de restauration, les traductions,
+le manifeste et le comportement du composant. Le scénario dans un vrai Home Assistant est
+vérifié par tools/installation_ha/verifier_integration.py.
 """Intégration « Tab5 » pour HACS : les fichiers HA installés en un clic (ADR-0035).
 
 - custom_components/tab5/installation.py (pur, sans Home Assistant) : plan, sauvegarde,
