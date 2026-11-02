@@ -1318,11 +1318,38 @@ static void test_rouleaux() {
     expect(rouleau_nombre(0, 10, 0, -1) == 11, "pas nul compté comme 1");
 }
 
+
+static void test_deux_reveils_independants() {
+    reset();
+    const time_t t0 = at(2026, 11, 3, 7, 0);
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 7 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    g_alarm_cfg_2.fixed_min = 7 * 60 + 1;
+    alarm_invalidate();
+    now_is(at(2026, 11, 3, 6, 59, 59));
+    expect(!alarm_due_for(0, g_now), "réveil 1 : pas de sonnerie avant l'heure");
+    expect(!alarm_due_for(1, g_now), "réveil 2 : pas de sonnerie avant l'heure");
+    now_is(t0);
+    expect(alarm_due_for(0, g_now), "réveil 1 : déclenchement à 07:00");
+    expect(!alarm_due_for(1, g_now), "réveil 2 : reste indépendant à 07:00");
+    alarm_snooze_for(0, g_now, 5);
+    expect(alarm_snooze_count_for(0) == 1, "réveil 1 : son compteur snooze avance");
+    expect(alarm_snooze_count_for(1) == 0, "réveil 2 : compteur snooze inchangé");
+    alarm_dismiss_for(0, g_now);
+    now_is(at(2026, 11, 3, 7, 1));
+    expect(alarm_due_for(1, g_now), "réveil 2 : déclenchement indépendant à 07:01");
+    expect(alarm_snooze_count_for(0) == 0, "réveil 1 : arrêt indépendant du réveil 2");
+}
+
 int main() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);  // Europe/Paris, comme le firmware
     tzset();
     tab5_time_source = fake_time;
 
+    test_deux_reveils_independants();
     test_dates();
     test_heure_fixe_jours_coches();
     test_sonne_une_seule_fois_puis_repetition();
