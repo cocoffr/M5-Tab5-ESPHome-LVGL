@@ -1,0 +1,97 @@
+name: Intégration Home Assistant
+
+# Vérifications de l'intégration Home Assistant « Tab5 » : validation hassfest,
+# banc de test des registres HA et installation/mise à jour dans un HA neuf.
+# Ces contrôles restent indépendants de toute distribution via HACS.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    # Même liste que pull_request, plus bas.
+    paths:
+      - '.github/workflows/integration-home-assistant.yml'
+      - 'custom_components/**'
+      - 'HomeAssistant_Config/**'
+      - 'tools/publication/archive_ha.py'
+      - 'tools/installation_ha/verifier_integration.py'
+      - 'tools/installation_ha/verifier_installation.py'
+      - '!**/*.md'
+  pull_request:
+    paths:
+      - '.github/workflows/integration-home-assistant.yml'
+      - 'custom_components/**'
+      - 'HomeAssistant_Config/**'
+      - 'tools/publication/archive_ha.py'
+      - 'tools/installation_ha/verifier_integration.py'
+      - 'tools/installation_ha/verifier_installation.py'
+      - '!**/*.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  hassfest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: hassfest (validateur des intégrations de Home Assistant)
+        run: docker run --rm -v "$GITHUB_WORKSPACE:/github/workspace" ghcr.io/home-assistant/hassfest
+
+
+  banc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.13"
+      - name: Banc de test des intégrations (installe Home Assistant)
+        run: bash tools/ci/pip_reessai.sh pytest-homeassistant-custom-component
+      - name: Migration des noms anglais contre les registres de HA
+        # -p no:cacheprovider : rien d'écrit dans le dépôt ; asyncio_mode=auto : comme les
+        # tests de Home Assistant eux-mêmes.
+        run: python -m pytest tests/test_integration_ha_registre.py -o asyncio_mode=auto -p no:cacheprovider -v
+
+  ha:
+    # Versions de Home Assistant du test, relevées à la main (même logique que ESPHOME_PUBLICATION
+    # dans publication.yml) : la dernière, et le plancher annoncé dans la documentation. 2026.8.3 = dernier
+    # tag 2026.8.x publié le 09/10/2026.
+    strategy:
+      fail-fast: false
+      matrix:
+        ha: ["2026.9.4", "2026.8.3"]
+    env:
+      HA_IMAGE: ghcr.io/home-assistant/home-assistant:${{ matrix.ha }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Image de Home Assistant (téléchargée pendant l'installation de Python)
+        run: nohup docker pull -q "$HA_IMAGE" > "$RUNNER_TEMP/pull.log" 2>&1 &
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.13"
+      - name: Outils du vérificateur
+        # Réessais : PyPI répond parfois « from versions: none » (tools/ci/pip_reessai.sh).
+        # pyyaml : automations.yaml relu par l'étape de l'assistant (ADR-0052).
+        run: bash tools/ci/pip_reessai.sh aiohttp pyyaml
+      - name: Installer, mettre à jour, revenir en arrière dans un HA neuf
+        run: |
+          docker pull -q "$HA_IMAGE"
+          python tools/installation_ha/verifier_integration.py --dossier "$RUNNER_TEMP/ha" \
+            --image "$HA_IMAGE" --journal captures/home-assistant.log
+      - name: Journal de Home Assistant
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: integration-home-assistant-${{ matrix.ha }}
+          path: captures/
+          if-no-files-found: warn
+          retention-days: 14
