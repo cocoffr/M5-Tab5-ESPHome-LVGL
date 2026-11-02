@@ -1382,11 +1382,36 @@ static void test_libelle_reveil_2() {
            "libellé du réveil 1 : indépendant du réveil 2");
 }
 
+
+static void test_snooze_reveil_2_independant() {
+    reset();
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 6 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    g_alarm_cfg_2.fixed_min = 6 * 60 + 2;
+    alarm_invalidate();
+    const time_t first = at(2026, 11, 6, 6, 0);
+    now_is(first);
+    expect(alarm_due_any(g_now) == 0, "snooze 2 : le réveil 1 sonne d'abord");
+    alarm_snooze_for(0, g_now, 9);
+    now_is(at(2026, 11, 6, 6, 2));
+    expect(alarm_due_any(g_now) == 1, "snooze 2 : le réveil 2 sonne à son heure");
+    alarm_snooze_for(1, g_now, 5);
+    expect(alarm_snooze_count_for(0) == 1, "snooze 2 : compteur du réveil 1 conservé");
+    expect(alarm_snooze_count_for(1) == 1, "snooze 2 : compteur du réveil 2 indépendant");
+    now_is(at(2026, 11, 6, 6, 7));
+    expect(alarm_due_any(g_now) == 1, "snooze 2 : seul le réveil 2 revient de répétition");
+    expect(alarm_snooze_count_for(0) == 1, "snooze 2 : le réveil 1 n'est pas modifié");
+}
+
 int main() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);  // Europe/Paris, comme le firmware
     tzset();
     tab5_time_source = fake_time;
 
+    test_snooze_reveil_2_independant();
     test_libelle_reveil_2();
     test_due_any_arbitration();
     test_deux_reveils_independants();
