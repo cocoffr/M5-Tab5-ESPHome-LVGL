@@ -91,11 +91,10 @@ switch:
     on_turn_on:
       - script.execute: tab5_alarm_refresh
     on_turn_off:
-      # Éteindre le réveil doit AUSSI couper une répétition en cours et une
-      # sonnerie en train de retentir — sinon la bascule ne « rend » pas la main.
+      # Éteindre le réveil 1 ne modifie que son propre snooze.
       - lambda: |-
           auto t = id(sntp_time).now();
-          if (t.is_valid()) alarm_dismiss_for(id(alarm_active_id), t.timestamp);
+          if (t.is_valid()) alarm_dismiss(t.timestamp);
       - if:
           condition:
             lambda: 'return id(alarm_ringing) && id(alarm_active_id) == 0;'
@@ -945,7 +944,7 @@ script:
           then:
             - lambda: |-
                 auto t = id(sntp_time).now();
-                if (t.is_valid()) alarm_dismiss(t.timestamp);
+                if (t.is_valid()) alarm_dismiss_for(id(alarm_active_id), t.timestamp);
       - globals.set:
           id: alarm_ring_scheduled
           value: 'false'
