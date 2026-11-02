@@ -101,10 +101,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Tags publiés (contrat HA ↔ firmware contre les versions précédentes)
-        # tests/test_contrat_versions.py lit le code des tags v* (semver du contrat, matrice
-        # N-1) ; le checkout superficiel n'en a aucun. Un commit par tag, sans historique.
-        run: git fetch --no-tags --depth=1 origin "+refs/tags/v*:refs/tags/v*"
+      - name: Tags publiés Axellum (contrat HA ↔ firmware contre les versions précédentes)
+        # Le fork utilisateur ne porte pas nécessairement les tags de publication.
+        # Les versions de référence du contrat HA ↔ firmware restent celles du dépôt amont.
+        run: git fetch --no-tags --depth=1 https://github.com/Axellum/M5-Tab5-ESPHome-LVGL.git "+refs/tags/v*:refs/tags/v*"
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.13"
