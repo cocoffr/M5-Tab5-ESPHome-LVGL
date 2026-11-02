@@ -416,7 +416,7 @@ def test_entites_suffixees_par_ha():
     # Les exceptions sans carte sont comparées au slug firmware, avant le suffixe
     # numérique ajouté par HA (_2, _3…). Celui-ci est placé après le slug complet.
     sans = {e for e in tablette if any(
-        e.startswith(f"{d}.") and re.fullmatch(rf"{re.escape(s)}_\\d+", e.split(".", 1)[1])
+        e.startswith(f"{d}.") and re.fullmatch(rf"{re.escape(s)}_\d+", e.split(".", 1)[1])
         for d, s in SANS_CARTE)}
     assert tablette - sans <= references, sorted(tablette - sans - references)
 
