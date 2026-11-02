@@ -265,6 +265,8 @@ _statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 "Connecté": "Connected"
 
 # --- Alarm clock: popup ---------------------------------------------------------
+"Réveil 2 · %s": "Alarm 2 · %s",
+"Réveil 2 · 07:30": "Alarm 2 · 07:30",
 "Réveil": "Alarm"
 "Réveil actif": "Alarm on"
 "Réveil éteint": "Alarm off"
