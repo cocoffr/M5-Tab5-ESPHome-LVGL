@@ -164,7 +164,7 @@ obj:
                             - switch.toggle: tab5_alarm2_enabled
                           widgets:
                             - label: { id: icon_alarm_enable2, text: "\U000F0020", align: LEFT_MID, x: 28, text_font: mdi_font_32 }
-                            - label: { id: lbl_alarm_enable2, text: "Réveil 2 · 07:30", align: LEFT_MID, x: 78, width: "${ demi_w | int - 118 }", text_font: roboto_26_b, styles: style_text_dim }
+                            - label: { id: lbl_alarm_enable2, text: "Réveil 2 · 07:30", align: LEFT_MID, x: 78, width: "${ demi_w | int - 118 }", text_font: roboto_32_b, styles: style_text_dim }
 
 
                       # Test grandeur nature : passe par la VRAIE machine d'état (calque,
