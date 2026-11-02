@@ -174,12 +174,33 @@ bool alarm_due_for(int alarm_id, time_t now) {
 }
 bool alarm_due(time_t now) { return alarm_due_for(0, now); }
 int alarm_due_any(time_t now) {
-  // Les deux fonctions sont appelées à chaque tick pour maintenir leur trace temporelle.
-  const bool first = alarm_due_for(0, now);
-  const bool second = alarm_due_for(1, now);
-  // En cas d'égalité exacte, le réveil 1 est prioritaire ; le second reste
-  // programmé pour le prochain tick, sans perdre son échéance.
-  return first ? 0 : (second ? 1 : -1);
+  if (now <= 0) return -1;
+  bool due[ALARM_COUNT] = {false, false};
+  for (int id = 0; id < ALARM_COUNT; ++id) {
+    AlarmRuntime& s = runtime(id);
+    const AlarmCfg& c = config(id);
+    if (s.snooze_until > 0) due[id] = now >= s.snooze_until;
+    else if (c.enabled) {
+      const time_t next = alarm_next_ring_for(id, now);
+      due[id] = next > 0 && now >= next;
+    }
+  }
+  // Une seule sonnerie physique à la fois. Si les deux échéances coïncident,
+  // le réveil 1 passe en premier et l'échéance du réveil 2 reste intacte.
+  const int selected = due[0] ? 0 : (due[1] ? 1 : -1);
+  for (int id = 0; id < ALARM_COUNT; ++id) {
+    AlarmRuntime& s = runtime(id);
+    if (id == selected) {
+      if (s.snooze_until > 0) s.snooze_until = 0;
+      else {
+        s.skip_before = s.next_ts;
+        s.snooze_count = 0;
+        s.dirty = true;
+      }
+    }
+    s.last_tick = now;
+  }
+  return selected;
 }
 
 void alarm_snooze_for(int alarm_id, time_t now, int minutes) {
