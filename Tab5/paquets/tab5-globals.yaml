@@ -152,6 +152,10 @@ globals:
   # Ce qui est RÉGLABLE vit dans des entités ESPHome (donc exposé à HA et
   # persisté par elles) ; seuls l'état de la sonnerie en cours et les deux
   # valeurs que HA n'a aucune raison de voir passent par des globals.
+  - id: alarm_active_id
+    type: int
+    initial_value: '0'
+    restore_value: false
   - id: alarm_ringing
     type: bool
     initial_value: 'false'
