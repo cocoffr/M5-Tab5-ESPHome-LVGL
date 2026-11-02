@@ -286,6 +286,8 @@ _statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 # --- Alarm clock: popup ---------------------------------------------------------
 # « Répétition » (snooze) = « Posticipo » ; le bouton « Répéter » = « Posponi »
 # (usage des réveils Android en italien).
+"Réveil 2 · %s": "Sveglia 2 · %s"
+"Réveil 2 · 07:30": "Sveglia 2 · 07:30"
 "Réveil": "Sveglia"
 "Réveil actif": "Sveglia attiva"
 "Réveil éteint": "Sveglia spenta"
