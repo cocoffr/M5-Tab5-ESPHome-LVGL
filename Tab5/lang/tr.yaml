@@ -31,7 +31,7 @@
 _langue: Türkçe
 _code: tr
 _index: 6
-_statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
+_statut: partiel   # les nouveaux libellés utilisent le repli anglais
 
 # --- Dates (tab5_core.cpp) ---------------------------------------------------
 # Jours abrégés : Paz Pzt Sal Çar Per Cum Cmt (usage des calendriers turcs).
