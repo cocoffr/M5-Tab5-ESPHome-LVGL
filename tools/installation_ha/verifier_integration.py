@@ -185,13 +185,13 @@ def archive_integration(version: str, sortie: Path, base: Path) -> Path:
     manifeste = destination / "manifest.json"
     donnees_manifest = json.loads(manifeste.read_text(encoding="utf-8"))
     donnees_manifest["version"] = version
-    manifeste.write_text(json.dumps(donnees_manifest, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    manifeste.write_text(json.dumps(donnees_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     embarques = archive_ha.entrees(version, base)
     fichiers = destination / "fichiers"
     fichiers.mkdir()
     (fichiers / "MANIFESTE.json").write_text(
         json.dumps({"version": version, "fichiers": [chemin for chemin, _ in embarques]},
-                   ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+                   ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for chemin, contenu in embarques:
         cible = fichiers / chemin
         cible.parent.mkdir(parents=True, exist_ok=True)
