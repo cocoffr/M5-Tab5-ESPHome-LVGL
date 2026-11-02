@@ -755,7 +755,7 @@ script:
       # snooze (snooze_count > 0) reprend au volume déjà atteint — c'est le
       # contrat documenté sur alarm_ring_cycle.
       - lambda: |-
-          if (alarm_snooze_count() == 0) id(alarm_ring_cycle) = 0;
+          if (alarm_snooze_count_for(id(alarm_active_id)) == 0) id(alarm_ring_cycle) = 0;
           id(alarm_ring_started) = millis();
           id(tab5_alarm_is_ringing).publish_state(true);
           auto t = id(sntp_time).now();
@@ -962,7 +962,8 @@ script:
           id: speaker_player
       - lambda: |-
           auto t = id(sntp_time).now();
-          if (t.is_valid()) alarm_snooze_for(id(alarm_active_id), t.timestamp, g_alarm_cfg_2.snooze_min);
+          if (t.is_valid()) alarm_snooze_for(id(alarm_active_id), t.timestamp,
+                id(alarm_active_id) == 1 ? g_alarm_cfg_2.snooze_min : g_alarm_cfg.snooze_min);
       - homeassistant.event:
           event: esphome.tab5_alarm_snooze
       - script.execute: tab5_alarm_ring_cleanup
@@ -1064,7 +1065,7 @@ script:
               # Uniquement au premier déclenchement : réentendre la météo et le
               # planning à chaque répétition serait pénible, et c'est justement
               # aux répétitions qu'on veut le moins de bruit.
-              - lambda: 'return alarm_snooze_count() == 0;'
+              - lambda: 'return alarm_snooze_count_for(id(alarm_active_id)) == 0;'
           then:
             # Laisse le premier passage de sonnerie finir avant de parler : une
             # annonce par-dessus la mélodie serait inintelligible.
