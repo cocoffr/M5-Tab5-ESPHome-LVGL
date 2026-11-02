@@ -148,6 +148,20 @@ globals:
     initial_value: '""'
     restore_value: false
 
+  # Dernières valeurs publiées par les text_sensors du réveil (évite les republis).
+  - id: alarm_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+  - id: alarm2_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+  - id: rdv_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+
   # --- Réveil matin (tab5-alarm.yaml + alarm_clock.cpp) ---
   # Ce qui est RÉGLABLE vit dans des entités ESPHome (donc exposé à HA et
   # persisté par elles) ; seuls l'état de la sonnerie en cours et les deux
