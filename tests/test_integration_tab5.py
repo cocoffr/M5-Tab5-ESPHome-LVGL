@@ -4,17 +4,6 @@
 Les tests couvrent la logique de sauvegarde, d'installation, de restauration, les traductions,
 le manifeste et le comportement du composant. Le scénario dans un vrai Home Assistant est
 vérifié par tools/installation_ha/verifier_integration.py.
-"""Intégration « Tab5 » pour HACS : les fichiers HA installés en un clic (ADR-0035).
-
-- custom_components/tab5/installation.py (pur, sans Home Assistant) : plan, sauvegarde,
-  écriture, retrait, restauration à l'octet près, optionnels, copies du blueprint
-  importées par URL, fichiers de l'utilisateur jamais touchés ;
-- tools/publication/archive_hacs.py : le zip que HACS décompresse dans
-  custom_components/tab5/ (code à la racine, manifest versionné, fichiers/ = les mêmes
-  octets que tab5_home_assistant.zip) ;
-- cohérence : manifest.json, hacs.json, traductions, constantes lues dans les packages.
-Le comportement dans un vrai Home Assistant (rechargement, réparations, notification) est
-vérifié par tools/installation_ha/verifier_integration.py (CI integration-hacs.yml)."""
 import importlib.util
 import json
 import re
