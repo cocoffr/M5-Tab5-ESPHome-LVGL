@@ -103,6 +103,19 @@ switch:
             - script.execute: tab5_alarm_stop
       - script.execute: tab5_alarm_refresh
 
+  - <<: *reglage
+    id: tab5_alarm2_enabled
+    name: "Réveil 2"
+    icon: mdi:alarm-plus
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      - script.execute: tab5_alarm_refresh
+    on_turn_off:
+      - lambda: |-
+          auto t = id(sntp_time).now();
+          if (t.is_valid()) alarm_dismiss_for(1, t.timestamp);
+      - script.execute: tab5_alarm_refresh
+
   - <<: *reglage_bascule
     id: tab5_alarm_repos_fixe
     name: "Réveil : sonner les jours de repos"
@@ -139,6 +152,13 @@ datetime:
     icon: mdi:clock-outline
     type: time
     initial_value: "07:00:00"
+
+  - <<: *reglage_valeur
+    id: tab5_alarm2_time
+    name: "Réveil 2 : heure"
+    icon: mdi:clock-outline
+    type: time
+    initial_value: "07:30:00"
 
   - <<: *reglage_valeur
     id: tab5_alarm_early
@@ -231,6 +251,38 @@ select:
       - "Work days"
       - "Before shift start"
     initial_option: "Fixed time"
+
+  - <<: *reglage_valeur
+    id: tab5_alarm2_mode
+    name: "Réveil 2 : mode"
+    icon: mdi:tune
+    options:
+      - "Fixed time"
+      - "Work days"
+      - "Before shift start"
+    initial_option: "Fixed time"
+
+  - <<: *reglage
+    id: tab5_alarm2_days
+    name: "Réveil 2 : jours"
+    icon: mdi:calendar-week
+    restore_value: true
+    options:
+      - "Every day"
+      - "Monday-Friday"
+      - "Monday-Saturday"
+      - "Weekend"
+      - "Custom"
+    initial_option: "Monday-Friday"
+    on_value:
+      - if:
+          condition:
+            lambda: |-
+              const int m = alarm_days_preset_mask((int) i);
+              return m >= 0 && (uint8_t) m != id(alarm2_days_mask);
+          then:
+            - lambda: 'id(alarm2_days_mask) = (uint8_t) alarm_days_preset_mask((int) i);'
+            - script.execute: tab5_alarm_refresh
 
   # Index = g_alarm_cfg.melody = la ligne de kMelodies (alarm_clock.cpp) : « Douce »,
   # « Classique », « Insistante », « Carillon » avant le 24/10/2026 (ADR-0070).
@@ -452,6 +504,16 @@ script:
                                                                              : id(tab5_alarm_volume).state / 100.0f;
           g_alarm_cfg.rdv_lead_min = num(id(tab5_rdv_lead).state, 15);
 
+          // Réveil 2 : configuration indépendante ; calendrier de travail commun.
+          if (alarm_skip_floor_for(1) == 0 && id(alarm2_skip_before) > 0)
+            alarm_set_skip_floor_for(1, id(alarm2_skip_before));
+          g_alarm_cfg_2 = g_alarm_cfg;
+          g_alarm_cfg_2.enabled = id(tab5_alarm2_enabled).state;
+          g_alarm_cfg_2.fixed_min = tmin(*id(tab5_alarm2_time), 7 * 60 + 30);
+          g_alarm_cfg_2.mode = (int) id(tab5_alarm2_mode).active_index().value_or(0);
+          g_alarm_cfg_2.days_mask = id(alarm2_days_mask);
+
+
           // Bornes incohérentes (« jamais après » avant « jamais avant ») :
           // on les remet dans l'ordre plutôt que de laisser clamp() produire
           // une heure absurde. Correction silencieuse et locale — les entités HA
@@ -465,7 +527,9 @@ script:
       - lambda: 'id(tab5_alarm_days).publish_state((size_t) alarm_days_preset_index(id(alarm_days_mask)));'
       - lambda: |-
           id(tab5_alarm_next_sensor).update();
+          id(tab5_alarm2_next_sensor).update();
           id(alarm_skip_before) = alarm_skip_floor();
+          id(alarm2_skip_before) = alarm_skip_floor_for(1);
       - script.execute: tab5_alarm_sync_ui
 
   # ─── Repeinture du popup + de la pastille d'état ──────────────────────────
