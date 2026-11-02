@@ -380,15 +380,14 @@ text_sensor:
     # En anglais pour HA quelle que soit la langue de l'écran (ADR-0070, 24/10/2026 :
     # « Today 07:00 », « Off »…) ; le popup du réveil garde la langue de l'écran.
     lambda: |-
-      static std::string last;
       auto t = id(sntp_time).now();
       std::string s;
       {
         const I18nPourHa en;
         s = t.is_valid() ? alarm_next_label(t.timestamp) : std::string(tr("Heure non synchronisée"));
       }
-      if (s == last) return {};
-      last = s;
+      if (s == id(alarm_next_last)) return {};
+      id(alarm_next_last) = s;
       return {s};
 
   - platform: template
@@ -398,15 +397,14 @@ text_sensor:
     entity_category: diagnostic
     update_interval: 60s
     lambda: |-
-      static std::string last;
       auto t = id(sntp_time).now();
       std::string s;
       {
         const I18nPourHa en;
         s = t.is_valid() ? alarm_next_label_for(1, t.timestamp) : std::string(tr("Heure non synchronisée"));
       }
-      if (s == last) return {};
-      last = s;
+      if (s == id(alarm2_next_last)) return {};
+      id(alarm2_next_last) = s;
       return {s};
 
   - platform: template
@@ -416,12 +414,11 @@ text_sensor:
     entity_category: diagnostic
     update_interval: 60s
     lambda: |-
-      static std::string last;
       auto t = id(sntp_time).now();
       std::string s = t.is_valid() ? rdv_next_label(t.timestamp) : std::string();
       if (s.empty()) s = "—";
-      if (s == last) return {};
-      last = s;
+      if (s == id(rdv_next_last)) return {};
+      id(rdv_next_last) = s;
       return {s};
 
 binary_sensor:
