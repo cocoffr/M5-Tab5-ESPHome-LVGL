@@ -31,7 +31,7 @@ Keep the backup of the three folders made before the update. To roll back, resto
 
 ## Upgrading from 3.2
 
-Replace the Home Assistant files with those of the new `tab5_home_assistant.zip` (or install the update of the [HACS integration](#home-assistant-files)), then check three lists ([step 5](sources.md)):
+Replace the Home Assistant files with those of the new `tab5_home_assistant.zip`, then check three lists ([step 5](sources.md)):
 
 1. **Work calendar holding other events?** Type your word in « Tab5 · work event keyword » (the author: `Travail`). Up to 3.2, only titles containing « Travail » counted; left empty, every event of the work calendar now counts as work.
 2. **School holidays** no longer come from a table of the French Zone A: pick a calendar in « Tab5 · school holidays calendar ».
@@ -104,7 +104,7 @@ Conservez la sauvegarde des trois dossiers faite avant la mise à jour. Pour rev
 
 ## Passer d'une 3.2 à la suite
 
-Remplacez les fichiers Home Assistant par ceux du nouveau `tab5_home_assistant.zip` (ou installez la mise à jour de l'[intégration de HACS](#fichiers-home-assistant)), puis vérifiez trois listes ([étape 5](sources.md#version-française)) :
+Remplacez les fichiers Home Assistant par ceux du nouveau `tab5_home_assistant.zip`, puis vérifiez trois listes ([étape 5](sources.md#version-française)) :
 
 1. **Votre agenda de travail contient d'autres événements ?** Tapez votre mot dans « Tab5 · work event keyword » (l'auteur : `Travail`). Jusqu'à la 3.2, seuls les titres contenant « Travail » comptaient ; laissé vide, tout l'agenda de travail compte désormais comme du travail.
 2. **Les vacances scolaires** ne viennent plus d'une table de la zone A : choisissez un agenda dans « Tab5 · school holidays calendar ».
