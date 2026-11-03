@@ -142,7 +142,11 @@
     rétroéclairage, micro, Wi-Fi, RAM, température… manquaient). -#}
 {%- for cle, domaine, fin in ENTITES -%}
   {%- set motif = domaine ~ '[.]' ~ ('.*_' ~ fin ~ '(_[0-9]+)?$' if fin else '') -%}
-  {%- set ns.t = dict(ns.t, **{cle: tab | select('match', motif) | first | default('')}) -%}
+  {#- « reveil_2 » et « prochain_reveil_2 » peuvent aussi désigner le réveil 1
+    suffixé par HA. Quand les deux existent, le vrai réveil 2 suffixé « _2_2 »
+    vient après « _2 » : retenir le dernier pour ces deux clés. -#}
+  {%- set candidat = tab | select('match', motif) | list -%}
+  {%- set ns.t = dict(ns.t, **{cle: (candidat | last | default('')) if cle in ['reveil_2', 'prochain_reveil_2'] else (candidat | first | default(''))}) -%}
 {%- endfor -%}
 {#- Selects créés par l'intégration ESPHome de HA, pas par le firmware : leur entity_id suit la
     langue de HA (« …_detection_de_fin_de_la_parole » en français), on les reconnaît donc à
