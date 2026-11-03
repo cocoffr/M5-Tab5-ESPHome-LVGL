@@ -385,47 +385,6 @@ rst:0xc (SW_CPU_RESET),boot:0xf (SPI_FAST_FLASH_BOOT)
 
 **Correctif (firmware après la 3.7.0-rc.3, et `packages/tab5_health.yaml`) :** un reset du chien de garde sans rapport de plantage est un démarrage normal : « bouton d'alimentation ou chien de garde RTC (rst 0x..) » dans le journal, aucun événement envoyé ; `Power button or RTC watchdog (rst 0x..)` dans l'entité, que la garde « reboot inattendu » laisse passer. Mettre à jour le firmware ET les fichiers HA : avec le nouveau firmware seul, l'ancienne garde alerterait sur le nouveau texte. Un chien de garde avec rapport de plantage alerte toujours. Détail dans [`debugging.md`](debugging.md#version-française).
 
-### Ajout de Tab5 dans HACS : « Dépôt introuvable », ou une boîte vide (07/10/2026)
-
-**Symptôme :** l'ajout du dépôt dans HACS, par le lien « Ouvrir Tab5 dans HACS » ou par *Custom repositories*, échoue avec « Dépôt introuvable » (« Repository not found » en anglais). Ou la boîte que HACS ouvre par le lien n'affiche qu'un titre (« Confirmer ? »), sans texte.
-
-**Cause racine :** HACS vérifie un dépôt sur sa dernière release complète, même avec les versions bêta activées, et seules les releases depuis la 3.7.0 portent l'intégration : avant la publication de la 3.7.0 (7 octobre 2026), HACS refusait ce dépôt (essayé ce jour-là, avec la 3.6.0 comme dernière release complète). La boîte vide vient de HACS : au premier chargement par le lien, ses textes ne sont pas encore chargés (vu avec HACS 2.0.5).
-
-**Correctif :** « Dépôt introuvable » : vérifier sur la [page des releases](https://github.com/Axellum/M5-Tab5-ESPHome-LVGL/releases) que la release marquée *Latest* est la 3.7.0 ou plus récente et, pour un ajout à la main, que le type est **Integration** ; puis réessayer. Boîte vide : recharger la page, la boîte revient avec ses textes, *Ajouter* à droite. Sans HACS, l'archive copiée à la main marche comme avant ([parties A à C](installation/home-assistant-files.md#a-télécharger-et-décompresser)).
-
-### HACS : « Download failed - 400 », « Got more than 8190 bytes when reading » (24/10/2026)
-
-**Symptôme :** sur la page de Tab5 dans HACS, *Download* (ou une mise à jour) échoue ; le journal de Home Assistant montre « Download failed - 400 » et « Got more than 8190 bytes when reading ». Signalé sur le forum Home Assistant le 24 octobre 2026.
-
-**Cause racine :** ni la tablette ni ce dépôt. Depuis le 23 octobre 2026, GitHub répond au téléchargement d'une release par une redirection qui porte un en-tête Content-Security-Policy d'environ 9 Ko (9 242 octets mesurés sur `tab5_hacs.zip` le 24 octobre), et HACS 2.0.5 refuse toute ligne d'en-tête de plus de 8 190 octets. Toutes les intégrations que HACS installe depuis une archive de release sont touchées. Suivi par HACS : [hacs/integration#5643](https://github.com/hacs/integration/issues/5643), correctif proposé dans [hacs/integration#5644](https://github.com/hacs/integration/pull/5644) (pas publié le 24 octobre).
-
-**Correctif :** attendre une version de HACS qui le corrige, puis *Download* de nouveau. En attendant, les fichiers se posent à la main, sans HACS : [parties A à C](installation/home-assistant-files.md#a-télécharger-et-décompresser). Ne pas copier l'intégration depuis le dépôt : elle porte le code mais pas les fichiers (« aucun fichier Home Assistant dans l'intégration », plus bas).
-
-### Intégration Tab5 (HACS) : téléchargée, mais rien ne se passe
-
-**Symptôme :** le dépôt « Tab5 » est téléchargé dans HACS (sa version y apparaît), mais rien n'en vient : pas de notification « Tab5 : fichiers Home Assistant », rien dans *Paramètres → Système → Corrections* (pas même « Tab5: switch the entities to their English names » après une mise à jour vers la 3.9.0, les entités de la tablette gardant leurs noms français), rien d'elle dans le journal.
-
-**Cause racine :** HACS ne fait que télécharger l'intégration. Tant qu'elle n'est pas ajoutée dans *Paramètres → Appareils et services*, Home Assistant ne la démarre jamais : elle ne peut rien faire ni rien dire. La tablette elle-même y figure aussi, sous ESPHome, ce qui laisse facilement croire que l'intégration est déjà ajoutée (vu le 28 octobre 2026).
-
-**Correctif :** *Paramètres → Appareils et services* : cherchez la carte « Tab5 — fichiers HA · HA files ». Si elle n'y est pas, *Ajouter une intégration → Tab5* ([étape 5 de l'installation par HACS](installation/home-assistant-files.md#avec-hacs)). Elle démarre tout de suite : les fichiers de sa version sont posés et ses corrections apparaissent.
-
-### Intégration Tab5 (HACS) : un message dans Corrections
-
-**Symptôme :** après une mise à jour de l'intégration « Tab5 — fichiers HA · HA files » et un redémarrage, *Paramètres → Système → Corrections* montre un message dont le titre commence par « Tab5 ».
-
-**Cause racine :** au démarrage, l'intégration pose les fichiers de sa version, vérifie la configuration, recharge le YAML, puis vérifie que le capteur « Tab5 · HA files version » donne la nouvelle version ([mises à jour](installation/updates.md#fichiers-home-assistant)). Quand une étape ne finit pas comme prévu, elle le dit dans Corrections.
-
-**Correctif**, selon le message :
-
-- **« Tab5 : aucun fichier Home Assistant dans l'intégration »** : l'intégration a été copiée depuis le dépôt, qui a son code mais pas les fichiers. Installez-la par HACS ([avec HACS](installation/home-assistant-files.md#avec-hacs)), qui télécharge `tab5_hacs.zip` de la release, puis redémarrez.
-- **« Tab5 : Home Assistant ne charge pas les packages »** : les fichiers sont dans `config/packages/`, mais `configuration.yaml` n'a pas de ligne `packages:`. Ajoutez-la ([partie B](installation/home-assistant-files.md#b-une-ligne-dans-configurationyaml)), vérifiez la configuration, puis redémarrez.
-- **« Tab5 : redémarrez Home Assistant pour finir »** : les fichiers sont en place, mais un rechargement n'a pas suffi (une partie qui ne se charge qu'au démarrage, un rechargement qui a échoué, ou une configuration qui avait déjà une erreur). Ouvrez le message et validez : l'intégration vérifie la configuration, puis redémarre Home Assistant. Si elle répond que la configuration a une erreur, corrigez-la d'abord (*Outils de développement → YAML → Vérifier la configuration*). Avec « Mettre ensuite la tablette à jour » coché, le firmware de cette version part après ce redémarrage, dès que l'entité « Firmware » de la tablette le propose.
-- **« Tab5 : les fichiers X n'ont pas été installés »** : la vérification de la configuration a trouvé une nouvelle erreur ou un nouvel avertissement avec les nouveaux fichiers, ou leur écriture a échoué. Les fichiers précédents ont été remis : rien n'a changé, et le firmware de cette version n'est pas lancé. La raison est dans le journal (*Paramètres → Système → Journaux*, cherchez « tab5 »). Si elle est dans un de vos propres fichiers, corrigez-le ; sinon, merci de la signaler ([issues](https://github.com/Axellum/M5-Tab5-ESPHome-LVGL/issues)). Après une erreur de configuration, les mêmes fichiers ne sont pas réessayés à chaque démarrage de Home Assistant (le message revient, rien d'autre ne se passe) : une fois la cause corrigée, *Paramètres → Appareils et services → Tab5 → Configurer*, « Réinstaller maintenant les fichiers de cette version ». Une écriture ratée (disque plein…) est réessayée au démarrage suivant.
-- **« Tab5 : des fichiers déjà là ont été remplacés »** : des fichiers du Tab5 étaient déjà dans `config/` sans venir de l'intégration (copiés à la main depuis une archive, sans doute) et différaient de ceux de la release. Ils ont été remplacés quand même ; le message les liste et nomme le dossier de sauvegarde qui garde les anciens. Si vous en aviez modifié un exprès, recopiez votre changement depuis là, puis validez le message pour le fermer.
-- **« Tab5 : la tablette n'est pas passée en X »** : avec « Mettre ensuite la tablette à jour » coché, l'intégration a lancé la mise à jour du firmware 3 fois, à 15 minutes d'écart, et la tablette tourne toujours une autre version (mise à jour ratée sur la tablette, ou tablette éteinte ou déconnectée). Installez-la à la main : *Paramètres → Mises à jour*, ou l'entité « Firmware » de la tablette → *Installer*, tablette allumée et connectée. Le message disparaît dès que la tablette tourne cette version.
-
-Pour revenir à la main à des fichiers plus anciens : [remettre des fichiers plus anciens](installation/updates.md#remettre-à-la-main-des-fichiers-plus-anciens).
-
 ### Home Assistant ne se reconnecte plus après une réinstallation avec effacement (19/10/2026)
 
 **Symptôme :** une tablette ou une Waveshare 7B que Home Assistant connaissait déjà est réinstallée depuis la [page d'installation](installation/flash.md#version-française) avec effacement (« Erase device » coché après *Install*, ou « Erase User Data »). Elle démarre et rejoint le Wi-Fi une fois celui-ci redonné, mais reste indisponible dans Home Assistant, même après un redémarrage de la tablette. *Paramètres → Appareils et services* la montre en haut, sous « Découvertes », cadre rouge et bouton *Reconfigurer* ; *Paramètres → Système → Corrections* dit « L'authentification a expiré pour M5Stack Tab5 Home Assistant HMI ». Vu sur la 7B de l'auteur le 19/10/2026 (3.9.0-rc.6 installée depuis la page).
