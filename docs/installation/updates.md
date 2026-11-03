@@ -14,31 +14,20 @@ The tablet follows the channel it was installed from (Stable or Beta); to switch
 
 ## Home Assistant files
 
-**With the HACS integration** ([installed this way](home-assistant-files.md#with-hacs)): each release shows up in *Settings → Updates* as « Tab5 — fichiers HA · HA files ». *Install*, then restart Home Assistant. **The integration must also be added** in *Settings → Devices & services* (it is listed there as « Tab5 — fichiers HA · HA files », apart from the tablet under ESPHome): an update downloaded by HACS for an integration that was never added does nothing ([troubleshooting](../troubleshooting.md#tab5-integration-hacs-downloaded-but-nothing-happens)). At start, the integration:
+Home Assistant files are updated **manually**:
 
-- saves the current files in `config/tab5_sauvegardes/` (the 5 latest backups are kept);
-- puts the new ones in place: a Tab5 file you edited by hand is replaced too, and the notification names it (its copy stays in the backup); a Tab5 file that was already there without coming from the integration (copied by hand) and differs is also named in *Settings → System → Repairs*, with its backup folder;
-- checks the configuration, and puts the previous files back if the new ones break it (those files are then not tried again at each start: see Repairs);
-- reloads the YAML, then says what changed in a notification « Tab5: Home Assistant files X.Y.Z »;
-- if « Then update the tablet » is ticked, installs the firmware of the same version as soon as the tablet's « Firmware » entity offers it; if the tablet still runs the old version 15 minutes later, it tries again, 3 times in all, then says so in *Settings → System → Repairs* (the retries come with 3.8).
+1. Download `tab5_home_assistant.zip` from the same [release](https://github.com/Axellum/M5-Tab5-ESPHome-LVGL/releases) as the firmware you are installing.
+2. Before replacing anything, make a copy of the existing `config/packages/`, `config/custom_templates/` and `config/blueprints/automation/tab5/` folders.
+3. Unzip the archive into Home Assistant's `config/` folder and allow it to replace the Tab5 files.
+4. In *Developer tools → YAML*, check the configuration, then restart Home Assistant.
 
-A problem shows in *Settings → System → Repairs*: missing `packages:` line, files refused, restart needed ([what to do](../troubleshooting.md#tab5-integration-hacs-a-message-in-repairs)). HACS offers full releases only: pre-releases (Beta channel) only if beta versions are switched on for this repository in HACS. To put the files back after a mistake: *Settings → Devices & services → Tab5 → Configure*, « Install the files of this version again now ».
+A blueprint imported from its URL rather than installed from the archive must be imported again. If the release notes mention new entities and you use the [dashboard](dashboard.md), repeat its items 2 and 3 after the update.
 
-**By hand, they do not update themselves**: replace them with those of `tab5_home_assistant.zip` from the same release ([step 1](home-assistant-files.md)), then *Developer tools → YAML → All YAML configuration*, and run the action `homeassistant.reload_custom_templates` (or restart Home Assistant). A blueprint imported from its URL rather than unzipped: import it again.
+The files in the archive carry their version. When the tablet runs a newer major or minor release (X.Y; a patch release alone does not count), Home Assistant reports that the files need updating (notification « Tab5: Home Assistant files need updating », sensor « Tab5 · HA files out of date »). Files copied directly from the repository have no version and are not compared.
 
-The files of an archive know their version: when the tablet runs a newer major or minor release (X.Y; a patch release alone does not count), Home Assistant says so (notification « Tab5 : fichiers Home Assistant à mettre à jour », sensor « Tab5 · HA files out of date »). Files copied from the repository have no version and are never compared.
+### Restoring an earlier version by hand
 
-Using the [dashboard](dashboard.md)? After an update that adds entities, do its items 2 and 3 again.
-
-### Putting older files back by hand
-
-At each update, the integration keeps the files it replaces or removes in `config/tab5_sauvegardes/`, in a folder named after the date, the time and the version replaced: `20261012-081530_3.7.0` holds 3.7.0 files. Inside, the same folders as in `config/` (`packages/`, `custom_templates/`, `blueprints/`). Only the 5 latest folders are kept. A refused update (*Settings → System → Repairs*) leaves one too, holding the files still in place; trying the same files again does not add an identical folder.
-
-1. Copy the content of the most recent folder into `config/`, replacing the files there (Samba share, File editor or Studio Code Server). To go back further, copy the folders one after the other, from the most recent to the one you want: each one holds only the files that changed at its update.
-2. A file added by the newer version is in no backup, so it stays. To remove it, compare `config/packages/` with the `tab5_home_assistant.zip` of the version you go back to.
-3. *Developer tools → YAML → Check configuration*, then reload as for files put by hand (above), or restart Home Assistant.
-
-The integration then leaves these files alone: it installs its files once per version, when HACS brings a new one, or when « Install the files of this version again now » is ticked (that puts the newer files back). The next version installed through HACS replaces them, names them as edited by hand, and keeps them in a new backup. While the files are older than the integration, « Then update the tablet » waits: it starts the firmware only once « Tab5 · HA files version » shows the integration's version.
+Keep the backup of the three folders made before the update. To roll back, restore those folders to `config/`, replacing the newer Tab5 files, then check the configuration and restart Home Assistant. If you did not make a backup, download the earlier release's `tab5_home_assistant.zip` and restore its contents instead. Keep your own unrelated files in these folders.
 
 ## Upgrading from 3.2
 
@@ -98,31 +87,20 @@ La tablette suit le canal depuis lequel elle a été installée (Stable ou Bêta
 
 ## Fichiers Home Assistant
 
-**Avec l'intégration de HACS** ([installée ainsi](home-assistant-files.md#avec-hacs)) : chaque release apparaît dans *Paramètres → Mises à jour*, « Tab5 — fichiers HA · HA files ». *Installer*, puis redémarrez Home Assistant. **L'intégration doit aussi être ajoutée** dans *Paramètres → Appareils et services* (elle y apparaît sous « Tab5 — fichiers HA · HA files », à part de la tablette rangée sous ESPHome) : une mise à jour téléchargée par HACS pour une intégration jamais ajoutée ne fait rien ([incidents connus](../troubleshooting.md#intégration-tab5-hacs--téléchargée-mais-rien-ne-se-passe)). Au démarrage, l'intégration :
+Les fichiers Home Assistant se mettent à jour **manuellement** :
 
-- garde les fichiers actuels dans `config/tab5_sauvegardes/` (les 5 dernières sauvegardes sont gardées) ;
-- pose les nouveaux : un fichier du Tab5 modifié à la main est remplacé lui aussi, et la notification le nomme (sa copie reste dans la sauvegarde) ; un fichier du Tab5 déjà là sans venir de l'intégration (copié à la main) et différent est aussi nommé dans *Paramètres → Système → Corrections*, avec son dossier de sauvegarde ;
-- vérifie la configuration, et remet les anciens fichiers si les nouveaux la cassent (ces fichiers ne sont alors plus réessayés à chaque démarrage : voir Corrections) ;
-- recharge le YAML, puis dit ce qui a changé dans une notification « Tab5 : fichiers Home Assistant X.Y.Z » ;
-- si « Mettre ensuite la tablette à jour » est coché, installe le firmware de la même version dès que l'entité « Firmware » de la tablette le propose ; si la tablette tourne toujours l'ancienne version 15 minutes plus tard, réessaie, 3 fois en tout, puis le dit dans *Paramètres → Système → Corrections* (les nouveaux essais arrivent avec la 3.8).
+1. Téléchargez `tab5_home_assistant.zip` depuis la même [release](https://github.com/Axellum/M5-Tab5-ESPHome-LVGL/releases) que le firmware que vous installez.
+2. Avant tout remplacement, faites une copie des dossiers existants `config/packages/`, `config/custom_templates/` et `config/blueprints/automation/tab5/`.
+3. Décompressez l'archive dans le dossier `config/` de Home Assistant et acceptez le remplacement des fichiers Tab5.
+4. Dans *Outils de développement → YAML*, vérifiez la configuration, puis redémarrez Home Assistant.
 
-Un problème s'affiche dans *Paramètres → Système → Corrections* : ligne `packages:` absente, fichiers refusés, redémarrage nécessaire ([que faire](../troubleshooting.md#intégration-tab5-hacs--un-message-dans-corrections)). HACS ne propose que les releases complètes : les pré-releases (canal Bêta) seulement si les versions bêta sont activées pour ce dépôt dans HACS. Pour remettre les fichiers après une erreur : *Paramètres → Appareils et services → Tab5 → Configurer*, « Réinstaller maintenant les fichiers de cette version ».
+Un blueprint importé depuis son adresse plutôt qu'installé depuis l'archive doit être importé de nouveau. Si les notes de la release annoncent de nouvelles entités et que vous utilisez le [tableau de bord](dashboard.md#version-française), refaites ses points 2 et 3 après la mise à jour.
 
-**À la main, ils ne se mettent pas à jour seuls** : remplacez-les par ceux de `tab5_home_assistant.zip` de la même release ([étape 1](home-assistant-files.md#version-française)), puis *Outils de développement → YAML → Toute la configuration YAML*, et lancez l'action `homeassistant.reload_custom_templates` (ou redémarrez Home Assistant). Un blueprint importé depuis son adresse plutôt que décompressé : importez-le de nouveau.
+Les fichiers de l'archive portent leur version. Quand la tablette tourne une release majeure ou mineure plus récente (X.Y ; une version corrective seule ne compte pas), Home Assistant signale que les fichiers doivent être mis à jour (notification « Tab5 : fichiers Home Assistant à mettre à jour », capteur « Tab5 · HA files out of date »). Les fichiers copiés directement depuis le dépôt n'ont pas de version et ne sont pas comparés.
 
-Les fichiers d'une archive connaissent leur version : quand la tablette tourne une release majeure ou mineure plus récente (X.Y ; une version corrective seule ne compte pas), Home Assistant le dit (notification « Tab5 : fichiers Home Assistant à mettre à jour », capteur « Tab5 · HA files out of date »). Des fichiers copiés depuis le dépôt n'ont pas de version et ne sont jamais comparés.
+### Restaurer à la main une version précédente
 
-Vous utilisez le [tableau de bord](dashboard.md#version-française) ? Après une mise à jour qui ajoute des entités, refaites ses points 2 et 3.
-
-### Remettre à la main des fichiers plus anciens
-
-À chaque mise à jour, l'intégration garde les fichiers qu'elle remplace ou retire dans `config/tab5_sauvegardes/`, dans un dossier nommé d'après la date, l'heure et la version remplacée : `20261012-081530_3.7.0` contient des fichiers de la 3.7.0. Dedans, les mêmes dossiers que dans `config/` (`packages/`, `custom_templates/`, `blueprints/`). Seuls les 5 derniers dossiers sont gardés. Une mise à jour refusée (*Paramètres → Système → Corrections*) en laisse un aussi, avec les fichiers restés en place ; un nouvel essai des mêmes fichiers n'ajoute pas de dossier identique.
-
-1. Copiez le contenu du dossier le plus récent dans `config/`, en remplaçant les fichiers qui y sont (partage Samba, File editor ou Studio Code Server). Pour remonter plus loin, copiez les dossiers l'un après l'autre, du plus récent à celui que vous voulez : chacun ne contient que les fichiers changés à sa mise à jour.
-2. Un fichier ajouté par la version plus récente n'est dans aucune sauvegarde : il reste. Pour le retirer, comparez `config/packages/` avec le `tab5_home_assistant.zip` de la version où vous revenez.
-3. *Outils de développement → YAML → Vérifier la configuration*, puis rechargez comme pour des fichiers posés à la main (plus haut), ou redémarrez Home Assistant.
-
-L'intégration laisse ensuite ces fichiers tranquilles : elle installe ses fichiers une fois par version, quand HACS en apporte une nouvelle, ou quand « Réinstaller maintenant les fichiers de cette version » est coché (cela remet les fichiers plus récents). La version suivante installée par HACS les remplace, les nomme comme modifiés à la main, et les garde dans une nouvelle sauvegarde. Tant que les fichiers sont plus anciens que l'intégration, « Mettre ensuite la tablette à jour » attend : le firmware n'est lancé qu'une fois que « Tab5 · HA files version » donne la version de l'intégration.
+Conservez la sauvegarde des trois dossiers faite avant la mise à jour. Pour revenir en arrière, restaurez ces dossiers dans `config/`, en remplaçant les fichiers Tab5 plus récents, puis vérifiez la configuration et redémarrez Home Assistant. Si vous n'avez pas fait de sauvegarde, téléchargez l'archive `tab5_home_assistant.zip` de la release précédente et restaurez son contenu. Gardez vos propres fichiers sans rapport avec Tab5 dans ces dossiers.
 
 ## Passer d'une 3.2 à la suite
 
