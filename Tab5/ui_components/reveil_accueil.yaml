@@ -122,7 +122,7 @@ obj:
         on_click:
           - script.execute: tab5_alarm_open
         widgets:
-          - label: { text: "Radio", align: CENTER, text_font: roboto_32_b }
+          - label: { text: "Alarmes", align: CENTER, text_font: roboto_32_b }
     - label:
         text: "Volume"
         x: 870
