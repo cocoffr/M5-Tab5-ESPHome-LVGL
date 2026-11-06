@@ -739,9 +739,14 @@ interval:
             snprintf(date, sizeof(date), "%02d/%02d/%04d", now.day_of_month, now.month, now.year);
             lv_label_set_text(id(reveil_date), date);
           }
+          char level[12];
+          snprintf(level, sizeof(level), "%d/10", std::max(1, std::min(10, (int) roundf(id(backlight).current_values.get_brightness() * 10.0f))));
+          lv_label_set_text(id(reveil_luminosite_valeur), level);
+          snprintf(level, sizeof(level), "%d/10", std::max(1, std::min(10, (int) roundf(id(tab5_alarm_volume).state / 10.0f))));
+          lv_label_set_text(id(reveil_volume_valeur), level);
           const bool a1 = id(tab5_alarm_enabled).state;
           const bool a2 = id(tab5_alarm2_enabled).state;
           lv_label_set_text(id(reveil_alarme1_etat), a1 ? "ON" : "OFF");
           lv_label_set_text(id(reveil_alarme2_etat), a2 ? "ON" : "OFF");
-          lv_obj_set_style_text_color(id(reveil_alarme1_etat), lv_color_hex(a1 ? 0x72F2A4 : 0xFF8888), LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(reveil_alarme1_etat), lv_color_hex(a1 ? 0x72F2A4 : 0xC8CDD2), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(reveil_alarme2_etat), lv_color_hex(a2 ? 0x72F2A4 : 0xFF8888), LV_PART_MAIN);
