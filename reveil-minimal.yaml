@@ -1,0 +1,169 @@
+# Firmware autonome expérimental ST7121 — sans l'application domotique.
+# Point d'entrée séparé : ne modifie pas tab5-ha-hmi.yaml.
+substitutions:
+  device_name: reveil-tab5
+esphome:
+  name: ${device_name}
+  friendly_name: Reveil Tab5
+esp32:
+  board: esp32-p4-evboard
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: true
+psram:
+  mode: hex
+  speed: 200MHz
+logger:
+api:
+ota:
+  - platform: esphome
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+time:
+  - platform: sntp
+    id: clock_time
+    timezone: Europe/Paris
+i2c:
+  sda: GPIO31
+  scl: GPIO32
+  frequency: 400kHz
+pi4ioe5v6408:
+  - id: ioexp
+    address: 0x43
+esp_ldo:
+  - voltage: 2.5V
+    channel: 3
+display:
+  - platform: mipi_dsi
+    id: screen
+    model: M5STACK-TAB5-ST7121
+    dimensions:
+      width: 720
+      height: 1280
+    reset_pin:
+      pi4ioe5v6408: ioexp
+      number: 4
+    pixel_mode: 16bit
+    color_order: RGB
+    update_interval: never
+    auto_clear_enabled: false
+touchscreen:
+  - platform: st7123
+    id: touch
+    interrupt_pin: GPIO23
+    reset_pin:
+      pi4ioe5v6408: ioexp
+      number: 5
+    calibration:
+      x_min: 0
+      x_max: 720
+      y_min: 0
+      y_max: 1280
+output:
+  - platform: ledc
+    id: backlight_pwm
+    pin: GPIO22
+    frequency: 1000Hz
+light:
+  - platform: monochromatic
+    id: backlight
+    name: Luminosite
+    output: backlight_pwm
+    restore_mode: RESTORE_DEFAULT_ON
+    initial_state:
+      brightness: 70%
+datetime:
+  - platform: template
+    id: alarm_one_time
+    name: Alarme 1 heure
+    type: time
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+  - platform: template
+    id: alarm_two_time
+    name: Alarme 2 heure
+    type: time
+    optimistic: true
+    initial_value: "07:30:00"
+    restore_value: true
+switch:
+  - platform: template
+    id: alarm_one_enabled
+    name: Alarme 1
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    id: alarm_two_enabled
+    name: Alarme 2
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+font:
+  - file: "gfonts://Roboto"
+    id: clock_font
+    size: 260
+    glyphs: "0123456789:"
+  - file: "gfonts://Roboto"
+    id: label_font
+    size: 32
+    glyphs: "0123456789: /ONFALRM+-"
+lvgl:
+  displays:
+    - screen
+  touchscreens:
+    - touch
+  rotation: 270
+  pages:
+    - id: main
+      bg_color: 0x101820
+      widgets:
+        - label:
+            id: clock_label
+            text: "--:--"
+            align: TOP_MID
+            y: 90
+            text_color: 0xFFFFFF
+            text_font: clock_font
+        - button:
+            x: 30
+            y: 520
+            width: 580
+            height: 80
+            bg_color: 0x30383E
+            on_click:
+              - switch.toggle: alarm_one_enabled
+            widgets:
+              - label:
+                  id: alarm_one_label
+                  text: "ALARME 1 OFF"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 650
+            y: 520
+            width: 580
+            height: 80
+            bg_color: 0x30383E
+            on_click:
+              - switch.toggle: alarm_two_enabled
+            widgets:
+              - label:
+                  id: alarm_two_label
+                  text: "ALARME 2 OFF"
+                  align: CENTER
+                  text_font: label_font
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          auto t = id(clock_time).now();
+          if (t.is_valid()) {
+            char time_text[8];
+            snprintf(time_text, sizeof(time_text), "%02d:%02d", t.hour, t.minute);
+            lv_label_set_text(id(clock_label), time_text);
+          }
+          lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
+          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
