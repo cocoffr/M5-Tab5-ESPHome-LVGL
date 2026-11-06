@@ -49,58 +49,92 @@ obj:
         y: 38
         text_font: reveil_geant_font
         text_color: 0xFFFFFF
-    - button:
-        x: 24
+    - obj:
+        x: 12
         y: 530
         width: 600
         height: 78
-        on_click:
-          - script.execute: tab5_alarm_open
+        bg_color: 0x253442
+        radius: 10
+        border_width: 0
         widgets:
-          - label:
-              id: reveil_alarme1_texte
-              text: "Alarme 1"
-              align: LEFT_MID
-              x: 20
-              text_font: roboto_32_b
-          - label:
-              id: reveil_alarme1_heure
-              text: "07:00"
-              align: CENTER
-              text_font: roboto_32_b
-          - label:
-              id: reveil_alarme1_etat
-              text: "OFF"
-              align: RIGHT_MID
-              x: -20
-              text_color: 0xFF8888
-              text_font: roboto_32_b
-    - button:
-        x: 635
+          - button:
+              x: 0
+              y: 0
+              width: 490
+              height: 78
+              bg_opa: TRANSP
+              on_click:
+                - script.execute: tab5_alarm_open
+              widgets:
+                - label:
+                    text: "Alarme 1"
+                    align: LEFT_MID
+                    x: 10
+                    text_color: 0xFFFFFF
+                - label:
+                    id: reveil_alarme1_heure
+                    text: "07:00"
+                    align: CENTER
+                    text_color: 0xFFFFFF
+                    text_font: roboto_32_b
+          - button:
+              x: 500
+              y: 10
+              width: 86
+              height: 56
+              bg_color: 0x3A4854
+              on_click:
+                - switch.toggle: tab5_alarm_enabled
+              widgets:
+                - label:
+                    id: reveil_alarme1_etat
+                    text: "OFF"
+                    align: CENTER
+                    text_color: 0xFFFFFF
+    - obj:
+        x: 625
         y: 530
-        width: 600
+        width: 630
         height: 78
-        on_click:
-          - script.execute: tab5_alarm_open
+        bg_color: 0x253442
+        radius: 10
+        border_width: 0
         widgets:
-          - label:
-              id: reveil_alarme2_texte
-              text: "Alarme 2"
-              align: LEFT_MID
-              x: 20
-              text_font: roboto_32_b
-          - label:
-              id: reveil_alarme2_heure
-              text: "08:30"
-              align: CENTER
-              text_font: roboto_32_b
-          - label:
-              id: reveil_alarme2_etat
-              text: "OFF"
-              align: RIGHT_MID
-              x: -20
-              text_color: 0xFF8888
-              text_font: roboto_32_b
+          - button:
+              x: 0
+              y: 0
+              width: 510
+              height: 78
+              bg_opa: TRANSP
+              on_click:
+                - script.execute: tab5_alarm_open
+              widgets:
+                - label:
+                    text: "Alarme 2"
+                    align: LEFT_MID
+                    x: 10
+                    text_color: 0xFFFFFF
+                - label:
+                    id: reveil_alarme2_heure
+                    text: "07:30"
+                    align: CENTER
+                    text_color: 0xFFFFFF
+                    text_font: roboto_32_b
+          - button:
+              x: 525
+              y: 10
+              width: 90
+              height: 56
+              bg_color: 0x3A4854
+              on_click:
+                - switch.toggle: tab5_alarm2_enabled
+              widgets:
+                - label:
+                    id: reveil_alarme2_etat
+                    text: "OFF"
+                    align: CENTER
+                    text_color: 0xFFFFFF
     - button:
         x: 25
         y: 630
@@ -113,7 +147,8 @@ obj:
         widgets:
           - label: { text: "-", align: CENTER, text_font: roboto_45_b, text_color: 0xFFFFFF }
     - label:
-        text: "Lum."
+        id: reveil_luminosite_valeur
+        text: "5/10"
         x: 145
         y: 645
         text_font: roboto_32_b
@@ -136,9 +171,10 @@ obj:
         on_click:
           - script.execute: tab5_alarm_open
         widgets:
-          - label: { text: "Alarmes", align: CENTER, text_font: roboto_32_b }
+          - label: { text: "Radio", align: CENTER, text_font: roboto_32_b }
     - label:
-        text: "Volume"
+        id: reveil_volume_valeur
+        text: "8/10"
         x: 870
         y: 645
         text_font: roboto_32_b
@@ -147,6 +183,11 @@ obj:
         y: 630
         width: 90
         height: 65
+        on_click:
+          - lambda: |-
+              auto call = id(tab5_alarm_volume).make_call();
+              call.set_value(std::max(10.0f, id(tab5_alarm_volume).state - 10.0f));
+              call.perform();
         widgets:
           - label: { text: "-", align: CENTER, text_font: roboto_45_b, text_color: 0xFFFFFF }
     - button:
@@ -154,5 +195,10 @@ obj:
         y: 630
         width: 90
         height: 65
+        on_click:
+          - lambda: |-
+              auto call = id(tab5_alarm_volume).make_call();
+              call.set_value(std::min(100.0f, id(tab5_alarm_volume).state + 10.0f));
+              call.perform();
         widgets:
           - label: { text: "+", align: CENTER, text_font: roboto_32_b }
