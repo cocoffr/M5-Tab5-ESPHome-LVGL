@@ -724,3 +724,18 @@ lvgl:
         - !include ../ui_components/alarm_ring_overlay.yaml
         # Les 8 jeux et le sélecteur arcade ont leurs propres pages LVGL, déclarées par
         # le module des jeux (Tab5/paquets/tab5-arcade.yaml, ADR-0065), après celle-ci.
+
+# Rafraîchissement local : aucune dépendance à Home Assistant pour l'horloge.
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          auto now = id(sntp_time).now();
+          if (now.is_valid()) {
+            char hhmm[8];
+            snprintf(hhmm, sizeof(hhmm), "%02d:%02d", now.hour, now.minute);
+            lv_label_set_text(id(reveil_geant_heure), hhmm);
+            char date[48];
+            snprintf(date, sizeof(date), "%02d/%02d/%04d", now.day_of_month, now.month, now.year);
+            lv_label_set_text(id(reveil_date), date);
+          }
