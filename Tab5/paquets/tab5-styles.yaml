@@ -58,7 +58,7 @@ font:
   # Affichage plein écran du réveil de chevet (ST7121).
   - file: "Tab5/fonts/roboto_700.ttf"
     id: reveil_geant_font
-    size: ${ (350 * (carte_police_echelle | float)) | round | int }
+    size: ${ (410 * (carte_police_echelle | float)) | round | int }
     bpp: 2
     glyphs: '0123456789:'
   # Heure du réveil, consigne et température du popup clim, score du flipper. Le
