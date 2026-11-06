@@ -46,7 +46,7 @@ obj:
         id: reveil_geant_heure
         text: "--:--"
         align: TOP_MID
-        y: 75
+        y: 38
         text_font: reveil_geant_font
         text_color: 0xFFFFFF
     - button:
@@ -68,6 +68,13 @@ obj:
               text: "07:00"
               align: CENTER
               text_font: roboto_32_b
+          - label:
+              id: reveil_alarme1_etat
+              text: "OFF"
+              align: RIGHT_MID
+              x: -20
+              text_color: 0xFF8888
+              text_font: roboto_32_b
     - button:
         x: 635
         y: 530
@@ -87,6 +94,13 @@ obj:
               text: "08:30"
               align: CENTER
               text_font: roboto_32_b
+          - label:
+              id: reveil_alarme2_etat
+              text: "OFF"
+              align: RIGHT_MID
+              x: -20
+              text_color: 0xFF8888
+              text_font: roboto_32_b
     - button:
         x: 25
         y: 630
@@ -97,7 +111,7 @@ obj:
               id: backlight
               relative_brightness: -10%
         widgets:
-          - label: { text: "−", align: CENTER, text_font: roboto_32_b }
+          - label: { text: "-", align: CENTER, text_font: roboto_45_b, text_color: 0xFFFFFF }
     - label:
         text: "Lum."
         x: 145
@@ -134,7 +148,7 @@ obj:
         width: 90
         height: 65
         widgets:
-          - label: { text: "−", align: CENTER, text_font: roboto_32_b }
+          - label: { text: "-", align: CENTER, text_font: roboto_45_b, text_color: 0xFFFFFF }
     - button:
         x: 1145
         y: 630
