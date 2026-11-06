@@ -35,10 +35,10 @@
           width: 72
           height: 55
           on_click:
-            - script.execute: tab5_reglages_open
+            - script.execute: tab5_reglages_ouvrir
           widgets:
             - label:
-                text: "⚙"
+                text: "Menu"
                 align: CENTER
       - label:
           id: reveil_geant_heure
@@ -97,7 +97,7 @@
           widgets:
             - label: { text: "−", align: CENTER, text_font: roboto_32_b }
       - label:
-          text: "☀"
+          text: "Lum."
           x: 145
           y: 645
           text_font: roboto_32_b
