@@ -1,7 +1,7 @@
 # Accueil dédié réveil de chevet — premier jalon fonctionnel.
 # L'ancienne interface reste compilée derrière cette surface pour conserver
 # les références LVGL des composants existants.
-- obj:
+obj:
     id: reveil_accueil
     align: TOP_LEFT
     x: 0
