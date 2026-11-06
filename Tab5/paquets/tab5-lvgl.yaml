@@ -700,6 +700,8 @@ lvgl:
         - !include ../ui_components/serveur_ia_popup.yaml
         - !include ../ui_components/calendar_popup.yaml
         - !include ../ui_components/assistant_popup.yaml
+        # Accueil de chevet au-dessus des tuiles Axellum, sous les popups.
+        - !include ../ui_components/reveil_accueil.yaml
         - !include ../ui_components/alarm_popup.yaml
         # [AI-WARNING] Amorce du widget ligne : ne pas supprimer. ESPHome ne pose
         # `#define LV_USE_LINE 1` dans le lv_conf.h généré que si un widget `line:` est
