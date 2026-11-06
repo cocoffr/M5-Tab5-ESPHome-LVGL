@@ -35,7 +35,9 @@ obj:
           width: 72
           height: 55
           on_click:
-            - script.execute: tab5_reglages_ouvrir
+            - script.execute:
+                id: tab5_reglages_ouvrir
+                page: '0'
           widgets:
             - label:
                 text: "Menu"
