@@ -19,6 +19,19 @@ logger:
 api:
 ota:
   - platform: esphome
+esp32_hosted:
+  variant: esp32c6
+  active_high: true
+  clk_pin: GPIO12
+  cmd_pin: GPIO13
+  d0_pin: GPIO11
+  d1_pin: GPIO10
+  d2_pin: GPIO9
+  d3_pin: GPIO8
+  reset_pin: GPIO15
+  slot: 1
+  sdio_frequency: 20MHz
+  use_psram: true
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
