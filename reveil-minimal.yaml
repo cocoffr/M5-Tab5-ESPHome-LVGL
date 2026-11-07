@@ -101,7 +101,7 @@ datetime:
     name: Alarme 2 heure
     type: time
     optimistic: true
-    initial_value: "07:30:00"
+    initial_value: "08:30:00"
     restore_value: true
 switch:
   - platform: template
@@ -124,7 +124,7 @@ number:
     step: 1
     optimistic: true
     restore_value: true
-    initial_value: 7
+    initial_value: 5
     set_action:
       - light.turn_on:
           id: backlight
@@ -164,7 +164,7 @@ number:
     step: 1
     optimistic: true
     restore_value: true
-    initial_value: 7
+    initial_value: 8
   - platform: template
     id: alarm_two_minute
     name: Alarme 2 minutes
@@ -260,7 +260,15 @@ script:
 font:
   - file: "gfonts://Roboto"
     id: label_font
-    size: 32
+    size: 36
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz."
+  - file: "gfonts://Roboto"
+    id: alarm_font
+    size: 52
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  - file: "gfonts://Roboto"
+    id: control_font
+    size: 43
     glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 lvgl:
   displays:
@@ -268,391 +276,532 @@ lvgl:
   touchscreens:
     - touch
   rotation: 270
-  bg_color: 0x0D141B
+  bg_color: 0x000000
   pages:
     - id: reveil_page
-      bg_color: 0x0D141B
+      bg_color: 0x000000
       widgets:
         - label:
             text: "Secteur"
-            x: 22
-            y: 20
+            x: 35
+            y: 9
             text_font: label_font
-            text_color: 0xE5E7EB
+            text_color: 0xD7E7EB
         - label:
             id: date_label
             text: "Synchronisation..."
             align: TOP_MID
-            y: 18
-            text_font: label_font
-            text_color: 0xE5E7EB
-        - label:
-            text: "CONFIG"
-            x: 1125
-            y: 20
+            y: 8
             text_font: label_font
             text_color: 0xE5E7EB
         - obj:
             id: digit_0_0
-            x: 46
-            y: 76
-            width: 204
-            height: 22
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 40
+            y: 70
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_1
-            x: 253
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 269
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_2
-            x: 253
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 269
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_3
-            x: 46
-            y: 454
-            width: 204
-            height: 22
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 40
+            y: 438
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_4
-            x: 21
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 17
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_5
-            x: 21
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 17
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_0_6
-            x: 46
-            y: 265
-            width: 204
-            height: 22
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 40
+            y: 254
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_0
-            x: 343
-            y: 76
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 345
+            y: 70
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_1
-            x: 550
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 574
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_2
-            x: 550
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 574
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_3
-            x: 343
-            y: 454
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 345
+            y: 438
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_4
-            x: 318
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 322
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_5
-            x: 318
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 322
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_1_6
-            x: 343
-            y: 265
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 345
+            y: 254
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_0
-            x: 713
-            y: 76
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 700
+            y: 70
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_1
-            x: 920
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 929
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_2
-            x: 920
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 929
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_3
-            x: 713
-            y: 454
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 700
+            y: 438
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_4
-            x: 688
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 677
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_5
-            x: 688
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0x0D141B
-            border_width: 0
+            x: 677
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_2_6
-            x: 713
-            y: 265
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 700
+            y: 254
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_0
-            x: 1010
-            y: 76
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 1005
+            y: 70
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_1
-            x: 1217
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 1234
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_2
-            x: 1217
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 1234
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_3
-            x: 1010
-            y: 454
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 1005
+            y: 438
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_4
-            x: 985
-            y: 288
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 982
+            y: 285
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0x000000
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_5
-            x: 985
-            y: 99
-            width: 22
-            height: 166
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 982
+            y: 102
+            width: 30
+            height: 151
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
             id: digit_3_6
-            x: 1010
-            y: 265
-            width: 204
-            height: 22
-            bg_color: 0xFFFFFF
-            border_width: 0
+            x: 1005
+            y: 254
+            width: 227
+            height: 30
             radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
             pad_all: 0
         - obj:
-            x: 629
-            y: 195
+            x: 640
+            y: 180
             width: 28
             height: 28
-            radius: 14
-            bg_color: 0xFFFFFF
+            radius: 7
+            bg_color: 0xB5E8F4
             border_width: 0
         - obj:
-            x: 629
-            y: 345
+            x: 640
+            y: 300
             width: 28
             height: 28
-            radius: 14
-            bg_color: 0xFFFFFF
+            radius: 7
+            bg_color: 0xB5E8F4
             border_width: 0
+        - obj:
+            x: 18
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 37
+            y: 512
+            text: "Alarme 1"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 262
+            y: 500
+            width: 208
+            height: 80
+            radius: 8
+            bg_color: 0x15232E
+            on_click:
+              - number.increment: alarm_one_minute
+            on_long_press:
+              - number.increment: alarm_one_hour
+            widgets:
+              - label:
+                  id: alarm_one_time_label
+                  text: "07:00"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xB5E8F4
+        - button:
+            id: alarm_one_button
+            x: 487
+            y: 505
+            width: 128
+            height: 72
+            radius: 24
+            bg_color: 0x535B65
+            on_click:
+              - switch.toggle: alarm_one_enabled
+            widgets:
+              - label:
+                  id: alarm_one_label
+                  text: "OFF"
+                  align: CENTER
+                  text_font: control_font
+                  text_color: 0xFFFFFF
+        - obj:
+            x: 650
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 669
+            y: 512
+            text: "Alarme 2"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 894
+            y: 500
+            width: 208
+            height: 80
+            radius: 8
+            bg_color: 0x15232E
+            on_click:
+              - number.increment: alarm_two_minute
+            on_long_press:
+              - number.increment: alarm_two_hour
+            widgets:
+              - label:
+                  id: alarm_two_time_label
+                  text: "08:30"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xB5E8F4
+        - button:
+            id: alarm_two_button
+            x: 1119
+            y: 505
+            width: 128
+            height: 72
+            radius: 24
+            bg_color: 0x535B65
+            on_click:
+              - switch.toggle: alarm_two_enabled
+            widgets:
+              - label:
+                  id: alarm_two_label
+                  text: "OFF"
+                  align: CENTER
+                  text_font: control_font
+                  text_color: 0xFFFFFF
         - obj:
             x: 20
-            y: 518
-            width: 606
-            height: 86
-            radius: 13
-            bg_color: 0x243545
-            border_width: 0
+            y: 613
+            width: 445
+            height: 92
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
         - label:
-            id: alarm_one_label
-            x: 38
-            y: 543
-            text: "Alarme 1 OFF"
-            text_font: label_font
-            text_color: 0xFFFFFF
-        - label:
-            id: alarm_one_time_label
-            x: 300
-            y: 543
-            text: "07:00"
-            text_font: label_font
-            text_color: 0xFFFFFF
-        - obj:
-            x: 654
-            y: 518
-            width: 606
-            height: 86
-            radius: 13
-            bg_color: 0x243545
-            border_width: 0
-        - label:
-            id: alarm_two_label
-            x: 672
-            y: 543
-            text: "Alarme 2 OFF"
-            text_font: label_font
-            text_color: 0xFFFFFF
-        - label:
-            id: alarm_two_time_label
-            x: 934
-            y: 543
-            text: "08:30"
-            text_font: label_font
-            text_color: 0xFFFFFF
+            x: 34
+            y: 631
+            text: "L"
+            text_font: control_font
+            text_color: 0xE6F5F9
+        - button:
+            x: 89
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.decrement: brightness_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
         - label:
             id: brightness_label
-            x: 25
-            y: 644
-            text: "L 7/10"
-            text_font: label_font
-            text_color: 0xE5E7EB
+            x: 189
+            y: 630
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 364
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.increment: brightness_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - obj:
+            x: 815
+            y: 613
+            width: 445
+            height: 92
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
         - label:
-            id: radio_button_label
-            align: BOTTOM_MID
-            y: -26
-            text: "RADIO OFF"
-            text_font: label_font
-            text_color: 0xFFFFFF
+            x: 829
+            y: 631
+            text: "V"
+            text_font: control_font
+            text_color: 0xE6F5F9
+        - button:
+            x: 884
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.decrement: volume_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
         - label:
             id: volume_label
-            x: 1090
-            y: 644
-            text: "V 5/10"
-            text_font: label_font
-            text_color: 0xE5E7EB
+            x: 984
+            y: 630
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 1159
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.increment: volume_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 482
+            y: 615
+            width: 316
+            height: 90
+            radius: 18
+            bg_color: 0x075BA8
+            on_click:
+              - script.execute: toggle_radio
+            widgets:
+              - label:
+                  id: radio_button_label
+                  text: "Radio"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xFFFFFF
 
 interval:
   - interval: 1s
@@ -662,34 +811,34 @@ interval:
           if (t.is_valid()) {
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
             int digits[4] = {t.hour / 10, t.hour % 10, t.minute / 10, t.minute % 10};
-            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((map[digits[0]] & (1 << 3)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((map[digits[0]] & (1 << 4)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((map[digits[0]] & (1 << 5)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((map[digits[0]] & (1 << 6)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xF5F5F5 : 0x0D141B), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((map[digits[0]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((map[digits[0]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((map[digits[0]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((map[digits[0]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
           }
           if (t.is_valid()) {
             const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
@@ -698,14 +847,16 @@ interval:
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             lv_label_set_text(id(date_label), date_text);
           }
-          lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
-          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
+          lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
+          lv_obj_set_style_bg_color(id(alarm_one_button), lv_color_hex(id(alarm_one_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ON" : "OFF");
+          lv_obj_set_style_bg_color(id(alarm_two_button), lv_color_hex(id(alarm_two_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
           char value[16];
-          snprintf(value, sizeof(value), "L %.0f", id(brightness_level).state);
+          snprintf(value, sizeof(value), "%.0f/10", id(brightness_level).state);
           lv_label_set_text(id(brightness_label), value);
-          snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);
+          snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
           lv_label_set_text(id(volume_label), value);
-          lv_label_set_text(id(radio_button_label), id(radio_manual) ? "RADIO ON" : "RADIO OFF");
+          lv_label_set_text(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
           lv_label_set_text(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
