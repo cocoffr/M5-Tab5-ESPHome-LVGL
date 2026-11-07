@@ -261,369 +261,399 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-VUSZETIP"
+    glyphs: "0123456789: /ONFALRM+-VUSZETIPConfgiD"
 lvgl:
   displays:
     - screen
   touchscreens:
     - touch
   rotation: 270
-  bg_color: 0x080808
+  bg_color: 0x101820
   pages:
     - id: reveil_page
-      bg_color: 0x080808
+      bg_color: 0x101820
       widgets:
+        - label:
+            text: "Secteur"
+            x: 22
+            y: 20
+            text_font: label_font
+            text_color: 0xE5E7EB
+        - label:
+            id: date_label
+            text: " "
+            align: TOP_MID
+            y: 18
+            text_font: label_font
+            text_color: 0xE5E7EB
+        - label:
+            text: "CONFIG"
+            x: 1125
+            y: 20
+            text_font: label_font
+            text_color: 0xE5E7EB
         - obj:
             id: digit_0_0
-            x: 144
-            y: 65
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 46
+            y: 76
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_1
-            x: 297
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 253
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_2
-            x: 297
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 253
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_3
-            x: 144
-            y: 349
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 46
+            y: 454
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_4
-            x: 125
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 21
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_5
-            x: 125
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 21
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_0_6
-            x: 144
-            y: 207
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 46
+            y: 265
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_0
-            x: 369
-            y: 65
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 343
+            y: 76
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_1
-            x: 522
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 550
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_2
-            x: 522
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 550
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_3
-            x: 369
-            y: 349
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 343
+            y: 454
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_4
-            x: 350
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 318
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_5
-            x: 350
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 318
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_1_6
-            x: 369
-            y: 207
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 343
+            y: 265
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_0
-            x: 744
-            y: 65
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 713
+            y: 76
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_1
-            x: 897
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 920
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_2
-            x: 897
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 920
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_3
-            x: 744
-            y: 349
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 713
+            y: 454
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_4
-            x: 725
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 688
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_5
-            x: 725
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 688
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_2_6
-            x: 744
-            y: 207
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 713
+            y: 265
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_0
-            x: 969
-            y: 65
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 1010
+            y: 76
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_1
-            x: 1122
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 1217
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_2
-            x: 1122
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 1217
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_3
-            x: 969
-            y: 349
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 1010
+            y: 454
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_4
-            x: 950
-            y: 225
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 985
+            y: 288
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_5
-            x: 950
-            y: 83
-            width: 18
-            height: 124
-            bg_color: 0x292929
+            x: 985
+            y: 99
+            width: 22
+            height: 166
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
             id: digit_3_6
-            x: 969
-            y: 207
-            width: 154
-            height: 18
-            bg_color: 0x292929
+            x: 1010
+            y: 265
+            width: 204
+            height: 22
+            bg_color: 0x101820
             border_width: 0
             radius: 5
             pad_all: 0
         - obj:
-            x: 639
-            y: 165
-            width: 25
-            height: 25
-            radius: 13
-            bg_color: 0xF0F0F0
+            x: 629
+            y: 195
+            width: 28
+            height: 28
+            radius: 14
+            bg_color: 0xFFFFFF
             border_width: 0
         - obj:
-            x: 639
-            y: 265
-            width: 25
-            height: 25
+            x: 629
+            y: 345
+            width: 28
+            height: 28
+            radius: 14
+            bg_color: 0xFFFFFF
+            border_width: 0
+        - obj:
+            x: 20
+            y: 518
+            width: 606
+            height: 86
             radius: 13
-            bg_color: 0xF0F0F0
+            bg_color: 0x243545
             border_width: 0
         - label:
             id: alarm_one_label
-            x: 125
-            y: 438
-            text: "ALARME 1 OFF"
+            x: 38
+            y: 543
+            text: "Alarme 1 OFF"
             text_font: label_font
-            text_color: 0xEAEAEA
+            text_color: 0xFFFFFF
         - label:
             id: alarm_one_time_label
-            x: 160
-            y: 486
+            x: 300
+            y: 543
             text: "07:00"
             text_font: label_font
-            text_color: 0xEAEAEA
+            text_color: 0xFFFFFF
+        - obj:
+            x: 654
+            y: 518
+            width: 606
+            height: 86
+            radius: 13
+            bg_color: 0x243545
+            border_width: 0
         - label:
             id: alarm_two_label
-            x: 750
-            y: 438
-            text: "ALARME 2 OFF"
+            x: 672
+            y: 543
+            text: "Alarme 2 OFF"
             text_font: label_font
-            text_color: 0xEAEAEA
+            text_color: 0xFFFFFF
         - label:
             id: alarm_two_time_label
-            x: 785
-            y: 486
-            text: "07:30"
+            x: 934
+            y: 543
+            text: "08:30"
             text_font: label_font
-            text_color: 0xEAEAEA
+            text_color: 0xFFFFFF
         - label:
             id: brightness_label
-            x: 70
-            y: 630
-            text: "L 7"
+            x: 25
+            y: 644
+            text: "L 7/10"
             text_font: label_font
-            text_color: 0xBDBDBD
-        - label:
-            id: volume_label
-            x: 345
-            y: 630
-            text: "V 5"
-            text_font: label_font
-            text_color: 0xBDBDBD
+            text_color: 0xE5E7EB
         - label:
             id: radio_button_label
-            x: 610
-            y: 630
+            align: BOTTOM_MID
+            y: -26
             text: "RADIO OFF"
             text_font: label_font
-            text_color: 0xBDBDBD
+            text_color: 0xFFFFFF
         - label:
-            x: 970
-            y: 630
-            text: "STOP"
+            id: volume_label
+            x: 1090
+            y: 644
+            text: "V 5/10"
             text_font: label_font
-            text_color: 0xBDBDBD
+            text_color: 0xE5E7EB
+
 interval:
   - interval: 1s
     then:
@@ -632,34 +662,34 @@ interval:
           if (t.is_valid()) {
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
             int digits[4] = {t.hour / 10, t.hour % 10, t.minute / 10, t.minute % 10};
-            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((map[digits[0]] & (1 << 3)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((map[digits[0]] & (1 << 4)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((map[digits[0]] & (1 << 5)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((map[digits[0]] & (1 << 6)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xF5F5F5 : 0x292929), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((map[digits[0]] & (1 << 3)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((map[digits[0]] & (1 << 4)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((map[digits[0]] & (1 << 5)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((map[digits[0]] & (1 << 6)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
           }
           lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
           lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
