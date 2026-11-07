@@ -210,14 +210,34 @@ globals:
     type: int
     restore_value: no
     initial_value: '-1'
+  - id: radio_manual
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: alarm_ringing
     type: bool
     restore_value: no
     initial_value: 'false'
 script:
+  - id: toggle_radio
+    then:
+      - if:
+          condition:
+            lambda: 'return id(radio_manual);'
+          then:
+            - lambda: 'id(radio_manual) = false;'
+            - media_player.stop: radio_player
+          else:
+            - lambda: 'id(radio_manual) = true;'
+            - media_player.volume_set:
+                id: radio_player
+                volume: !lambda 'return id(volume_level).state / 10.0f;'
+            - media_player.play_media:
+                id: radio_player
+                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
   - id: start_alarm
     then:
-      - lambda: 'id(alarm_ringing) = true;'
+      - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
       - media_player.volume_set:
           id: radio_player
           volume: !lambda 'return id(volume_level).state / 10.0f;'
@@ -226,7 +246,7 @@ script:
           media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
   - id: stop_alarm
     then:
-      - lambda: 'id(alarm_ringing) = false;'
+      - lambda: 'id(alarm_ringing) = false; id(snooze_until) = -1; id(radio_manual) = false;'
       - media_player.stop: radio_player
   - id: snooze_alarm
     then:
@@ -245,7 +265,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-VUSZE"
+    glyphs: "0123456789: /ONFALRM+-VUSZETIP"
 lvgl:
   displays:
     - screen
@@ -484,6 +504,33 @@ lvgl:
                   text: "SNOOZE"
                   align: CENTER
                   text_font: label_font
+        - button:
+            x: 1030
+            y: 310
+            width: 200
+            height: 75
+            bg_color: 0x30383E
+            on_click:
+              - script.execute: toggle_radio
+            widgets:
+              - label:
+                  id: radio_button_label
+                  text: "RADIO OFF"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 1030
+            y: 405
+            width: 200
+            height: 75
+            bg_color: 0x503030
+            on_click:
+              - script.execute: stop_alarm
+            widgets:
+              - label:
+                  text: "STOP"
+                  align: CENTER
+                  text_font: label_font
 interval:
   - interval: 1s
     then:
@@ -501,6 +548,7 @@ interval:
           lv_label_set_text(id(brightness_label), value);
           snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);
           lv_label_set_text(id(volume_label), value);
+          lv_label_set_text(id(radio_button_label), id(radio_manual) ? "RADIO ON" : "RADIO OFF");
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
           lv_label_set_text(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
