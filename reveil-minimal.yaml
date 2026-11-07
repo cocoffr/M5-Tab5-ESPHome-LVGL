@@ -265,4 +265,9 @@ interval:
             lv_label_set_text(id(clock_label), time_text);
           }
           lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
-          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");\n          char value[16];\n          snprintf(value, sizeof(value), "L %.0f", id(brightness_level).state);\n          lv_label_set_text(id(brightness_label), value);\n          snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);\n          lv_label_set_text(id(volume_label), value);
+          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
+          char value[16];
+          snprintf(value, sizeof(value), "L %.0f", id(brightness_level).state);
+          lv_label_set_text(id(brightness_label), value);
+          snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);
+          lv_label_set_text(id(volume_label), value);
