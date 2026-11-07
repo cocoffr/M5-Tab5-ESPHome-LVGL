@@ -1,0 +1,1198 @@
+# Firmware autonome expérimental ST7121 — sans l'application domotique.
+# Point d'entrée séparé : ne modifie pas tab5-ha-hmi.yaml.
+substitutions:
+  device_name: reveil-tab5
+esphome:
+  name: ${device_name}
+  friendly_name: Reveil Tab5
+esp32:
+  board: esp32-p4-evboard
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: true
+psram:
+  mode: hex
+  speed: 200MHz
+logger:
+api:
+ota:
+  - platform: esphome
+esp32_hosted:
+  variant: esp32c6
+  active_high: true
+  clk_pin: GPIO12
+  cmd_pin: GPIO13
+  d0_pin: GPIO11
+  d1_pin: GPIO10
+  d2_pin: GPIO9
+  d3_pin: GPIO8
+  reset_pin: GPIO15
+  slot: 1
+  sdio_frequency: 20MHz
+  use_psram: true
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+time:
+  - platform: sntp
+    id: clock_time
+    timezone: Europe/Paris
+i2c:
+  sda: GPIO31
+  scl: GPIO32
+  frequency: 400kHz
+pi4ioe5v6408:
+  - id: ioexp
+    address: 0x43
+esp_ldo:
+  - voltage: 2.5V
+    channel: 3
+display:
+  - platform: mipi_dsi
+    id: screen
+    model: M5STACK-TAB5-ST7121
+    dimensions:
+      width: 720
+      height: 1280
+    reset_pin:
+      pi4ioe5v6408: ioexp
+      number: 4
+    pixel_mode: 16bit
+    color_order: RGB
+    update_interval: never
+    auto_clear_enabled: false
+touchscreen:
+  - platform: st7123
+    id: touch
+    interrupt_pin: GPIO23
+    reset_pin:
+      pi4ioe5v6408: ioexp
+      number: 5
+    calibration:
+      x_min: 0
+      x_max: 720
+      y_min: 0
+      y_max: 1280
+output:
+  - platform: ledc
+    id: backlight_pwm
+    pin: GPIO22
+    frequency: 1000Hz
+light:
+  - platform: monochromatic
+    id: backlight
+    name: Luminosite
+    output: backlight_pwm
+    restore_mode: RESTORE_DEFAULT_ON
+    initial_state:
+      brightness: 70%
+datetime:
+  - platform: template
+    id: alarm_one_time
+    name: Alarme 1 heure
+    type: time
+    optimistic: true
+    initial_value: "07:00:00"
+    restore_value: true
+  - platform: template
+    id: alarm_two_time
+    name: Alarme 2 heure
+    type: time
+    optimistic: true
+    initial_value: "08:30:00"
+    restore_value: true
+switch:
+  - platform: template
+    id: alarm_one_enabled
+    name: Alarme 1
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
+    id: alarm_two_enabled
+    name: Alarme 2
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+# Réglages locaux indépendants de Home Assistant.
+number:
+  - platform: template
+    id: brightness_level
+    name: Luminosite 1 a 10
+    min_value: 1
+    max_value: 10
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 5
+    set_action:
+      - light.turn_on:
+          id: backlight
+          brightness: !lambda 'return x / 10.0f;'
+  - platform: template
+    id: volume_level
+    name: Volume 1 a 10
+    min_value: 1
+    max_value: 10
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 5
+  - platform: template
+    id: alarm_one_hour
+    name: Alarme 1 heures
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 7
+  - platform: template
+    id: alarm_one_minute
+    name: Alarme 1 minutes
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+  - platform: template
+    id: alarm_two_hour
+    name: Alarme 2 heures
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 8
+  - platform: template
+    id: alarm_two_minute
+    name: Alarme 2 minutes
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 30
+# Sortie audio locale du Tab5 (ES8388 + I2S).
+i2s_audio:
+  - id: audio_bus
+    i2s_lrclk_pin: GPIO29
+    i2s_bclk_pin: GPIO27
+    i2s_mclk_pin: GPIO30
+audio_dac:
+  - platform: es8388
+    id: alarm_dac
+speaker:
+  - platform: i2s_audio
+    id: alarm_speaker
+    i2s_dout_pin: GPIO26
+    audio_dac: alarm_dac
+    dac_type: external
+    channel: stereo
+    sample_rate: 48000
+    bits_per_sample: 16bit
+    buffer_duration: 2000ms
+media_player:
+  - platform: speaker
+    id: radio_player
+    name: Radio Reveil
+    announcement_pipeline:
+      speaker: alarm_speaker
+      format: MP3
+    volume_min: 0.05
+    volume_max: 1.0
+globals:
+  - id: last_alarm_minute
+    type: int
+    restore_value: no
+    initial_value: '-1'
+  - id: snooze_until
+    type: int
+    restore_value: no
+    initial_value: '-1'
+  - id: radio_manual
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: selected_alarm
+    type: int
+    restore_value: no
+    initial_value: '1'
+  - id: alarm_one_radio
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: alarm_two_radio
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: alarm_one_volume
+    type: int
+    restore_value: yes
+    initial_value: '5'
+  - id: alarm_two_volume
+    type: int
+    restore_value: yes
+    initial_value: '5'
+  - id: active_alarm_radio
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: alarm_ringing
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+script:
+  - id: toggle_radio
+    then:
+      - if:
+          condition:
+            lambda: 'return id(radio_manual);'
+          then:
+            - lambda: 'id(radio_manual) = false;'
+            - media_player.stop: radio_player
+          else:
+            - lambda: 'id(radio_manual) = true;'
+            - media_player.volume_set:
+                id: radio_player
+                volume: !lambda 'return id(volume_level).state / 10.0f;'
+            - media_player.play_media:
+                id: radio_player
+                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                announcement: true
+  - id: start_alarm
+    then:
+      - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
+      - if:
+          condition:
+            lambda: 'return id(active_alarm_radio);'
+          then:
+            - media_player.volume_set:
+                id: radio_player
+                volume: !lambda 'return (id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f;'
+            - media_player.play_media:
+                id: radio_player
+                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                announcement: true
+          else:
+            - rtttl.play:
+                id: alarm_buzzer
+                rtttl: "reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p"
+  - id: stop_alarm
+    then:
+      - lambda: 'id(alarm_ringing) = false; id(snooze_until) = -1; id(radio_manual) = false;'
+      - rtttl.stop:
+          id: alarm_buzzer
+      - media_player.stop: radio_player
+  - id: snooze_alarm
+    then:
+      - lambda: |-
+          if (id(alarm_ringing)) {
+            auto t = id(clock_time).now();
+            if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
+            id(alarm_ringing) = false;
+          }
+      - rtttl.stop:
+          id: alarm_buzzer
+      - media_player.stop: radio_player
+  - id: open_alarm_one
+    then:
+      - lambda: 'id(selected_alarm) = 1;'
+      - lvgl.page.show: alarm_settings_page
+  - id: open_alarm_two
+    then:
+      - lambda: 'id(selected_alarm) = 2;'
+      - lvgl.page.show: alarm_settings_page
+  - id: adjust_alarm_hour
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          auto &n = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
+          auto call = n.make_call();
+          call.set_value(((int)n.state + delta + 24) % 24);
+          call.perform();
+  - id: adjust_alarm_minute
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          auto &n = id(selected_alarm) == 1 ? id(alarm_one_minute) : id(alarm_two_minute);
+          auto call = n.make_call();
+          call.set_value(((int)n.state + delta + 60) % 60);
+          call.perform();
+  - id: adjust_alarm_volume
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          int &v = id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume);
+          v = std::max(1, std::min(10, v + delta));
+  - id: select_alarm_buzzer
+    then:
+      - lambda: |-
+          if (id(selected_alarm) == 1) id(alarm_one_radio) = false;
+          else id(alarm_two_radio) = false;
+  - id: select_alarm_radio
+    then:
+      - lambda: |-
+          if (id(selected_alarm) == 1) id(alarm_one_radio) = true;
+          else id(alarm_two_radio) = true;
+
+rtttl:
+  id: alarm_buzzer
+  speaker: alarm_speaker
+  gain: 50%
+font:
+  - file: "gfonts://Noto Sans Symbols 2"
+    id: icon_font
+    size: 44
+    glyphs: "☀⚡♫"
+  - file: "gfonts://Roboto"
+    id: label_font
+    size: 36
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz."
+  - file: "gfonts://Roboto"
+    id: alarm_font
+    size: 52
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  - file: "gfonts://Roboto"
+    id: control_font
+    size: 43
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+lvgl:
+  displays:
+    - screen
+  touchscreens:
+    - touch
+  rotation: 270
+  bg_color: 0x000000
+  pages:
+    - id: reveil_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            text: "Secteur"
+            x: 85
+            y: 9
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "⚡"
+            x: 30
+            y: 4
+            text_font: icon_font
+            text_color: 0x00CC33
+        - label:
+            id: date_label
+            text: "Synchronisation..."
+            align: TOP_MID
+            y: 8
+            text_font: label_font
+            text_color: 0xE5E7EB
+        - obj:
+            id: digit_0_0
+            x: 40
+            y: 70
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_1
+            x: 269
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_2
+            x: 269
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_3
+            x: 40
+            y: 438
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_4
+            x: 17
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_5
+            x: 17
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_0_6
+            x: 40
+            y: 254
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_0
+            x: 345
+            y: 70
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_1
+            x: 574
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_2
+            x: 574
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_3
+            x: 345
+            y: 438
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_4
+            x: 322
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_5
+            x: 322
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_1_6
+            x: 345
+            y: 254
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_0
+            x: 700
+            y: 70
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_1
+            x: 929
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_2
+            x: 929
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_3
+            x: 700
+            y: 438
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_4
+            x: 677
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_5
+            x: 677
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_2_6
+            x: 700
+            y: 254
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_0
+            x: 1005
+            y: 70
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_1
+            x: 1234
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_2
+            x: 1234
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_3
+            x: 1005
+            y: 438
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_4
+            x: 982
+            y: 285
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_5
+            x: 982
+            y: 102
+            width: 30
+            height: 151
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            id: digit_3_6
+            x: 1005
+            y: 254
+            width: 227
+            height: 30
+            radius: 5
+            bg_color: 0xB5E8F4
+            border_width: 0
+            pad_all: 0
+        - obj:
+            x: 640
+            y: 180
+            width: 28
+            height: 28
+            radius: 7
+            bg_color: 0xB5E8F4
+            border_width: 0
+        - obj:
+            x: 640
+            y: 300
+            width: 28
+            height: 28
+            radius: 7
+            bg_color: 0xB5E8F4
+            border_width: 0
+        - obj:
+            x: 18
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 37
+            y: 512
+            text: "Alarme 1"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 262
+            y: 500
+            width: 208
+            height: 80
+            radius: 8
+            bg_color: 0x15232E
+            on_click:
+              - script.execute: open_alarm_one
+            widgets:
+              - label:
+                  id: alarm_one_time_label
+                  text: "07:00"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xB5E8F4
+        - button:
+            id: alarm_one_button
+            x: 487
+            y: 505
+            width: 128
+            height: 72
+            radius: 24
+            bg_color: 0x535B65
+            on_click:
+              - switch.toggle: alarm_one_enabled
+            widgets:
+              - label:
+                  id: alarm_one_label
+                  text: "OFF"
+                  align: CENTER
+                  text_font: control_font
+                  text_color: 0xFFFFFF
+        - obj:
+            x: 650
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 669
+            y: 512
+            text: "Alarme 2"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 894
+            y: 500
+            width: 208
+            height: 80
+            radius: 8
+            bg_color: 0x15232E
+            on_click:
+              - script.execute: open_alarm_two
+            widgets:
+              - label:
+                  id: alarm_two_time_label
+                  text: "08:30"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xB5E8F4
+        - button:
+            id: alarm_two_button
+            x: 1119
+            y: 505
+            width: 128
+            height: 72
+            radius: 24
+            bg_color: 0x535B65
+            on_click:
+              - switch.toggle: alarm_two_enabled
+            widgets:
+              - label:
+                  id: alarm_two_label
+                  text: "OFF"
+                  align: CENTER
+                  text_font: control_font
+                  text_color: 0xFFFFFF
+        - obj:
+            x: 20
+            y: 613
+            width: 445
+            height: 92
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 34
+            y: 631
+            text: "☀"
+            text_font: icon_font
+            text_color: 0xE6F5F9
+        - button:
+            x: 89
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.decrement: brightness_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            id: brightness_label
+            x: 189
+            y: 630
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 364
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.increment: brightness_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - obj:
+            x: 815
+            y: 613
+            width: 445
+            height: 92
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            x: 829
+            y: 631
+            text: "♫"
+            text_font: icon_font
+            text_color: 0xE6F5F9
+        - button:
+            x: 884
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.decrement: volume_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            id: volume_label
+            x: 984
+            y: 630
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 1159
+            y: 624
+            width: 78
+            height: 68
+            bg_color: 0x304458
+            on_click:
+              - number.increment: volume_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 482
+            y: 615
+            width: 316
+            height: 90
+            radius: 18
+            bg_color: 0x075BA8
+            on_click:
+              - script.execute: toggle_radio
+            widgets:
+              - label:
+                  id: radio_button_label
+                  text: "Radio"
+                  align: CENTER
+                  text_font: alarm_font
+                  text_color: 0xFFFFFF
+        - obj:
+            x: 0
+            y: 0
+            width: 1
+            height: 1
+            bg_opa: TRANSP
+            border_width: 0
+    - id: alarm_settings_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            id: settings_title
+            x: 460
+            y: 40
+            text: "Alarme 1"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 35
+            y: 30
+            width: 200
+            height: 75
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label:
+                  text: "Retour"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            x: 250
+            y: 165
+            text: "Heures"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            x: 790
+            y: 165
+            text: "Minutes"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            id: settings_hour
+            x: 360
+            y: 265
+            text: "07"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - label:
+            id: settings_minute
+            x: 900
+            y: 265
+            text: "00"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 245
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_hour
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 450
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_hour
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 780
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_minute
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 990
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_minute
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            x: 90
+            y: 405
+            text: "Sonnerie"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - button:
+            x: 355
+            y: 394
+            width: 250
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute: select_alarm_buzzer
+            widgets:
+              - label:
+                  text: "Buzzer"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 635
+            y: 394
+            width: 250
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute: select_alarm_radio
+            widgets:
+              - label:
+                  text: "Radio"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            id: settings_mode
+            x: 930
+            y: 410
+            text: "Buzzer"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            x: 90
+            y: 565
+            text: "Volume"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            id: settings_volume
+            x: 540
+            y: 565
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 350
+            y: 548
+            width: 90
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_volume
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 750
+            y: 548
+            width: 90
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_volume
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 970
+            y: 548
+            width: 230
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label:
+                  text: "Enregistrer"
+                  align: CENTER
+                  text_font: control_font
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          auto t = id(clock_time).now();
+          if (t.is_valid()) {
+            const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
+            int digits[4] = {t.hour / 10, t.hour % 10, t.minute / 10, t.minute % 10};
+            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((map[digits[0]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((map[digits[0]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((map[digits[0]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((map[digits[0]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+          }
+          if (t.is_valid()) {
+            const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
+            const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
+            char date_text[64];
+            snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
+            lv_label_set_text(id(date_label), date_text);
+          }
+          lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
+          lv_obj_set_style_bg_color(id(alarm_one_button), lv_color_hex(id(alarm_one_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ON" : "OFF");
+          lv_obj_set_style_bg_color(id(alarm_two_button), lv_color_hex(id(alarm_two_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          char value[16];
+          snprintf(value, sizeof(value), "%.0f/10", id(brightness_level).state);
+          lv_label_set_text(id(brightness_label), value);
+          snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
+          lv_label_set_text(id(volume_label), value);
+          lv_label_set_text(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
+          lv_label_set_text(id(settings_title), id(selected_alarm) == 1 ? "Alarme 1" : "Alarme 2");
+          snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_hour).state : id(alarm_two_hour).state));
+          lv_label_set_text(id(settings_hour), value);
+          snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_minute).state : id(alarm_two_minute).state));
+          lv_label_set_text(id(settings_minute), value);
+          snprintf(value, sizeof(value), "%d/10", id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume));
+          lv_label_set_text(id(settings_volume), value);
+          lv_label_set_text(id(settings_mode), (id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio)) ? "Radio" : "Buzzer");
+          snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
+          lv_label_set_text(id(alarm_one_time_label), value);
+          snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
+          lv_label_set_text(id(alarm_two_time_label), value);
+          if (t.is_valid()) {
+            int minute_key = (int)(t.timestamp / 60);
+            bool match_one = id(alarm_one_enabled).state && t.hour == (int) id(alarm_one_hour).state && t.minute == (int) id(alarm_one_minute).state;
+            bool match_two = id(alarm_two_enabled).state && t.hour == (int) id(alarm_two_hour).state && t.minute == (int) id(alarm_two_minute).state;
+            if (minute_key != id(last_alarm_minute) && (match_one || match_two || minute_key == id(snooze_until))) {
+              id(last_alarm_minute) = minute_key;
+              if (minute_key != id(snooze_until)) {
+                id(selected_alarm) = match_one ? 1 : 2;
+                id(active_alarm_radio) = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
+              }
+              id(snooze_until) = -1;
+              id(start_alarm).execute();
+            }
+          }

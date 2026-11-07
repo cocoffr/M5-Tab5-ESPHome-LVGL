@@ -20,7 +20,7 @@
 _langue: Nederlands
 _code: nl
 _index: 3
-_statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
+_statut: partiel   # l'anglais sert de repli pour les libellés non traduits
 
 # --- Dates (tab5_core.cpp) ---------------------------------------------------
 "Dim": "Zo"

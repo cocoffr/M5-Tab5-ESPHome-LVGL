@@ -8,7 +8,7 @@ Your devices — lights, shutters, climate, plants, TV, sensors — are picked i
 
 ## Create the automation
 
-With the HACS integration, its setup assistant can create it for you from your Home Assistant areas, then you fill in the rest here ([step 1, setup assistant](home-assistant-files.md#with-hacs)). By hand:
+Create the automation from the blueprint manually:
 
 1. *Settings → Automations & scenes → Blueprints*, « Tab5 — emplacements de l'écran · screen slots ».
    Not in the list? *Import blueprint*, with
@@ -70,7 +70,7 @@ Vos appareils — lumières, volets, clim, plantes, TV, capteurs — se choisiss
 
 ## Créer l'automatisation
 
-Avec l'intégration HACS, son assistant de configuration peut la créer pour vous à partir de vos pièces de Home Assistant ; vous complétez ensuite ici le reste ([étape 1, assistant de configuration](home-assistant-files.md#avec-hacs)). À la main :
+Créez l'automatisation manuellement depuis le blueprint :
 
 1. *Paramètres → Automatisations et scènes → Blueprints*, « Tab5 — emplacements de l'écran · screen slots ».
    Absent de la liste ? *Importer un blueprint*, avec

@@ -148,10 +148,28 @@ globals:
     initial_value: '""'
     restore_value: false
 
+  # Dernières valeurs publiées par les text_sensors du réveil (évite les republis).
+  - id: alarm_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+  - id: alarm2_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+  - id: rdv_next_last
+    type: std::string
+    initial_value: '""'
+    restore_value: false
+
   # --- Réveil matin (tab5-alarm.yaml + alarm_clock.cpp) ---
   # Ce qui est RÉGLABLE vit dans des entités ESPHome (donc exposé à HA et
   # persisté par elles) ; seuls l'état de la sonnerie en cours et les deux
   # valeurs que HA n'a aucune raison de voir passent par des globals.
+  - id: alarm_active_id
+    type: int
+    initial_value: '0'
+    restore_value: false
   - id: alarm_ringing
     type: bool
     initial_value: 'false'
@@ -188,6 +206,16 @@ globals:
   # d'arrêter. Restauré vers le C++ au début de tab5_alarm_refresh (sinon le
   # miroir NVS est écrasé par un floor C++ encore à 0).
   - id: alarm_skip_before
+    type: uint32_t
+    initial_value: '0'
+    restore_value: true
+
+  # Configuration du calendrier de jours et plancher anti-re-sonnerie du réveil 2.
+  - id: alarm2_days_mask
+    type: uint8_t
+    initial_value: '0x1F'
+    restore_value: true
+  - id: alarm2_skip_before
     type: uint32_t
     initial_value: '0'
     restore_value: true

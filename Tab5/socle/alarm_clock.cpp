@@ -66,90 +66,59 @@ bool alarm_calendar_ready() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Cache de la prochaine sonnerie
+// Deux moteurs indépendants : même calendrier, deux configurations et deux états.
 // ═══════════════════════════════════════════════════════════════════════════
-// Le tick d'1 s ne doit pas balayer 8 jours à chaque passage. On calcule une
-// fois, on garde, et on ne recalcule que si (a) un réglage ou le calendrier a
-// bougé, ou (b) plus d'une minute s'est écoulée — ce second filet rattrape tout
-// seul une resynchro SNTP ou une bascule d'heure sans qu'aucun appelant n'ait à
-// y penser.
-static bool s_dirty = true;
-static time_t s_cached_at = 0;
-static time_t s_next_ts = 0;
-static int s_next_offset = -1;
-static int s_next_min = -1;
+AlarmCfg g_alarm_cfg_2;
 
-// Plancher de recherche : aucune sonnerie ne peut être programmée à ou avant
-// cette date. C'est ce qui empêche un réveil arrêté à 05:16 de re-sonner
-// immédiatement, et ce qui est sauvegardé en NVS pour couvrir un redémarrage.
-static time_t s_skip_before = 0;
+namespace {
+constexpr int ALARM_COUNT = 2;
+struct AlarmRuntime {
+  bool dirty = true;
+  time_t cached_at = 0;
+  time_t next_ts = 0;
+  int next_offset = -1;
+  int next_min = -1;
+  time_t skip_before = 0;
+  time_t snooze_until = 0;
+  int snooze_count = 0;
+  time_t last_tick = 0;
+};
+AlarmRuntime s_alarm[ALARM_COUNT];
 
-static time_t s_snooze_until = 0;
-static int s_snooze_count = 0;
+int valid_alarm_id(int id) { return id == 1 ? 1 : 0; }
+AlarmRuntime& runtime(int id) { return s_alarm[valid_alarm_id(id)]; }
+const AlarmCfg& config(int id) { return valid_alarm_id(id) == 1 ? g_alarm_cfg_2 : g_alarm_cfg; }
+}  // namespace
 
-// Horodatage du dernier passage d'alarm_due(). Sert à distinguer le temps qui
-// s'est écoulé PENDANT que l'appareil tournait (rien à rattraper : le tick d'1 s
-// a déjà vu chaque seconde) du temps écoulé SANS tick — appareil éteint, boucle
-// bloquée, sonnerie en cours. Seul le second justifie de rattraper une sonnerie
-// dont l'heure vient de passer. 0 = premier passage depuis le démarrage.
-static time_t s_last_tick = 0;
+void alarm_invalidate_for(int alarm_id) { runtime(alarm_id).dirty = true; }
+void alarm_invalidate() { alarm_invalidate_for(0); alarm_invalidate_for(1); }
 
-void alarm_invalidate() { s_dirty = true; }
-
-uint32_t alarm_skip_floor() { return static_cast<uint32_t>(s_skip_before); }
-void alarm_set_skip_floor(uint32_t v) {
-  s_skip_before = static_cast<time_t>(v);
-  s_dirty = true;
+uint32_t alarm_skip_floor_for(int alarm_id) {
+  return static_cast<uint32_t>(runtime(alarm_id).skip_before);
 }
+uint32_t alarm_skip_floor() { return alarm_skip_floor_for(0); }
+void alarm_set_skip_floor_for(int alarm_id, uint32_t v) {
+  runtime(alarm_id).skip_before = static_cast<time_t>(v);
+  runtime(alarm_id).dirty = true;
+}
+void alarm_set_skip_floor(uint32_t v) { alarm_set_skip_floor_for(0, v); }
 
 // Heure de sonnerie retenue pour le jour J+offset, en minutes depuis minuit.
-// -1 = ce jour-là, le réveil ne sonne pas.
-static int ring_minute_for_day(int offset, const struct tm& day) {
-  const AlarmCfg& c = g_alarm_cfg;
-  // idx = la case de cal_jours_data[] qui correspond à ce jour-là (cf.
-  // cal_index_for_offset) : jamais `offset` directement.
+static int ring_minute_for_day(int alarm_id, int offset, const struct tm& day) {
+  const AlarmCfg& c = config(alarm_id);
   const int idx = cal_index_for_offset(offset);
   const bool cal_ok = alarm_calendar_ready() && idx >= 0;
-  // Sans données calendrier (boot, HA jamais connecté, ou données trop vieilles
-  // pour couvrir ce jour), les deux modes calendrier retombent sur l'heure fixe :
-  // rater une embauche coûte plus cher qu'une sonnerie en trop, et l'utilisateur
-  // peut toujours arrêter.
   const bool travaille = cal_ok && !cal_jours_data[idx].est_repos;
-  // int, PAS bool : c'est une heure en minutes depuis minuit (ou -1). Déclarée
-  // `bool` par erreur, elle valait 1 dès que fixed_min était non nul, et tous
-  // les modes à heure fixe sonnaient à 00:01 — attrapé par -Wint-in-bool-context
-  // à la compilation du 05/08/2026, jamais par un test fonctionnel.
   const int fixe_si_coche = day_selected(c.days_mask, day.tm_wday) ? c.fixed_min : -1;
-
   if (c.mode == AlarmMode::FIXE || !cal_ok) return fixe_si_coche;
-
-  if (!travaille) {
-    // Jour de repos : soit silence, soit l'heure fixe — et dans ce cas le
-    // sélecteur de jours s'applique (c'est bien un réveil « à heure fixe »).
-    return (c.rest_mode == AlarmRepos::FIXE) ? fixe_si_coche : -1;
-  }
-
-  // ── Jour travaillé : c'est le calendrier qui commande, pas le sélecteur de
-  // jours. Décocher le samedi ne doit pas faire rater une embauche du samedi.
+  if (!travaille) return (c.rest_mode == AlarmRepos::FIXE) ? fixe_si_coche : -1;
   if (c.mode == AlarmMode::TRAVAIL) return c.fixed_min;
-
-  // ── Mode EMBAUCHE : ouverture − délai, borné.
   const int start = parse_shift_start(cal_jours_data[idx].heures_ouverture);
-  if (start < 0) return c.fixed_min;  // travail confirmé mais horaire inconnu
-
+  if (start < 0) return c.fixed_min;
   int m = clamp_i(start - c.lead_min, c.earliest_min, c.latest_min);
-
-  // ── « Fermeture » de la veille : repos minimum. C'est l'autre moitié de
-  // l'horaire du calendrier — après une fermeture à 21:00, un repos de 9 h
-  // interdit de sonner avant 06:00. Bornée par `latest_min` : le repos ne peut
-  // pas faire arriver en retard.
-  // idx >= 1 et non offset >= 1 : avec des données d'hier, la veille d'aujourd'hui
-  // est connue (case 0) — elle ne l'était pas avant le recalage.
   if (c.rest_hours > 0 && idx >= 1) {
     const int fin_veille = parse_shift_end(cal_jours_data[idx - 1].heures_ouverture);
     if (fin_veille >= 0 && !cal_jours_data[idx - 1].est_repos) {
-      // La veille finit à `fin_veille` minutes après SON minuit, donc
-      // fin_veille - 1440 minutes après le minuit du jour visé.
       const int plancher = fin_veille - 1440 + c.rest_hours * 60;
       if (plancher > m) m = clamp_i(plancher, c.earliest_min, c.latest_min);
     }
@@ -157,108 +126,103 @@ static int ring_minute_for_day(int offset, const struct tm& day) {
   return m;
 }
 
-time_t alarm_next_ring(time_t now) {
+time_t alarm_next_ring_for(int alarm_id, time_t now) {
   if (now <= 0) return 0;
-  if (!s_dirty && (now - s_cached_at) < 60 && s_cached_at != 0) return s_next_ts;
-
-  s_dirty = false;
-  s_cached_at = now;
-  s_next_ts = 0;
-  s_next_offset = -1;
-  s_next_min = -1;
-  if (!g_alarm_cfg.enabled) return 0;
-
-  // Plancher de recherche. Deux bornes, on garde la plus tardive :
-  //   - `s_skip_before` : la sonnerie déjà consommée ou explicitement arrêtée ;
-  //   - le dernier tick : tout ce qui est ANTÉRIEUR a déjà été examiné seconde
-  //     par seconde, il n'y a rien à rattraper. C'est ce qui évite qu'un réglage
-  //     posé une minute dans le passé (« il est 07:00:30, je règle 07:00 ») ne
-  //     déclenche la sonnerie sur-le-champ.
-  // Au tout premier passage après un démarrage, `s_last_tick` vaut 0 : là, et
-  // seulement là, on ouvre la fenêtre de grâce — un redémarrage ou une OTA à
-  // 06:44 ne doit pas avaler le réveil de 06:45.
-  const time_t not_before = (s_last_tick > 0) ? s_last_tick : (now - ALARM_GRACE_S);
-  const time_t floor_ts = (not_before > s_skip_before) ? not_before : s_skip_before;
-
-  // 8 jours : couvre toutes les combinaisons jour-de-semaine + une semaine de
-  // congés complète en mode calendrier avec repos silencieux.
+  AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (!s.dirty && (now - s.cached_at) < 60 && s.cached_at != 0) return s.next_ts;
+  s.dirty = false; s.cached_at = now; s.next_ts = 0; s.next_offset = -1; s.next_min = -1;
+  if (!c.enabled) return 0;
+  const time_t not_before = (s.last_tick > 0) ? s.last_tick : (now - ALARM_GRACE_S);
+  const time_t floor_ts = (not_before > s.skip_before) ? not_before : s.skip_before;
   for (int offset = 0; offset <= 8; offset++) {
     struct tm day;
-    if (!local_day_from_offset(offset, day)) return 0;  // SNTP pas encore prêt
-    const int m = ring_minute_for_day(offset, day);
+    if (!local_day_from_offset(offset, day)) return 0;
+    const int m = ring_minute_for_day(alarm_id, offset, day);
     if (m < 0) continue;
     const time_t ts = epoch_at(offset, m);
     if (ts == 0 || ts <= floor_ts) continue;
-    s_next_ts = ts;
-    s_next_offset = offset;
-    s_next_min = m;
+    s.next_ts = ts; s.next_offset = offset; s.next_min = m;
     return ts;
   }
   return 0;
 }
+time_t alarm_next_ring(time_t now) { return alarm_next_ring_for(0, now); }
 
-// Corps réel : `s_last_tick` porte encore la valeur du passage PRÉCÉDENT, dont
-// alarm_next_ring() se sert comme plancher. C'est pour ça que la mise à jour est
-// faite par l'enveloppe ci-dessous, à la sortie, et pas ici — l'écrire au début
-// mettrait le plancher à `now` et une sonnerie tombant exactement sur `now` ne
-// serait jamais retenue (`ts <= floor_ts`).
-static bool alarm_due_(time_t now) {
-  // Désactiver le réveil doit tout couper, y compris une répétition en cours :
-  // c'est `alarm_dismiss()` (appelé par la bascule d'activation) qui s'en
-  // charge, pas ce test. Ici, un snooze armé passe donc bien avant le reste.
-  if (s_snooze_until > 0) {
-    if (now < s_snooze_until) return false;
-    s_snooze_until = 0;
+static bool alarm_due_for_(int alarm_id, time_t now) {
+  AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (s.snooze_until > 0) {
+    if (now < s.snooze_until) return false;
+    s.snooze_until = 0;
     return true;
   }
-
-  if (!g_alarm_cfg.enabled) return false;
-  const time_t next = alarm_next_ring(now);
+  if (!c.enabled) return false;
+  const time_t next = alarm_next_ring_for(alarm_id, now);
   if (next == 0 || now < next) return false;
-
-  s_skip_before = next;  // cette sonnerie-ci est consommée
-  s_snooze_count = 0;
-  alarm_invalidate();
+  s.skip_before = next;
+  s.snooze_count = 0;
+  s.dirty = true;
   return true;
 }
-
-bool alarm_due(time_t now) {
+bool alarm_due_for(int alarm_id, time_t now) {
   if (now <= 0) return false;
-  const bool ring = alarm_due_(now);
-  // Avancé à CHAQUE passage, y compris ceux qui ne sonnent pas : c'est la trace
-  // « cette seconde-là a bien été examinée ». alarm_due() n'étant pas appelé
-  // pendant qu'une sonnerie retentit, `s_last_tick` peut avoir plusieurs minutes
-  // de retard en sortie de sonnerie — sans conséquence, `s_skip_before` est
-  // alors plus récent et l'emporte comme plancher.
-  s_last_tick = now;
+  AlarmRuntime& s = runtime(alarm_id);
+  const bool ring = alarm_due_for_(alarm_id, now);
+  s.last_tick = now;
   return ring;
 }
+bool alarm_due(time_t now) { return alarm_due_for(0, now); }
+int alarm_due_any(time_t now) {
+  if (now <= 0) return -1;
+  bool due[ALARM_COUNT] = {false, false};
+  for (int id = 0; id < ALARM_COUNT; ++id) {
+    AlarmRuntime& s = runtime(id);
+    const AlarmCfg& c = config(id);
+    if (s.snooze_until > 0) due[id] = now >= s.snooze_until;
+    else if (c.enabled) {
+      const time_t next = alarm_next_ring_for(id, now);
+      due[id] = next > 0 && now >= next;
+    }
+  }
+  // Une seule sonnerie physique à la fois. Si les deux échéances coïncident,
+  // le réveil 1 passe en premier et l'échéance du réveil 2 reste intacte.
+  const int selected = due[0] ? 0 : (due[1] ? 1 : -1);
+  for (int id = 0; id < ALARM_COUNT; ++id) {
+    AlarmRuntime& s = runtime(id);
+    if (id == selected) {
+      if (s.snooze_until > 0) s.snooze_until = 0;
+      else {
+        s.skip_before = s.next_ts;
+        s.snooze_count = 0;
+        s.dirty = true;
+      }
+    }
+    s.last_tick = now;
+  }
+  return selected;
+}
 
-void alarm_snooze(time_t now, int minutes) {
+void alarm_snooze_for(int alarm_id, time_t now, int minutes) {
   if (minutes < 1) minutes = 1;
-  s_snooze_count++;
-  s_snooze_until = now + static_cast<time_t>(minutes) * 60;
+  AlarmRuntime& s = runtime(alarm_id);
+  s.snooze_count++;
+  s.snooze_until = now + static_cast<time_t>(minutes) * 60;
 }
+void alarm_snooze(time_t now, int minutes) { alarm_snooze_for(0, now, minutes); }
+int alarm_snooze_count_for(int alarm_id) { return runtime(alarm_id).snooze_count; }
+int alarm_snooze_count() { return alarm_snooze_count_for(0); }
 
-int alarm_snooze_count() { return s_snooze_count; }
-
-void alarm_dismiss(time_t now) {
-  s_snooze_until = 0;
-  s_snooze_count = 0;
-  if (now > s_skip_before) s_skip_before = now;
-  alarm_invalidate();
+void alarm_dismiss_for(int alarm_id, time_t now) {
+  AlarmRuntime& s = runtime(alarm_id);
+  s.snooze_until = 0; s.snooze_count = 0;
+  if (now > s.skip_before) s.skip_before = now;
+  s.dirty = true;
 }
+void alarm_dismiss(time_t now) { alarm_dismiss_for(0, now); }
 
 void alarm_reset_state() {
-  s_dirty = true;
-  s_cached_at = 0;
-  s_next_ts = 0;
-  s_next_offset = -1;
-  s_next_min = -1;
-  s_skip_before = 0;
-  s_snooze_until = 0;
-  s_snooze_count = 0;
-  s_last_tick = 0;
+  for (auto& s : s_alarm) s = AlarmRuntime{};
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -272,73 +236,52 @@ void alarm_hhmm(int minute_of_day, char* out, size_t n) {
   snprintf(out, n, "%02u:%02u", m / 60u, m % 60u);
 }
 
-std::string alarm_next_label(time_t now) {
-  // Une répétition en cours PASSE DEVANT le prochain réveil calculé : c'est elle
-  // qui va sonner. Annoncer « Demain 05:15 » pendant qu'une répétition court
-  // dans 6 minutes serait le seul moment où cet écran mentirait.
-  if (s_snooze_until > now) {
+std::string alarm_next_label_for(int alarm_id, time_t now) {
+  const AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (s.snooze_until > now) {
     struct tm t;
-    if (localtime_r(&s_snooze_until, &t) != nullptr) {
-      const int reste = static_cast<int>((s_snooze_until - now + 59) / 60);
+    if (localtime_r(&s.snooze_until, &t) != nullptr) {
+      const int reste = static_cast<int>((s.snooze_until - now + 59) / 60);
       char buf[96];
-      snprintf(buf, sizeof(buf), tr("R\xC3\xA9p\xC3\xA9tition %02d:%02d (%d min)"), t.tm_hour, t.tm_min, reste);
+      snprintf(buf, sizeof(buf), tr("Répétition %02d:%02d (%d min)"), t.tm_hour, t.tm_min, reste);
       return std::string(buf);
     }
   }
-  if (!g_alarm_cfg.enabled) return tr("D\xC3\xA9sactiv\xC3\xA9");
-  if (alarm_next_ring(now) == 0) return tr("Aucune sonnerie pr\xC3\xA9vue");
-
+  if (!c.enabled) return tr("Désactivé");
+  if (alarm_next_ring_for(alarm_id, now) == 0) return tr("Aucune sonnerie prévue");
   char h[8];
-  alarm_hhmm(s_next_min, h, sizeof(h));
-
-  if (s_next_offset == 0) {
-    return tr_fill("Aujourd'hui {heure}", {{"heure", h}});
-  }
-  if (s_next_offset == 1) {
-    return tr_fill("Demain {heure}", {{"heure", h}});
-  }
+  alarm_hhmm(s.next_min, h, sizeof(h));
+  if (s.next_offset == 0) return tr_fill("Aujourd'hui {heure}", {{"heure", h}});
+  if (s.next_offset == 1) return tr_fill("Demain {heure}", {{"heure", h}});
   struct tm day;
-  if (!local_day_from_offset(s_next_offset, day)) return std::string(h);
-  // Majuscule initiale sur le jour : c'est un début de libellé.
+  if (!local_day_from_offset(s.next_offset, day)) return std::string(h);
   return fr_capitalized(day_long_utf8(day.tm_wday)) + " " + h;
 }
+std::string alarm_next_label(time_t now) { return alarm_next_label_for(0, now); }
 
-std::string alarm_next_detail(time_t now) {
-  if (s_snooze_until > now) {
+std::string alarm_next_detail_for(int alarm_id, time_t now) {
+  const AlarmRuntime& s = runtime(alarm_id);
+  const AlarmCfg& c = config(alarm_id);
+  if (s.snooze_until > now) {
     char buf[128];
-    snprintf(buf, sizeof(buf),
-             tr("R\xC3\xA9p\xC3\xA9tition n\xC2\xB0%d \xC2\xB7 « Arr\xC3\xAAter » pour reprendre le cycle normal"),
-             s_snooze_count);
+    snprintf(buf, sizeof(buf), tr("Répétition n°%d · « Arrêter » pour reprendre le cycle normal"), s.snooze_count);
     return std::string(buf);
   }
-  if (!g_alarm_cfg.enabled) return tr("Touchez l'interrupteur pour l'armer");
-  if (alarm_next_ring(now) == 0) return tr("Aucun jour retenu dans les 8 prochains");
-
-  // « jeudi 1er octobre » : même libellé que les titres de jours (tab5_core.cpp),
-  // qui connaît le seul ordinal du français. Vide si le jour est hors bornes.
-  const std::string date = format_long_day_label(s_next_offset);
+  if (!c.enabled) return tr("Touchez l'interrupteur pour l'armer");
+  if (alarm_next_ring_for(alarm_id, now) == 0) return tr("Aucun jour retenu dans les 8 prochains");
+  const std::string date = format_long_day_label(s.next_offset);
   if (date.empty()) return "";
-
-  if (!alarm_calendar_ready()) {
-    return date + " \xC2\xB7 " + tr("en attente du calendrier");
-  }
-  // Jour non couvert (données trop vieilles pour aller jusque-là) : la sonnerie a
-  // été calculée sur l'heure fixe, comme sans calendrier.
-  const int idx = cal_index_for_offset(s_next_offset);
-  if (idx < 0) {
-    return date + " \xC2\xB7 " + tr("en attente du calendrier");
-  }
-  if (cal_jours_data[idx].est_repos) {
-    return date + " \xC2\xB7 " + tr("repos");
-  }
+  if (!alarm_calendar_ready()) return date + " · " + tr("en attente du calendrier");
+  const int idx = cal_index_for_offset(s.next_offset);
+  if (idx < 0) return date + " · " + tr("en attente du calendrier");
+  if (cal_jours_data[idx].est_repos) return date + " · " + tr("repos");
   const std::string& h = cal_jours_data[idx].heures_ouverture;
-  if (h.size() >= 11) {
-    // « Travail 06:45 – 15:30 » : tiret demi-cadratin UTF-8, comme le popup
-    // calendrier (cal_render_day_detail).
-    return date + " \xC2\xB7 " + tr("Travail") + " " + h.substr(0, 5) + " \xE2\x80\x93 " + h.substr(6, 5);
-  }
-  return date + " \xC2\xB7 " + tr("Travail (horaire inconnu)");
+  if (h.size() >= 11)
+    return date + " · " + tr("Travail") + " " + h.substr(0, 5) + " – " + h.substr(6, 5);
+  return date + " · " + tr("Travail (horaire inconnu)");
 }
+std::string alarm_next_detail(time_t now) { return alarm_next_detail_for(0, now); }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Préréglages de jours

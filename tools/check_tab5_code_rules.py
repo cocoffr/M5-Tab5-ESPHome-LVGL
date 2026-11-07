@@ -813,7 +813,7 @@ RE_STATIC_MUTABLE = re.compile(r"\bstatic\s+(?!const\b|constexpr\b)[\w:]+(?:<[^<
 STATIC_LAMBDA_PERMIS: dict[str, dict[str, int]] = {
     # « Prochain réveil » et « Prochain rendez-vous » : dernière valeur publiée (pas de
     # republication identique à HA), une par text_sensor.
-    "tab5-alarm.yaml": {"last": 2},
+    "tab5-alarm.yaml": {},
     # « Écran courant » : dernière valeur publiée.
     "tab5-navigation.yaml": {"last": 1},
     # Version du C6 : nombre d'essais de lecture (3 au plus).

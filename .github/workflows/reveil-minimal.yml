@@ -1,0 +1,38 @@
+name: Reveil minimal ST7121
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - reveil-minimal.yaml
+      - .github/workflows/reveil-minimal.yml
+  pull_request:
+    paths:
+      - reveil-minimal.yaml
+      - .github/workflows/reveil-minimal.yml
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install ESPHome
+        run: pip install esphome
+      - name: Prepare build-only Wi-Fi credentials
+        run: |
+          printf 'wifi_ssid: "CI-only"\nwifi_password: "CI-placeholder-password"\n' > secrets.yaml
+      - name: Compile ST7121 firmware without unsupported manifest generation
+        run: esphome compile reveil-minimal.yaml
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: reveil-minimal-st7121
+          path: |
+            .esphome/build/reveil-tab5/build/firmware.factory.bin
+            .esphome/build/reveil-tab5/build/firmware.ota.bin
+          if-no-files-found: error

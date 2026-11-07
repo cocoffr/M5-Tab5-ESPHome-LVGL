@@ -101,10 +101,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Tags publiés (contrat HA ↔ firmware contre les versions précédentes)
-        # tests/test_contrat_versions.py lit le code des tags v* (semver du contrat, matrice
-        # N-1) ; le checkout superficiel n'en a aucun. Un commit par tag, sans historique.
-        run: git fetch --no-tags --depth=1 origin "+refs/tags/v*:refs/tags/v*"
+      - name: Tags publiés Axellum (contrat HA ↔ firmware contre les versions précédentes)
+        # Le fork utilisateur ne porte pas nécessairement les tags de publication.
+        # Les versions de référence du contrat HA ↔ firmware restent celles du dépôt amont.
+        run: git fetch --no-tags --depth=1 https://github.com/Axellum/M5-Tab5-ESPHome-LVGL.git "+refs/tags/v*:refs/tags/v*"
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: "3.13"
@@ -353,6 +353,16 @@ jobs:
         uses: esphome/build-action@ae5408cdbc4f70692bf8e345c4982bca05a93667 # v8.1.0
         with:
           yaml-file: tab5-ha-hmi.yaml
+      # Pour les essais du réveil personnalisé : livrer le .factory.bin ST7121
+      # à flasher uniquement en USB (clé de signature jetable).
+      - name: Upload firmware ST7121 pour flash USB
+        if: matrix.ecran == 'st7121'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: tab5-st7121-usb
+          path: tab5-ha-hmi-esp32p4/*.factory.bin
+          if-no-files-found: error
+          retention-days: 30
 
   # Carte Waveshare 7B (ADR-0061, Tab5/paquets/carte-waveshare-7b.yaml) : on vérifie qu'elle
   # compile entièrement. Même compilation que `build` (image `latest`), la carte ajoutée au

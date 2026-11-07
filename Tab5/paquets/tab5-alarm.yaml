@@ -91,14 +91,31 @@ switch:
     on_turn_on:
       - script.execute: tab5_alarm_refresh
     on_turn_off:
-      # Éteindre le réveil doit AUSSI couper une répétition en cours et une
-      # sonnerie en train de retentir — sinon la bascule ne « rend » pas la main.
+      # Éteindre le réveil 1 ne modifie que son propre snooze.
       - lambda: |-
           auto t = id(sntp_time).now();
           if (t.is_valid()) alarm_dismiss(t.timestamp);
       - if:
           condition:
-            lambda: 'return id(alarm_ringing);'
+            lambda: 'return id(alarm_ringing) && id(alarm_active_id) == 0;'
+          then:
+            - script.execute: tab5_alarm_stop
+      - script.execute: tab5_alarm_refresh
+
+  - <<: *reglage
+    id: tab5_alarm2_enabled
+    name: "Réveil 2"
+    icon: mdi:alarm-plus
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      - script.execute: tab5_alarm_refresh
+    on_turn_off:
+      - lambda: |-
+          auto t = id(sntp_time).now();
+          if (t.is_valid()) alarm_dismiss_for(1, t.timestamp);
+      - if:
+          condition:
+            lambda: 'return id(alarm_ringing) && id(alarm_active_id) == 1;'
           then:
             - script.execute: tab5_alarm_stop
       - script.execute: tab5_alarm_refresh
@@ -141,6 +158,13 @@ datetime:
     initial_value: "07:00:00"
 
   - <<: *reglage_valeur
+    id: tab5_alarm2_time
+    name: "Réveil 2 : heure"
+    icon: mdi:clock-outline
+    type: time
+    initial_value: "07:30:00"
+
+  - <<: *reglage_valeur
     id: tab5_alarm_early
     name: "Réveil : jamais avant"
     icon: mdi:clock-start
@@ -164,6 +188,16 @@ number:
     min_value: 0
     max_value: 240
     step: 5
+
+  - <<: *reglage_valeur
+    id: tab5_alarm2_snooze_min
+    name: "Réveil 2 : répétition"
+    icon: mdi:alarm-snooze
+    unit_of_measurement: "min"
+    initial_value: 9
+    min_value: 1
+    max_value: 30
+    step: 1
 
   - <<: *reglage_valeur
     id: tab5_alarm_rest_hours
@@ -231,6 +265,38 @@ select:
       - "Work days"
       - "Before shift start"
     initial_option: "Fixed time"
+
+  - <<: *reglage_valeur
+    id: tab5_alarm2_mode
+    name: "Réveil 2 : mode"
+    icon: mdi:tune
+    options:
+      - "Fixed time"
+      - "Work days"
+      - "Before shift start"
+    initial_option: "Fixed time"
+
+  - <<: *reglage
+    id: tab5_alarm2_days
+    name: "Réveil 2 : jours"
+    icon: mdi:calendar-week
+    restore_value: true
+    options:
+      - "Every day"
+      - "Monday-Friday"
+      - "Monday-Saturday"
+      - "Weekend"
+      - "Custom"
+    initial_option: "Monday-Friday"
+    on_value:
+      - if:
+          condition:
+            lambda: |-
+              const int m = alarm_days_preset_mask((int) i);
+              return m >= 0 && (uint8_t) m != id(alarm2_days_mask);
+          then:
+            - lambda: 'id(alarm2_days_mask) = (uint8_t) alarm_days_preset_mask((int) i);'
+            - script.execute: tab5_alarm_refresh
 
   # Index = g_alarm_cfg.melody = la ligne de kMelodies (alarm_clock.cpp) : « Douce »,
   # « Classique », « Insistante », « Carillon » avant le 24/10/2026 (ADR-0070).
@@ -314,15 +380,31 @@ text_sensor:
     # En anglais pour HA quelle que soit la langue de l'écran (ADR-0070, 24/10/2026 :
     # « Today 07:00 », « Off »…) ; le popup du réveil garde la langue de l'écran.
     lambda: |-
-      static std::string last;
       auto t = id(sntp_time).now();
       std::string s;
       {
         const I18nPourHa en;
         s = t.is_valid() ? alarm_next_label(t.timestamp) : std::string(tr("Heure non synchronisée"));
       }
-      if (s == last) return {};
-      last = s;
+      if (s == id(alarm_next_last)) return {};
+      id(alarm_next_last) = s;
+      return {s};
+
+  - platform: template
+    id: tab5_alarm2_next_sensor
+    name: "Prochain réveil 2"
+    icon: mdi:alarm-check
+    entity_category: diagnostic
+    update_interval: 60s
+    lambda: |-
+      auto t = id(sntp_time).now();
+      std::string s;
+      {
+        const I18nPourHa en;
+        s = t.is_valid() ? alarm_next_label_for(1, t.timestamp) : std::string(tr("Heure non synchronisée"));
+      }
+      if (s == id(alarm2_next_last)) return {};
+      id(alarm2_next_last) = s;
       return {s};
 
   - platform: template
@@ -332,12 +414,11 @@ text_sensor:
     entity_category: diagnostic
     update_interval: 60s
     lambda: |-
-      static std::string last;
       auto t = id(sntp_time).now();
       std::string s = t.is_valid() ? rdv_next_label(t.timestamp) : std::string();
       if (s.empty()) s = "—";
-      if (s == last) return {};
-      last = s;
+      if (s == id(rdv_next_last)) return {};
+      id(rdv_next_last) = s;
       return {s};
 
 binary_sensor:
@@ -359,6 +440,9 @@ button:
     entity_category: config
     on_press:
       # Test = pas une sonnerie planifiée : l'arrêt ne doit PAS dismiss.
+      - globals.set:
+          id: alarm_active_id
+          value: '0'
       - globals.set:
           id: alarm_ring_scheduled
           value: 'false'
@@ -434,6 +518,17 @@ script:
                                                                              : id(tab5_alarm_volume).state / 100.0f;
           g_alarm_cfg.rdv_lead_min = num(id(tab5_rdv_lead).state, 15);
 
+          // Réveil 2 : configuration indépendante ; calendrier de travail commun.
+          if (alarm_skip_floor_for(1) == 0 && id(alarm2_skip_before) > 0)
+            alarm_set_skip_floor_for(1, id(alarm2_skip_before));
+          g_alarm_cfg_2 = g_alarm_cfg;
+          g_alarm_cfg_2.enabled = id(tab5_alarm2_enabled).state;
+          g_alarm_cfg_2.fixed_min = tmin(*id(tab5_alarm2_time), 7 * 60 + 30);
+          g_alarm_cfg_2.mode = (int) id(tab5_alarm2_mode).active_index().value_or(0);
+          g_alarm_cfg_2.days_mask = id(alarm2_days_mask);
+          g_alarm_cfg_2.snooze_min = num(id(tab5_alarm2_snooze_min).state, 9);
+
+
           // Bornes incohérentes (« jamais après » avant « jamais avant ») :
           // on les remet dans l'ordre plutôt que de laisser clamp() produire
           // une heure absurde. Correction silencieuse et locale — les entités HA
@@ -445,9 +540,13 @@ script:
       # Le select des jours reflète le masque courant (ou « Custom »), par son INDEX :
       # le texte de l'option est celui de HA (ADR-0070), le firmware ne le lit jamais.
       - lambda: 'id(tab5_alarm_days).publish_state((size_t) alarm_days_preset_index(id(alarm_days_mask)));'
+      - lambda: 'id(tab5_alarm2_days).publish_state((size_t) alarm_days_preset_index(id(alarm2_days_mask)));'
       - lambda: |-
           id(tab5_alarm_next_sensor).update();
+          id(tab5_alarm2_next_sensor).update();
           id(alarm_skip_before) = alarm_skip_floor();
+          id(alarm2_skip_before) = alarm_skip_floor_for(1);
+          id(alarm2_skip_before) = alarm_skip_floor_for(1);
       - script.execute: tab5_alarm_sync_ui
 
   # ─── Repeinture du popup + de la pastille d'état ──────────────────────────
@@ -497,6 +596,9 @@ script:
             u.lbl_enable = id(lbl_alarm_enable);
             u.lbl_next = id(lbl_alarm_next);
             u.lbl_next_sub = id(lbl_alarm_next_sub);
+            u.btn_enable2 = id(btn_alarm_enable2);
+            u.icon_enable2 = id(icon_alarm_enable2);
+            u.lbl_enable2 = id(lbl_alarm_enable2);
             u.mode[AlarmMode::FIXE] = id(btn_alarm_mode_0);
             u.mode[AlarmMode::TRAVAIL] = id(btn_alarm_mode_1);
             u.mode[AlarmMode::EMBAUCHE] = id(btn_alarm_mode_2);
@@ -672,11 +774,11 @@ script:
       # snooze (snooze_count > 0) reprend au volume déjà atteint — c'est le
       # contrat documenté sur alarm_ring_cycle.
       - lambda: |-
-          if (alarm_snooze_count() == 0) id(alarm_ring_cycle) = 0;
+          if (alarm_snooze_count_for(id(alarm_active_id)) == 0) id(alarm_ring_cycle) = 0;
           id(alarm_ring_started) = millis();
           id(tab5_alarm_is_ringing).publish_state(true);
           auto t = id(sntp_time).now();
-          id(alarm_ring_sub) = t.is_valid() ? alarm_next_detail(t.timestamp) : std::string("");
+          id(alarm_ring_sub) = t.is_valid() ? alarm_next_detail_for(id(alarm_active_id), t.timestamp) : std::string("");
       # L'écran peut être éteint (extinction sur absence WiFi) : le rallumer fait
       # partie du réveil, pas du confort.
       - light.turn_on: backlight
@@ -857,7 +959,7 @@ script:
           then:
             - lambda: |-
                 auto t = id(sntp_time).now();
-                if (t.is_valid()) alarm_dismiss(t.timestamp);
+                if (t.is_valid()) alarm_dismiss_for(id(alarm_active_id), t.timestamp);
       - globals.set:
           id: alarm_ring_scheduled
           value: 'false'
@@ -879,7 +981,8 @@ script:
           id: speaker_player
       - lambda: |-
           auto t = id(sntp_time).now();
-          if (t.is_valid()) alarm_snooze(t.timestamp, g_alarm_cfg.snooze_min);
+          if (t.is_valid()) alarm_snooze_for(id(alarm_active_id), t.timestamp,
+                id(alarm_active_id) == 1 ? g_alarm_cfg_2.snooze_min : g_alarm_cfg.snooze_min);
       - homeassistant.event:
           event: esphome.tab5_alarm_snooze
       - script.execute: tab5_alarm_ring_cleanup
@@ -960,7 +1063,7 @@ script:
           if (montrer)
             alarm_ring_show(ui, now, id(alarm_ring_sub));
           else
-            alarm_ring_refresh(ui, now, g_alarm_cfg.snooze_min, alarm_snooze_count());
+            alarm_ring_refresh(ui, now, g_alarm_cfg.snooze_min, alarm_snooze_count_for(id(alarm_active_id)));
           // La sonnerie ne compte pas comme une inactivité : sans ça, le retour
           // auto pourrait fermer des fenêtres sous l'overlay pendant qu'il sonne.
           ui_mark_activity();
@@ -981,7 +1084,7 @@ script:
               # Uniquement au premier déclenchement : réentendre la météo et le
               # planning à chaque répétition serait pénible, et c'est justement
               # aux répétitions qu'on veut le moins de bruit.
-              - lambda: 'return alarm_snooze_count() == 0;'
+              - lambda: 'return alarm_snooze_count_for(id(alarm_active_id)) == 0;'
           then:
             # Laisse le premier passage de sonnerie finir avant de parler : une
             # annonce par-dessus la mélodie serait inintelligible.
@@ -1037,7 +1140,10 @@ interval:
             lambda: |-
               auto t = id(sntp_time).now();
               if (!t.is_valid() || id(alarm_ringing)) return false;
-              return alarm_due((time_t) t.timestamp);
+              const int due = alarm_due_any((time_t) t.timestamp);
+              if (due < 0) return false;
+              id(alarm_active_id) = due;
+              return true;
           then:
             # Sonnerie planifiée (ou retour de snooze) : l'arrêt DOIT dismiss.
             - globals.set:
