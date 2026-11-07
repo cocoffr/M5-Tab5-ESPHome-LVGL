@@ -138,6 +138,42 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 5
+  - platform: template
+    id: alarm_one_hour
+    name: Alarme 1 heures
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 7
+  - platform: template
+    id: alarm_one_minute
+    name: Alarme 1 minutes
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 0
+  - platform: template
+    id: alarm_two_hour
+    name: Alarme 2 heures
+    min_value: 0
+    max_value: 23
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 7
+  - platform: template
+    id: alarm_two_minute
+    name: Alarme 2 minutes
+    min_value: 0
+    max_value: 59
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 30
 font:
   - file: "gfonts://Roboto"
     id: clock_font
@@ -254,6 +290,124 @@ lvgl:
                   text: "+"
                   align: CENTER
                   text_font: label_font
+        - label:
+            id: alarm_one_time_label
+            text: "07:00"
+            x: 200
+            y: 465
+            text_color: 0xFFFFFF
+            text_font: label_font
+        - button:
+            x: 30
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.decrement: alarm_one_hour
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 155
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.increment: alarm_one_hour
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 280
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.decrement: alarm_one_minute
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 405
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.increment: alarm_one_minute
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
+        - label:
+            id: alarm_two_time_label
+            text: "07:30"
+            x: 820
+            y: 465
+            text_color: 0xFFFFFF
+            text_font: label_font
+        - button:
+            x: 650
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.decrement: alarm_two_hour
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 775
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.increment: alarm_two_hour
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 900
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.decrement: alarm_two_minute
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 1025
+            y: 405
+            width: 110
+            height: 52
+            bg_color: 0x30383E
+            on_click:
+              - number.increment: alarm_two_minute
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
 interval:
   - interval: 1s
     then:
@@ -271,3 +425,7 @@ interval:
           lv_label_set_text(id(brightness_label), value);
           snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);
           lv_label_set_text(id(volume_label), value);
+          snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
+          lv_label_set_text(id(alarm_one_time_label), value);
+          snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
+          lv_label_set_text(id(alarm_two_time_label), value);
