@@ -174,6 +174,70 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 30
+# Sortie audio locale du Tab5 (ES8388 + I2S).
+i2s_audio:
+  - id: audio_bus
+    i2s_lrclk_pin: GPIO29
+    i2s_bclk_pin: GPIO27
+    i2s_mclk_pin: GPIO30
+audio_dac:
+  - platform: es8388
+    id: alarm_dac
+speaker:
+  - platform: i2s_audio
+    id: alarm_speaker
+    i2s_dout_pin: GPIO26
+    audio_dac: alarm_dac
+    dac_type: external
+    channel: stereo
+    sample_rate: 48000
+    bits_per_sample: 16bit
+    buffer_duration: 2000ms
+media_player:
+  - platform: speaker
+    id: radio_player
+    name: Radio Reveil
+    media_pipeline:
+      speaker: alarm_speaker
+      format: MP3
+    volume_min: 0.05
+    volume_max: 1.0
+globals:
+  - id: last_alarm_minute
+    type: int
+    restore_value: no
+    initial_value: '-1'
+  - id: snooze_until
+    type: int
+    restore_value: no
+    initial_value: '-1'
+  - id: alarm_ringing
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+script:
+  - id: start_alarm
+    then:
+      - lambda: 'id(alarm_ringing) = true;'
+      - media_player.volume_set:
+          id: radio_player
+          volume: !lambda 'return id(volume_level).state / 10.0f;'
+      - media_player.play_media:
+          id: radio_player
+          media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+  - id: stop_alarm
+    then:
+      - lambda: 'id(alarm_ringing) = false;'
+      - media_player.stop: radio_player
+  - id: snooze_alarm
+    then:
+      - lambda: |-
+          if (id(alarm_ringing)) {
+            auto t = id(clock_time).now();
+            if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
+            id(alarm_ringing) = false;
+          }
+      - media_player.stop: radio_player
 font:
   - file: "gfonts://Roboto"
     id: clock_font
@@ -182,7 +246,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-VU"
+    glyphs: "0123456789: /ONFALRM+-VUSZE"
 lvgl:
   displays:
     - screen
@@ -408,6 +472,19 @@ lvgl:
                   text: "+"
                   align: CENTER
                   text_font: label_font
+        - button:
+            x: 1050
+            y: 625
+            width: 180
+            height: 70
+            bg_color: 0x30383E
+            on_click:
+              - script.execute: snooze_alarm
+            widgets:
+              - label:
+                  text: "SNOOZE"
+                  align: CENTER
+                  text_font: label_font
 interval:
   - interval: 1s
     then:
@@ -429,3 +506,13 @@ interval:
           lv_label_set_text(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
           lv_label_set_text(id(alarm_two_time_label), value);
+          if (t.is_valid()) {
+            int minute_key = (int)(t.timestamp / 60);
+            bool match_one = id(alarm_one_enabled).state && t.hour == (int) id(alarm_one_hour).state && t.minute == (int) id(alarm_one_minute).state;
+            bool match_two = id(alarm_two_enabled).state && t.hour == (int) id(alarm_two_hour).state && t.minute == (int) id(alarm_two_minute).state;
+            if (minute_key != id(last_alarm_minute) && (match_one || match_two || minute_key == id(snooze_until))) {
+              id(last_alarm_minute) = minute_key;
+              id(snooze_until) = -1;
+              id(start_alarm).execute();
+            }
+          }
