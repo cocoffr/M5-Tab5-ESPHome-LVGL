@@ -114,6 +114,30 @@ switch:
     name: Alarme 2
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
+# Réglages locaux indépendants de Home Assistant.
+number:
+  - platform: template
+    id: brightness_level
+    name: Luminosite 1 a 10
+    min_value: 1
+    max_value: 10
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 7
+    set_action:
+      - light.turn_on:
+          id: backlight
+          brightness: !lambda 'return x / 10.0f;'
+  - platform: template
+    id: volume_level
+    name: Volume 1 a 10
+    min_value: 1
+    max_value: 10
+    step: 1
+    optimistic: true
+    restore_value: true
+    initial_value: 5
 font:
   - file: "gfonts://Roboto"
     id: clock_font
@@ -122,7 +146,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-"
+    glyphs: "0123456789: /ONFALRM+-VUL"
 lvgl:
   displays:
     - screen
@@ -168,6 +192,68 @@ lvgl:
                   text: "ALARME 2 OFF"
                   align: CENTER
                   text_font: label_font
+        - label:
+            id: brightness_label
+            text: "L 7"
+            x: 60
+            y: 640
+            text_font: label_font
+            text_color: 0xFFFFFF
+        - button:
+            x: 170
+            y: 625
+            width: 90
+            height: 70
+            on_click:
+              - number.decrement: brightness_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 275
+            y: 625
+            width: 90
+            height: 70
+            on_click:
+              - number.increment: brightness_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
+        - label:
+            id: volume_label
+            text: "V 5"
+            x: 700
+            y: 640
+            text_font: label_font
+            text_color: 0xFFFFFF
+        - button:
+            x: 810
+            y: 625
+            width: 90
+            height: 70
+            on_click:
+              - number.decrement: volume_level
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            x: 915
+            y: 625
+            width: 90
+            height: 70
+            on_click:
+              - number.increment: volume_level
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: label_font
 interval:
   - interval: 1s
     then:
@@ -179,4 +265,4 @@ interval:
             lv_label_set_text(id(clock_label), time_text);
           }
           lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
-          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
+          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");\n          char value[16];\n          snprintf(value, sizeof(value), "L %.0f", id(brightness_level).state);\n          lv_label_set_text(id(brightness_label), value);\n          snprintf(value, sizeof(value), "V %.0f", id(volume_level).state);\n          lv_label_set_text(id(volume_label), value);
