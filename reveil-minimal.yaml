@@ -282,7 +282,8 @@ script:
   - id: stop_alarm
     then:
       - lambda: 'id(alarm_ringing) = false; id(snooze_until) = -1; id(radio_manual) = false;'
-      - rtttl.stop: alarm_buzzer
+      - rtttl.stop:
+          id: alarm_buzzer
       - media_player.stop: radio_player
   - id: snooze_alarm
     then:
@@ -292,7 +293,8 @@ script:
             if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
             id(alarm_ringing) = false;
           }
-      - rtttl.stop: alarm_buzzer
+      - rtttl.stop:
+          id: alarm_buzzer
       - media_player.stop: radio_player
   - id: open_alarm_one
     then:
