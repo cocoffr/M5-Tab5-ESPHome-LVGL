@@ -33,6 +33,6 @@ jobs:
         with:
           name: reveil-minimal-st7121
           path: |
-            .esphome/build/reveil-tab5/.pioenvs/reveil-tab5/firmware.factory.bin
-            .esphome/build/reveil-tab5/.pioenvs/reveil-tab5/firmware.bin
+            .esphome/build/reveil-tab5/build/firmware.factory.bin
+            .esphome/build/reveil-tab5/build/firmware.ota.bin
           if-no-files-found: error
