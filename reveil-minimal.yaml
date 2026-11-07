@@ -35,10 +35,6 @@ esp32_hosted:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  ap:
-    ssid: "Reveil-Tab5-Setup"
-    password: "Tab5Setup2026"
-captive_portal:
 time:
   - platform: sntp
     id: clock_time
