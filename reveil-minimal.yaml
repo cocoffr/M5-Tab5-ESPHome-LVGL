@@ -138,6 +138,14 @@ number:
     optimistic: true
     restore_value: true
     initial_value: 5
+    set_action:
+      - if:
+          condition:
+            lambda: 'return id(radio_manual) && !id(alarm_ringing);'
+          then:
+            - media_player.volume_set:
+                id: radio_player
+                volume: !lambda 'return x / 10.0f;'
   - platform: template
     id: alarm_one_hour
     name: Alarme 1 heures
@@ -264,6 +272,7 @@ script:
   - id: start_alarm
     then:
       - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
+      - lvgl.page.show: alarm_ringing_page
       - if:
           condition:
             lambda: 'return id(active_alarm_radio);'
@@ -285,6 +294,7 @@ script:
       - rtttl.stop:
           id: alarm_buzzer
       - media_player.stop: radio_player
+      - lvgl.page.show: reveil_page
   - id: snooze_alarm
     then:
       - lambda: |-
@@ -296,6 +306,7 @@ script:
       - rtttl.stop:
           id: alarm_buzzer
       - media_player.stop: radio_player
+      - lvgl.page.show: reveil_page
   - id: open_alarm_one
     then:
       - lambda: 'id(selected_alarm) = 1;'
@@ -902,6 +913,41 @@ lvgl:
             height: 1
             bg_opa: TRANSP
             border_width: 0
+    - id: alarm_ringing_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            text: "ALARME"
+            align: TOP_MID
+            y: 100
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 160
+            y: 300
+            width: 420
+            height: 180
+            bg_color: 0x304458
+            on_click:
+              - script.execute: snooze_alarm
+            widgets:
+              - label:
+                  text: "Snooze 9 min"
+                  align: CENTER
+                  text_font: alarm_font
+        - button:
+            x: 700
+            y: 300
+            width: 420
+            height: 180
+            bg_color: 0x304458
+            on_click:
+              - script.execute: stop_alarm
+            widgets:
+              - label:
+                  text: "Arreter"
+                  align: CENTER
+                  text_font: alarm_font
     - id: alarm_settings_page
       bg_color: 0x000000
       widgets:
@@ -1182,6 +1228,9 @@ interval:
           lv_label_set_text(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
           lv_label_set_text(id(alarm_two_time_label), value);
+          if (id(alarm_ringing) && !id(active_alarm_radio) && !id(alarm_buzzer).is_playing()) {
+            id(alarm_buzzer).play("reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p");
+          }
           if (t.is_valid()) {
             int minute_key = (int)(t.timestamp / 60);
             bool match_one = id(alarm_one_enabled).state && t.hour == (int) id(alarm_one_hour).state && t.minute == (int) id(alarm_one_minute).state;
@@ -1193,6 +1242,7 @@ interval:
                 id(active_alarm_radio) = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
               }
               id(snooze_until) = -1;
+              if (id(alarm_ringing)) id(stop_alarm).execute();
               id(start_alarm).execute();
             }
           }
