@@ -197,6 +197,8 @@ media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
+    announcement_pipeline:
+      speaker: alarm_speaker
     media_pipeline:
       speaker: alarm_speaker
       format: MP3
