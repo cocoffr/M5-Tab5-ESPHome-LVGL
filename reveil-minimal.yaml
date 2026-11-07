@@ -130,7 +130,7 @@ lvgl:
     - touch
   rotation: 270
   pages:
-    - id: main
+    - id: reveil_page
       bg_color: 0x101820
       widgets:
         - label:
