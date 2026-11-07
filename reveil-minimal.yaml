@@ -261,7 +261,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-VUSZETIPConfgiD"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 lvgl:
   displays:
     - screen
@@ -690,6 +690,13 @@ interval:
             lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
             lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
             lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xF5F5F5 : 0x101820), LV_PART_MAIN);
+          }
+          if (t.is_valid()) {
+            const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
+            const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
+            char date_text[64];
+            snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
+            lv_label_set_text(id(date_label), date_text);
           }
           lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ALARME 1 ON" : "ALARME 1 OFF");
           lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ALARME 2 ON" : "ALARME 2 OFF");
