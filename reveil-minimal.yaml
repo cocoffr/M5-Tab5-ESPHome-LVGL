@@ -35,6 +35,10 @@ esp32_hosted:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  ap:
+    ssid: "Reveil-Tab5-Setup"
+    password: "Tab5Setup2026"
+captive_portal:
 time:
   - platform: sntp
     id: clock_time
@@ -816,7 +820,11 @@ lvgl:
             height: 68
             bg_color: 0x304458
             on_click:
-              - number.decrement: brightness_level
+              - lambda: |-
+                  auto *n = id(brightness_level);
+                  auto call = n->make_call();
+                  call.set_value(std::max(1.0f, std::min(10.0f, n->state + -1.0f)));
+                  call.perform();
             widgets:
               - label:
                   text: "-"
@@ -824,8 +832,10 @@ lvgl:
                   text_font: control_font
         - label:
             id: brightness_label
-            x: 189
+            x: 167
             y: 630
+            width: 197
+            text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
@@ -836,7 +846,11 @@ lvgl:
             height: 68
             bg_color: 0x304458
             on_click:
-              - number.increment: brightness_level
+              - lambda: |-
+                  auto *n = id(brightness_level);
+                  auto call = n->make_call();
+                  call.set_value(std::max(1.0f, std::min(10.0f, n->state + 1.0f)));
+                  call.perform();
             widgets:
               - label:
                   text: "+"
@@ -854,8 +868,8 @@ lvgl:
         - label:
             x: 829
             y: 631
-            text: "V"
-            text_font: control_font
+            text: "\uF028"
+            text_font: montserrat_48
             text_color: 0xE6F5F9
         - button:
             x: 884
@@ -864,7 +878,11 @@ lvgl:
             height: 68
             bg_color: 0x304458
             on_click:
-              - number.decrement: volume_level
+              - lambda: |-
+                  auto *n = id(volume_level);
+                  auto call = n->make_call();
+                  call.set_value(std::max(1.0f, std::min(10.0f, n->state + -1.0f)));
+                  call.perform();
             widgets:
               - label:
                   text: "-"
@@ -872,8 +890,10 @@ lvgl:
                   text_font: control_font
         - label:
             id: volume_label
-            x: 984
+            x: 962
             y: 630
+            width: 197
+            text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
@@ -884,7 +904,11 @@ lvgl:
             height: 68
             bg_color: 0x304458
             on_click:
-              - number.increment: volume_level
+              - lambda: |-
+                  auto *n = id(volume_level);
+                  auto call = n->make_call();
+                  call.set_value(std::max(1.0f, std::min(10.0f, n->state + 1.0f)));
+                  call.perform();
             widgets:
               - label:
                   text: "+"
@@ -1167,7 +1191,10 @@ interval:
     then:
       - lambda: |-
           auto t = id(clock_time).now();
-          if (t.is_valid()) {
+          static int last_drawn_minute = -1;
+          const int current_drawn_minute = t.is_valid() ? t.hour * 60 + t.minute : -1;
+          if (t.is_valid() && current_drawn_minute != last_drawn_minute) {
+            last_drawn_minute = current_drawn_minute;
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
             int digits[4] = {t.hour / 10, t.hour % 10, t.minute / 10, t.minute % 10};
             lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
@@ -1199,7 +1226,9 @@ interval:
             lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
             lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
           }
-          if (t.is_valid()) {
+          static int last_drawn_day = -1;
+          if (t.is_valid() && t.day_of_year != last_drawn_day) {
+            last_drawn_day = t.day_of_year;
             const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
             const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
             char date_text[64];
