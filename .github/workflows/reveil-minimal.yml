@@ -16,13 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install ESPHome
+        run: pip install esphome
       - name: Prepare build-only Wi-Fi credentials
         run: |
           printf 'wifi_ssid: "CI-only"\nwifi_password: "CI-placeholder-password"\n' > secrets.yaml
-      - name: Compile isolated ST7121 firmware
-        uses: esphome/build-action@v7
-        with:
-          yaml-file: reveil-minimal.yaml
+      - name: Compile ST7121 firmware without unsupported manifest generation
+        run: esphome compile reveil-minimal.yaml
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
@@ -30,4 +35,4 @@ jobs:
           path: |
             .esphome/build/reveil-tab5/.pioenvs/reveil-tab5/firmware.factory.bin
             .esphome/build/reveil-tab5/.pioenvs/reveil-tab5/firmware.bin
-          if-no-files-found: warn
+          if-no-files-found: error
