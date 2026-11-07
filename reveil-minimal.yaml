@@ -321,8 +321,8 @@ script:
     then:
       - lambda: |-
           auto &n = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
-          auto call = n.make_call();
-          call.set_value(((int)n.state + delta + 24) % 24);
+          auto call = n->make_call();
+          call.set_value(((int)n->state + delta + 24) % 24);
           call.perform();
   - id: adjust_alarm_minute
     parameters:
@@ -330,8 +330,8 @@ script:
     then:
       - lambda: |-
           auto &n = id(selected_alarm) == 1 ? id(alarm_one_minute) : id(alarm_two_minute);
-          auto call = n.make_call();
-          call.set_value(((int)n.state + delta + 60) % 60);
+          auto call = n->make_call();
+          call.set_value(((int)n->state + delta + 60) % 60);
           call.perform();
   - id: adjust_alarm_volume
     parameters:
