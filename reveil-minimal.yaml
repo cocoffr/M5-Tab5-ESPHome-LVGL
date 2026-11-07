@@ -199,8 +199,6 @@ media_player:
     name: Radio Reveil
     media_pipeline:
       speaker: alarm_speaker
-    announcement_pipeline:
-      speaker: alarm_speaker
     volume_min: 0.05
     volume_max: 1.0
 globals:
