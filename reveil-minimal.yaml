@@ -348,7 +348,7 @@ font:
   - file: "gfonts://Noto Sans Symbols 2"
     id: icon_font
     size: 44
-    glyphs: "☀⚡♫"
+    glyphs: "☀⚡"
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
@@ -843,8 +843,8 @@ lvgl:
         - label:
             x: 829
             y: 631
-            text: "♫"
-            text_font: icon_font
+            text: "V"
+            text_font: control_font
             text_color: 0xE6F5F9
         - button:
             x: 884
