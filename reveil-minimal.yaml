@@ -215,6 +215,22 @@ media_player:
     volume_min: 0.05
     volume_max: 1.0
 globals:
+  - id: manual_clock
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: manual_hour
+    type: int
+    restore_value: yes
+    initial_value: '7'
+  - id: manual_minute
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: manual_last_tick
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
   - id: last_alarm_minute
     type: int
     restore_value: no
@@ -256,6 +272,38 @@ globals:
     restore_value: no
     initial_value: 'false'
 script:
+  - id: open_clock_settings
+    then:
+      - lvgl.page.show: clock_settings_page
+  - id: manual_clock_adjust_hour
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          id(manual_hour) = (id(manual_hour) + delta + 24) % 24;
+          id(manual_last_tick) = millis();
+  - id: manual_clock_adjust_minute
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          id(manual_minute) = (id(manual_minute) + delta + 60) % 60;
+          id(manual_last_tick) = millis();
+  - id: set_manual_clock
+    then:
+      - lambda: |-
+          if (!id(manual_clock)) {
+            auto t = id(clock_time).now();
+            if (t.is_valid()) { id(manual_hour) = t.hour; id(manual_minute) = t.minute; }
+          }
+          id(manual_clock) = true;
+          id(manual_last_tick) = millis();
+          id(last_alarm_minute) = -1;
+  - id: set_auto_clock
+    then:
+      - lambda: |-
+          id(manual_clock) = false;
+          id(last_alarm_minute) = -1;
   - id: toggle_radio
     then:
       - if:
@@ -304,7 +352,8 @@ script:
       - lambda: |-
           if (id(alarm_ringing)) {
             auto t = id(clock_time).now();
-            if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
+            if (id(manual_clock)) id(snooze_until) = (int)(millis() / 60000UL) + 9;
+            else if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
             id(alarm_ringing) = false;
           }
       - rtttl.stop:
@@ -930,13 +979,144 @@ lvgl:
                   align: CENTER
                   text_font: alarm_font
                   text_color: 0xFFFFFF
-        - obj:
+        - button:
             x: 0
-            y: 0
-            width: 1
-            height: 1
+            y: 68
+            width: 1280
+            height: 405
             bg_opa: TRANSP
             border_width: 0
+            on_click:
+              - script.execute: open_clock_settings
+    - id: clock_settings_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            text: "Reglage de l'heure"
+            align: TOP_MID
+            y: 35
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - label:
+            id: clock_mode_label
+            text: "Mode automatique"
+            align: TOP_MID
+            y: 145
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 185
+            y: 230
+            width: 420
+            height: 90
+            bg_color: 0x304458
+            on_click:
+              - script.execute: set_auto_clock
+            widgets:
+              - label:
+                  text: "Heure Wi-Fi"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 675
+            y: 230
+            width: 420
+            height: 90
+            bg_color: 0x304458
+            on_click:
+              - script.execute: set_manual_clock
+            widgets:
+              - label:
+                  text: "Heure manuelle"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 215
+            y: 400
+            width: 100
+            height: 100
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: manual_clock_adjust_hour
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: alarm_font
+        - label:
+            id: clock_hour_label
+            x: 340
+            y: 420
+            text: "07"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 470
+            y: 400
+            width: 100
+            height: 100
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: manual_clock_adjust_hour
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: alarm_font
+        - button:
+            x: 710
+            y: 400
+            width: 100
+            height: 100
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: manual_clock_adjust_minute
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: alarm_font
+        - label:
+            id: clock_minute_label
+            x: 835
+            y: 420
+            text: "00"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 965
+            y: 400
+            width: 100
+            height: 100
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: manual_clock_adjust_minute
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: alarm_font
+        - button:
+            x: 490
+            y: 570
+            width: 300
+            height: 95
+            bg_color: 0x075BA8
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label:
+                  text: "Enregistrer"
+                  align: CENTER
+                  text_font: control_font
     - id: alarm_ringing_page
       bg_color: 0x000000
       widgets:
@@ -1191,12 +1371,23 @@ interval:
     then:
       - lambda: |-
           auto t = id(clock_time).now();
+          if (id(manual_clock)) {
+            uint32_t now_ms = millis();
+            if (id(manual_last_tick) == 0) id(manual_last_tick) = now_ms;
+            while ((uint32_t)(now_ms - id(manual_last_tick)) >= 60000UL) {
+              id(manual_last_tick) += 60000UL;
+              if (++id(manual_minute) >= 60) { id(manual_minute) = 0; id(manual_hour) = (id(manual_hour) + 1) % 24; }
+            }
+          }
+          const bool clock_valid = id(manual_clock) || t.is_valid();
+          const int shown_hour = id(manual_clock) ? id(manual_hour) : t.hour;
+          const int shown_minute = id(manual_clock) ? id(manual_minute) : t.minute;
           static int last_drawn_minute = -1;
-          const int current_drawn_minute = t.is_valid() ? t.hour * 60 + t.minute : -1;
-          if (t.is_valid() && current_drawn_minute != last_drawn_minute) {
+          const int current_drawn_minute = clock_valid ? shown_hour * 60 + shown_minute : -1;
+          if (clock_valid && current_drawn_minute != last_drawn_minute) {
             last_drawn_minute = current_drawn_minute;
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
-            int digits[4] = {t.hour / 10, t.hour % 10, t.minute / 10, t.minute % 10};
+            int digits[4] = {shown_hour / 10, shown_hour % 10, shown_minute / 10, shown_minute % 10};
             lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((map[digits[0]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
             lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((map[digits[0]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
             lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((map[digits[0]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
@@ -1227,7 +1418,11 @@ interval:
             lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
           }
           static int last_drawn_day = -1;
-          if (t.is_valid() && t.day_of_year != last_drawn_day) {
+          if (id(manual_clock)) {
+            lv_label_set_text(id(date_label), "Heure manuelle");
+            last_drawn_day = -1;
+          }
+          if (!id(manual_clock) && t.is_valid() && t.day_of_year != last_drawn_day) {
             last_drawn_day = t.day_of_year;
             const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
             const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
@@ -1235,6 +1430,12 @@ interval:
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             lv_label_set_text(id(date_label), date_text);
           }
+          char clock_value[16];
+          snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_hour));
+          lv_label_set_text(id(clock_hour_label), clock_value);
+          snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_minute));
+          lv_label_set_text(id(clock_minute_label), clock_value);
+          lv_label_set_text(id(clock_mode_label), id(manual_clock) ? "Mode manuel actif" : (t.is_valid() ? "Mode Wi-Fi actif" : "Wi-Fi : non synchronise"));
           lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
           lv_obj_set_style_bg_color(id(alarm_one_button), lv_color_hex(id(alarm_one_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
           lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ON" : "OFF");
@@ -1260,10 +1461,10 @@ interval:
           if (id(alarm_ringing) && !id(active_alarm_radio) && !id(alarm_buzzer).is_playing()) {
             id(alarm_buzzer).play("reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p");
           }
-          if (t.is_valid()) {
-            int minute_key = (int)(t.timestamp / 60);
-            bool match_one = id(alarm_one_enabled).state && t.hour == (int) id(alarm_one_hour).state && t.minute == (int) id(alarm_one_minute).state;
-            bool match_two = id(alarm_two_enabled).state && t.hour == (int) id(alarm_two_hour).state && t.minute == (int) id(alarm_two_minute).state;
+          if (clock_valid) {
+            int minute_key = id(manual_clock) ? (int)(millis() / 60000UL) : (int)(t.timestamp / 60);
+            bool match_one = id(alarm_one_enabled).state && shown_hour == (int) id(alarm_one_hour).state && shown_minute == (int) id(alarm_one_minute).state;
+            bool match_two = id(alarm_two_enabled).state && shown_hour == (int) id(alarm_two_hour).state && shown_minute == (int) id(alarm_two_minute).state;
             if (minute_key != id(last_alarm_minute) && (match_one || match_two || minute_key == id(snooze_until))) {
               id(last_alarm_minute) = minute_key;
               if (minute_key != id(snooze_until)) {
