@@ -146,7 +146,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 32
-    glyphs: "0123456789: /ONFALRM+-VUL"
+    glyphs: "0123456789: /ONFALRM+-VU"
 lvgl:
   displays:
     - screen
