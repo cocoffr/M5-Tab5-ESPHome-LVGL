@@ -197,8 +197,9 @@ media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
-    media_pipeline:
+    announcement_pipeline:
       speaker: alarm_speaker
+      format: MP3
     volume_min: 0.05
     volume_max: 1.0
 globals:
@@ -259,6 +260,7 @@ script:
             - media_player.play_media:
                 id: radio_player
                 media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                announcement: true
   - id: start_alarm
     then:
       - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
@@ -272,6 +274,7 @@ script:
             - media_player.play_media:
                 id: radio_player
                 media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                announcement: true
           else:
             - rtttl.play:
                 id: alarm_buzzer
