@@ -197,6 +197,8 @@ media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
+    media_pipeline:
+      speaker: alarm_speaker
     announcement_pipeline:
       speaker: alarm_speaker
     volume_min: 0.05
@@ -211,6 +213,30 @@ globals:
     restore_value: no
     initial_value: '-1'
   - id: radio_manual
+    type: bool
+    restore_value: no
+    initial_value: 'false'
+  - id: selected_alarm
+    type: int
+    restore_value: no
+    initial_value: '1'
+  - id: alarm_one_radio
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: alarm_two_radio
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: alarm_one_volume
+    type: int
+    restore_value: yes
+    initial_value: '5'
+  - id: alarm_two_volume
+    type: int
+    restore_value: yes
+    initial_value: '5'
+  - id: active_alarm_radio
     type: bool
     restore_value: no
     initial_value: 'false'
@@ -238,15 +264,24 @@ script:
   - id: start_alarm
     then:
       - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
-      - media_player.volume_set:
-          id: radio_player
-          volume: !lambda 'return id(volume_level).state / 10.0f;'
-      - media_player.play_media:
-          id: radio_player
-          media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+      - if:
+          condition:
+            lambda: 'return id(active_alarm_radio);'
+          then:
+            - media_player.volume_set:
+                id: radio_player
+                volume: !lambda 'return (id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f;'
+            - media_player.play_media:
+                id: radio_player
+                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+          else:
+            - rtttl.play:
+                id: alarm_buzzer
+                rtttl: "reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p"
   - id: stop_alarm
     then:
       - lambda: 'id(alarm_ringing) = false; id(snooze_until) = -1; id(radio_manual) = false;'
+      - rtttl.stop: alarm_buzzer
       - media_player.stop: radio_player
   - id: snooze_alarm
     then:
@@ -256,8 +291,61 @@ script:
             if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
             id(alarm_ringing) = false;
           }
+      - rtttl.stop: alarm_buzzer
       - media_player.stop: radio_player
+  - id: open_alarm_one
+    then:
+      - lambda: 'id(selected_alarm) = 1;'
+      - lvgl.page.show: alarm_settings_page
+  - id: open_alarm_two
+    then:
+      - lambda: 'id(selected_alarm) = 2;'
+      - lvgl.page.show: alarm_settings_page
+  - id: adjust_alarm_hour
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          auto &n = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
+          auto call = n.make_call();
+          call.set_value(((int)n.state + delta + 24) % 24);
+          call.perform();
+  - id: adjust_alarm_minute
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          auto &n = id(selected_alarm) == 1 ? id(alarm_one_minute) : id(alarm_two_minute);
+          auto call = n.make_call();
+          call.set_value(((int)n.state + delta + 60) % 60);
+          call.perform();
+  - id: adjust_alarm_volume
+    parameters:
+      delta: int
+    then:
+      - lambda: |-
+          int &v = id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume);
+          v = std::max(1, std::min(10, v + delta));
+  - id: select_alarm_buzzer
+    then:
+      - lambda: |-
+          if (id(selected_alarm) == 1) id(alarm_one_radio) = false;
+          else id(alarm_two_radio) = false;
+  - id: select_alarm_radio
+    then:
+      - lambda: |-
+          if (id(selected_alarm) == 1) id(alarm_one_radio) = true;
+          else id(alarm_two_radio) = true;
+
+rtttl:
+  id: alarm_buzzer
+  speaker: alarm_speaker
+  gain: 50%
 font:
+  - file: "gfonts://Noto Sans Symbols 2"
+    id: icon_font
+    size: 44
+    glyphs: "☀⚡♫"
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
@@ -283,10 +371,16 @@ lvgl:
       widgets:
         - label:
             text: "Secteur"
-            x: 35
+            x: 85
             y: 9
             text_font: label_font
             text_color: 0xD7E7EB
+        - label:
+            text: "⚡"
+            x: 30
+            y: 4
+            text_font: icon_font
+            text_color: 0x00CC33
         - label:
             id: date_label
             text: "Synchronisation..."
@@ -613,9 +707,7 @@ lvgl:
             radius: 8
             bg_color: 0x15232E
             on_click:
-              - number.increment: alarm_one_minute
-            on_long_press:
-              - number.increment: alarm_one_hour
+              - script.execute: open_alarm_one
             widgets:
               - label:
                   id: alarm_one_time_label
@@ -663,9 +755,7 @@ lvgl:
             radius: 8
             bg_color: 0x15232E
             on_click:
-              - number.increment: alarm_two_minute
-            on_long_press:
-              - number.increment: alarm_two_hour
+              - script.execute: open_alarm_two
             widgets:
               - label:
                   id: alarm_two_time_label
@@ -702,8 +792,8 @@ lvgl:
         - label:
             x: 34
             y: 631
-            text: "L"
-            text_font: control_font
+            text: "☀"
+            text_font: icon_font
             text_color: 0xE6F5F9
         - button:
             x: 89
@@ -750,8 +840,8 @@ lvgl:
         - label:
             x: 829
             y: 631
-            text: "V"
-            text_font: control_font
+            text: "♫"
+            text_font: icon_font
             text_color: 0xE6F5F9
         - button:
             x: 884
@@ -802,6 +892,226 @@ lvgl:
                   align: CENTER
                   text_font: alarm_font
                   text_color: 0xFFFFFF
+        - obj:
+            x: 0
+            y: 0
+            width: 1
+            height: 1
+            bg_opa: TRANSP
+            border_width: 0
+    - id: alarm_settings_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            id: settings_title
+            x: 460
+            y: 40
+            text: "Alarme 1"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 35
+            y: 30
+            width: 200
+            height: 75
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label:
+                  text: "Retour"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            x: 250
+            y: 165
+            text: "Heures"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            x: 790
+            y: 165
+            text: "Minutes"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            id: settings_hour
+            x: 360
+            y: 265
+            text: "07"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - label:
+            id: settings_minute
+            x: 900
+            y: 265
+            text: "00"
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 245
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_hour
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 450
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_hour
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 780
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_minute
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 990
+            y: 245
+            width: 88
+            height: 82
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_minute
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            x: 90
+            y: 405
+            text: "Sonnerie"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - button:
+            x: 355
+            y: 394
+            width: 250
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute: select_alarm_buzzer
+            widgets:
+              - label:
+                  text: "Buzzer"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 635
+            y: 394
+            width: 250
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute: select_alarm_radio
+            widgets:
+              - label:
+                  text: "Radio"
+                  align: CENTER
+                  text_font: control_font
+        - label:
+            id: settings_mode
+            x: 930
+            y: 410
+            text: "Buzzer"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            x: 90
+            y: 565
+            text: "Volume"
+            text_font: control_font
+            text_color: 0xFFFFFF
+        - label:
+            id: settings_volume
+            x: 540
+            y: 565
+            text: "5/10"
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 350
+            y: 548
+            width: 90
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_volume
+                  delta: -1
+            widgets:
+              - label:
+                  text: "-"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 750
+            y: 548
+            width: 90
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - script.execute:
+                  id: adjust_alarm_volume
+                  delta: 1
+            widgets:
+              - label:
+                  text: "+"
+                  align: CENTER
+                  text_font: control_font
+        - button:
+            x: 970
+            y: 548
+            width: 230
+            height: 80
+            radius: 15
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label:
+                  text: "Enregistrer"
+                  align: CENTER
+                  text_font: control_font
 
 interval:
   - interval: 1s
@@ -857,6 +1167,14 @@ interval:
           snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
           lv_label_set_text(id(volume_label), value);
           lv_label_set_text(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
+          lv_label_set_text(id(settings_title), id(selected_alarm) == 1 ? "Alarme 1" : "Alarme 2");
+          snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_hour).state : id(alarm_two_hour).state));
+          lv_label_set_text(id(settings_hour), value);
+          snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_minute).state : id(alarm_two_minute).state));
+          lv_label_set_text(id(settings_minute), value);
+          snprintf(value, sizeof(value), "%d/10", id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume));
+          lv_label_set_text(id(settings_volume), value);
+          lv_label_set_text(id(settings_mode), (id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio)) ? "Radio" : "Buzzer");
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
           lv_label_set_text(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
@@ -867,6 +1185,10 @@ interval:
             bool match_two = id(alarm_two_enabled).state && t.hour == (int) id(alarm_two_hour).state && t.minute == (int) id(alarm_two_minute).state;
             if (minute_key != id(last_alarm_minute) && (match_one || match_two || minute_key == id(snooze_until))) {
               id(last_alarm_minute) = minute_key;
+              if (minute_key != id(snooze_until)) {
+                id(selected_alarm) = match_one ? 1 : 2;
+                id(active_alarm_radio) = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
+              }
               id(snooze_until) = -1;
               id(start_alarm).execute();
             }
