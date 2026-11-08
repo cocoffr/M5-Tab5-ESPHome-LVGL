@@ -8,9 +8,12 @@
 static const uint8_t kI18nLangCount = 7;
 static const char* const kI18nLangNames[] = {"Français", "English", "Deutsch", "Nederlands", "Español", "Italiano", "Türkçe"};
 static const char* const kI18nLangCodes[] = {"fr", "en", "de", "nl", "es", "it", "tr"};
-static const uint16_t kI18nKeyCount = 1309;
+static const uint16_t kI18nKeyCount = 1312;
 
 static const char* const kI18nCtx[] = {
+    "",
+    "",
+    "",
     "",
     "",
     "",
@@ -1465,6 +1468,8 @@ static const char* const kI18nKeys[] = {
     "Air sec",
     "Albums",
     "Alerte Météo Orange en cours ! Restez prudent.",
+    "Alarme 1",
+    "Alarme 2",
     "Alerte Météo Rouge en cours ! Restez prudent.",
     "Alertes",
     "Aller à",
@@ -2074,6 +2079,7 @@ static const char* const kI18nKeys[] = {
     "Ouverture",
     "Ouvrir",
     "PARTIE",
+    "OFF",
     "PARTIE NULLE",
     "PARTIE TERMINÉE",
     "PAUSE",
@@ -2778,6 +2784,8 @@ static const char* const kI18n_en[] = {
     "Dry air",  // "Air sec"
     "Albums",  // "Albums"
     "Orange weather warning in progress! Stay safe.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Alarm 1",  // "Alarme 1"
+    "Alarm 2",  // "Alarme 2"
     "Red weather warning in progress! Stay safe.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Alerts",  // "Alertes"
     "Go to",  // "Aller à"
@@ -3387,6 +3395,7 @@ static const char* const kI18n_en[] = {
     "Shift start",  // "Ouverture"
     "Open",  // "Ouvrir"
     "GAME",  // "PARTIE"
+    "OFF",  // "OFF"
     "DRAW",  // "PARTIE NULLE"
     "GAME OVER",  // "PARTIE TERMINÉE"
     "PAUSED",  // "PAUSE"
@@ -4091,6 +4100,8 @@ static const char* const kI18n_de[] = {
     "Trockene Luft",  // "Air sec"
     "Alben",  // "Albums"
     "Unwetterwarnung Orange aktiv! Bleib vorsichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Unwetterwarnung Rot aktiv! Bleib vorsichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Warnungen",  // "Alertes"
     "Gehe zu",  // "Aller à"
@@ -4700,6 +4711,7 @@ static const char* const kI18n_de[] = {
     "Schicht",  // "Ouverture"
     "Öffnen",  // "Ouvrir"
     "PARTIE",  // "PARTIE"
+    "OFF",  // "OFF" (repli en)
     "REMIS",  // "PARTIE NULLE"
     "SPIEL VORBEI",  // "PARTIE TERMINÉE"
     "PAUSE",  // "PAUSE"
@@ -5404,6 +5416,8 @@ static const char* const kI18n_nl[] = {
     "Droge lucht",  // "Air sec"
     "Albums",  // "Albums"
     "Weeralarm code oranje! Wees voorzichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Weeralarm code rood! Wees voorzichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Meldingen",  // "Alertes"
     "Ga naar",  // "Aller à"
@@ -6013,6 +6027,7 @@ static const char* const kI18n_nl[] = {
     "Werkbegin",  // "Ouverture"
     "Openen",  // "Ouvrir"
     "PARTIJ",  // "PARTIE"
+    "OFF",  // "OFF" (repli en)
     "REMISE",  // "PARTIE NULLE"
     "SPEL VOORBIJ",  // "PARTIE TERMINÉE"
     "PAUZE",  // "PAUSE"
@@ -6717,6 +6732,8 @@ static const char* const kI18n_es[] = {
     "Aire seco",  // "Air sec"
     "Álbumes",  // "Albums"
     "¡Alerta meteorológica naranja! Ten cuidado.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Alarma 1",  // "Alarme 1"
+    "Alarma 2",  // "Alarme 2"
     "¡Alerta meteorológica roja! Ten cuidado.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Alertas",  // "Alertes"
     "Ir a",  // "Aller à"
@@ -7326,6 +7343,7 @@ static const char* const kI18n_es[] = {
     "Turno",  // "Ouverture"
     "Abrir",  // "Ouvrir"
     "PARTIDA",  // "PARTIE"
+    "APAGADO",  // "OFF"
     "TABLAS",  // "PARTIE NULLE"
     "FIN DE PARTIDA",  // "PARTIE TERMINÉE"
     "PAUSA",  // "PAUSE"
@@ -8030,6 +8048,8 @@ static const char* const kI18n_it[] = {
     "Aria secca",  // "Air sec"
     "Album",  // "Albums"
     "Allerta meteo arancione in corso! Fai attenzione.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Sveglia 1",  // "Alarme 1"
+    "Sveglia 2",  // "Alarme 2"
     "Allerta meteo rossa in corso! Fai attenzione.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Avvisi",  // "Alertes"
     "Vai a",  // "Aller à"
@@ -8639,6 +8659,7 @@ static const char* const kI18n_it[] = {
     "Inizio turno",  // "Ouverture"
     "Apri",  // "Ouvrir"
     "PARTITA",  // "PARTIE"
+    "SPENTO",  // "OFF"
     "PATTA",  // "PARTIE NULLE"
     "PARTITA FINITA",  // "PARTIE TERMINÉE"
     "PAUSA",  // "PAUSE"
@@ -9343,6 +9364,8 @@ static const char* const kI18n_tr[] = {
     "Kuru hava",  // "Air sec"
     "Albümler",  // "Albums"
     "Turuncu hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Orange en cours ! Restez prudent."
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Kırmızı hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Uyarılar",  // "Alertes"
     "Git",  // "Aller à"
@@ -9952,6 +9975,7 @@ static const char* const kI18n_tr[] = {
     "Mesai başı",  // "Ouverture"
     "Aç",  // "Ouvrir"
     "OYUN",  // "PARTIE"
+    "OFF",  // "OFF" (repli en)
     "BERABERLİK",  // "PARTIE NULLE"
     "OYUN BİTTİ",  // "PARTIE TERMINÉE"
     "DURAKLATILDI",  // "PAUSE"
