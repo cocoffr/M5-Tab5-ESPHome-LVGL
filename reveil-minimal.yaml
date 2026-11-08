@@ -18,10 +18,6 @@ esp32:
 psram:
   mode: hex
   speed: 200MHz
-globals:
-  - id: lien_c6_branche
-    type: bool
-    initial_value: 'lien_c6_demarrage()'
 logger:
 api:
 ota:
@@ -53,6 +49,8 @@ i2c:
 pi4ioe5v6408:
   - id: ioexp
     address: 0x43
+  - id: wifi_ioexp
+    address: 0x44
 esp_ldo:
   - voltage: 2.5V
     channel: 3
@@ -111,6 +109,14 @@ datetime:
     initial_value: "08:30:00"
     restore_value: true
 switch:
+  # Alimentation matérielle ESP32-C6, indispensable au Wi-Fi du Tab5.
+  - platform: gpio
+    id: wifi_power
+    internal: true
+    pin:
+      pi4ioe5v6408: wifi_ioexp
+      number: 0
+    restore_mode: ALWAYS_ON
   - platform: template
     id: alarm_one_enabled
     name: Alarme 1
@@ -218,6 +224,9 @@ media_player:
     volume_min: 0.05
     volume_max: 1.0
 globals:
+  - id: lien_c6_branche
+    type: bool
+    initial_value: 'lien_c6_demarrage()'
   - id: manual_clock
     type: bool
     restore_value: yes
