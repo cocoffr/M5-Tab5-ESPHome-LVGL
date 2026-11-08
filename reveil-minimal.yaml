@@ -5,6 +5,9 @@ substitutions:
 esphome:
   name: ${device_name}
   friendly_name: Reveil Tab5
+  includes:
+    - Tab5/ecran/tab5_lien_c6.h
+    - Tab5/ecran/tab5_lien_c6.cpp
 esp32:
   board: esp32-p4-evboard
   flash_size: 16MB
@@ -15,6 +18,10 @@ esp32:
 psram:
   mode: hex
   speed: 200MHz
+globals:
+  - id: lien_c6_branche
+    type: bool
+    initial_value: 'lien_c6_demarrage()'
 logger:
 api:
 ota:
