@@ -22,6 +22,7 @@ import pages  # noqa: E402
 
 # Fichiers de docs/ qui restent hors du site, exprès.
 HORS_SITE = {
+    "docs/reveil-interface-dediee.md": "spécification interne du réveil dédié ST7121, non destinée au site public",
     "docs/INVENTAIRE_CONFIGS_TESTS.md": "inventaire interne des configurations de test",
     "docs/installation.md": "renvoi des anciens titres vers docs/installation/ (liens déjà publiés)",
     "docs/changelog/CHANGELOG-1.x.md": "historique des versions 1.x",
