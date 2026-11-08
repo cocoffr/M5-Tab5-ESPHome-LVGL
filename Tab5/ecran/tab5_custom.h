@@ -68,3 +68,11 @@ namespace esphome { namespace font { class Font; } }
 // (namespace Marble). L'ancien prototype `namespace Game` a ete retire.
 
 // UIColor (couleurs sémantiques) : voir tab5_tokens.h.
+
+// Rafraîchissement de l'accueil du réveil : aucune opération LVGL dans le YAML.
+void reveil_accueil_tick(lv_obj_t* heure, lv_obj_t* date_label,
+                        lv_obj_t* luminosite, lv_obj_t* volume,
+                        lv_obj_t* alarme1, lv_obj_t* alarme2,
+                        bool heure_valide, int hh, int mm, int jour, int mois, int annee,
+                        float luminosite_fraction, float volume_pourcent,
+                        bool alarme1_active, bool alarme2_active);
