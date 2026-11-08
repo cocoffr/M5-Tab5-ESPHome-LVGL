@@ -21,6 +21,13 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: requirements-dev.txt
+      - name: Restore ESP-IDF toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/esphome
+          key: reveil-espidf-${{ runner.os }}-v5.5.6-${{ hashFiles('reveil-minimal.yaml') }}
+          restore-keys: |
+            reveil-espidf-${{ runner.os }}-v5.5.6-
       - name: Install ESPHome
         run: pip install --retries 5 --timeout 60 esphome
       - name: Prepare Wi-Fi credentials securely
