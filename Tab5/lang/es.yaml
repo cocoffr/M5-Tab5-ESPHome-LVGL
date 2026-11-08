@@ -1620,3 +1620,8 @@ _statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 "Bonbon": "Caramelo"
 "Sorbet": "Sorbete"
 "Ultraviolet": "Ultravioleta"
+
+# Accueil réveil de chevet
+"Alarme 1": "Alarma 1"
+"Alarme 2": "Alarma 2"
+"OFF": "APAGADO"
