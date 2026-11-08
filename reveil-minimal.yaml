@@ -335,7 +335,7 @@ script:
                 volume: !lambda 'return id(volume_level).state / 10.0f;'
             - media_player.play_media:
                 id: radio_player
-                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                media_url: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios"
                 announcement: true
   - id: start_alarm
     then:
@@ -350,7 +350,7 @@ script:
                 volume: !lambda 'return (id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f;'
             - media_player.play_media:
                 id: radio_player
-                media_url: "https://scdn.nrjaudio.fm/adwz2/fr/30283/mp3_128.mp3"
+                media_url: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios"
                 announcement: true
           else:
             - rtttl.play:
