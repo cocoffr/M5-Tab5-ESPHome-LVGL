@@ -247,10 +247,14 @@ globals:
     type: int
     restore_value: no
     initial_value: '-1'
-  - id: snooze_until
-    type: int
+  - id: snooze_deadline_ms
+    type: uint32_t
     restore_value: no
-    initial_value: '-1'
+    initial_value: '0'
+  - id: snooze_pending
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: radio_manual
     type: bool
     restore_value: no
@@ -354,7 +358,7 @@ script:
                 rtttl: "reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p"
   - id: stop_alarm
     then:
-      - lambda: 'id(alarm_ringing) = false; id(snooze_until) = -1; id(radio_manual) = false;'
+      - lambda: 'id(alarm_ringing) = false; id(snooze_pending) = false; id(radio_manual) = false;'
       - rtttl.stop:
           id: alarm_buzzer
       - media_player.stop: radio_player
@@ -363,9 +367,9 @@ script:
     then:
       - lambda: |-
           if (id(alarm_ringing)) {
-            auto t = id(clock_time).now();
-            if (id(manual_clock)) id(snooze_until) = (int)(millis() / 60000UL) + 9;
-            else if (t.is_valid()) id(snooze_until) = (int)(t.timestamp / 60) + 9;
+            // Compte à rebours monotone : reste fiable si l'heure est corrigée.
+            id(snooze_deadline_ms) = millis() + 9UL * 60000UL;
+            id(snooze_pending) = true;
             id(alarm_ringing) = false;
           }
       - rtttl.stop:
@@ -1383,6 +1387,10 @@ interval:
     then:
       - lambda: |-
           auto t = id(clock_time).now();
+          // Evite de redessiner les labels LVGL dont le texte n'a pas changé.
+          auto set_label_if_changed = [](lv_obj_t *label, const char *value) {
+            if (strcmp(lv_label_get_text(label), value) != 0) lv_label_set_text(label, value);
+          };
           if (id(manual_clock)) {
             uint32_t now_ms = millis();
             if (id(manual_last_tick) == 0) id(manual_last_tick) = now_ms;
@@ -1433,7 +1441,7 @@ interval:
           }
           static int last_drawn_day = -1;
           if (id(manual_clock)) {
-            lv_label_set_text(id(date_label), "Heure manuelle");
+            set_label_if_changed(id(date_label), "Heure manuelle");
             last_drawn_day = -1;
           }
           if (!id(manual_clock) && t.is_valid() && t.day_of_year != last_drawn_day) {
@@ -1442,50 +1450,61 @@ interval:
             const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
             char date_text[64];
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
-            lv_label_set_text(id(date_label), date_text);
+            set_label_if_changed(id(date_label), date_text);
           }
           char clock_value[16];
           snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_hour));
-          lv_label_set_text(id(clock_hour_label), clock_value);
+          set_label_if_changed(id(clock_hour_label), clock_value);
           snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_minute));
-          lv_label_set_text(id(clock_minute_label), clock_value);
-          lv_label_set_text(id(clock_mode_label), id(manual_clock) ? "Mode manuel actif" : (t.is_valid() ? "Mode Wi-Fi actif" : "Wi-Fi : non synchronise"));
-          lv_label_set_text(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
-          lv_obj_set_style_bg_color(id(alarm_one_button), lv_color_hex(id(alarm_one_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
-          lv_label_set_text(id(alarm_two_label), id(alarm_two_enabled).state ? "ON" : "OFF");
-          lv_obj_set_style_bg_color(id(alarm_two_button), lv_color_hex(id(alarm_two_enabled).state ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          set_label_if_changed(id(clock_minute_label), clock_value);
+          set_label_if_changed(id(clock_mode_label), id(manual_clock) ? "Mode manuel actif" : (t.is_valid() ? "Mode Wi-Fi actif" : "Wi-Fi : non synchronise"));
+          set_label_if_changed(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
+          static int last_one_enabled = -1;
+          int one_enabled = id(alarm_one_enabled).state ? 1 : 0;
+          if (one_enabled != last_one_enabled) {
+            last_one_enabled = one_enabled;
+            lv_obj_set_style_bg_color(id(alarm_one_button), lv_color_hex(one_enabled ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          }
+          set_label_if_changed(id(alarm_two_label), id(alarm_two_enabled).state ? "ON" : "OFF");
+          static int last_two_enabled = -1;
+          int two_enabled = id(alarm_two_enabled).state ? 1 : 0;
+          if (two_enabled != last_two_enabled) {
+            last_two_enabled = two_enabled;
+            lv_obj_set_style_bg_color(id(alarm_two_button), lv_color_hex(two_enabled ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
+          }
           char value[16];
           snprintf(value, sizeof(value), "%.0f/10", id(brightness_level).state);
-          lv_label_set_text(id(brightness_label), value);
+          set_label_if_changed(id(brightness_label), value);
           snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
-          lv_label_set_text(id(volume_label), value);
-          lv_label_set_text(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
-          lv_label_set_text(id(settings_title), id(selected_alarm) == 1 ? "Alarme 1" : "Alarme 2");
+          set_label_if_changed(id(volume_label), value);
+          set_label_if_changed(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
+          set_label_if_changed(id(settings_title), id(selected_alarm) == 1 ? "Alarme 1" : "Alarme 2");
           snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_hour).state : id(alarm_two_hour).state));
-          lv_label_set_text(id(settings_hour), value);
+          set_label_if_changed(id(settings_hour), value);
           snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_minute).state : id(alarm_two_minute).state));
-          lv_label_set_text(id(settings_minute), value);
+          set_label_if_changed(id(settings_minute), value);
           snprintf(value, sizeof(value), "%d/10", id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume));
-          lv_label_set_text(id(settings_volume), value);
-          lv_label_set_text(id(settings_mode), (id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio)) ? "Radio" : "Buzzer");
+          set_label_if_changed(id(settings_volume), value);
+          set_label_if_changed(id(settings_mode), (id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio)) ? "Radio" : "Buzzer");
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
-          lv_label_set_text(id(alarm_one_time_label), value);
+          set_label_if_changed(id(alarm_one_time_label), value);
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
-          lv_label_set_text(id(alarm_two_time_label), value);
+          set_label_if_changed(id(alarm_two_time_label), value);
           if (id(alarm_ringing) && !id(active_alarm_radio) && !id(alarm_buzzer).is_playing()) {
             id(alarm_buzzer).play("reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p");
           }
           if (clock_valid) {
-            int minute_key = id(manual_clock) ? (int)(millis() / 60000UL) : (int)(t.timestamp / 60);
+            int minute_key = id(manual_clock) ? (shown_hour * 60 + shown_minute) : (int)(t.timestamp / 60);
+            bool snooze_due = id(snooze_pending) && (int32_t)(millis() - id(snooze_deadline_ms)) >= 0;
             bool match_one = id(alarm_one_enabled).state && shown_hour == (int) id(alarm_one_hour).state && shown_minute == (int) id(alarm_one_minute).state;
             bool match_two = id(alarm_two_enabled).state && shown_hour == (int) id(alarm_two_hour).state && shown_minute == (int) id(alarm_two_minute).state;
-            if (minute_key != id(last_alarm_minute) && (match_one || match_two || minute_key == id(snooze_until))) {
+            if (snooze_due || (minute_key != id(last_alarm_minute) && (match_one || match_two) && !id(snooze_pending))) {
               id(last_alarm_minute) = minute_key;
-              if (minute_key != id(snooze_until)) {
+              if (!snooze_due) {
                 id(selected_alarm) = match_one ? 1 : 2;
                 id(active_alarm_radio) = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
               }
-              id(snooze_until) = -1;
+              id(snooze_pending) = false;
               if (id(alarm_ringing)) id(stop_alarm).execute();
               id(start_alarm).execute();
             }
