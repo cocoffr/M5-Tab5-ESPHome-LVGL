@@ -22,7 +22,7 @@ jobs:
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - name: Install ESPHome
-        run: pip install esphome
+        run: pip install --retries 5 --timeout 60 esphome
       - name: Prepare Wi-Fi credentials securely
         env:
           WIFI_SSID: ${{ secrets.REVEIL_WIFI_SSID }}
@@ -39,7 +39,18 @@ jobs:
               f.write("wifi_password: " + json.dumps(os.environ["WIFI_PASSWORD"]) + "\n")
           PY
       - name: Compile ST7121 firmware without unsupported manifest generation
-        run: esphome compile reveil-minimal.yaml
+        run: |
+          for attempt in 1 2 3; do
+            echo "Compilation attempt ${attempt}/3"
+            if esphome compile reveil-minimal.yaml; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::ESPHome compilation failed after 3 attempts"
+              exit 1
+            fi
+            sleep $((attempt * 30))
+          done
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
