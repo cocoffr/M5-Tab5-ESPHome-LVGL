@@ -21,7 +21,7 @@ psram:
 logger:
 # MQTT local : l'horloge et les alarmes restent autonomes sans broker.
 mqtt:
-  broker: 192.168.0.44
+  broker: !secret mqtt_broker
   port: 1883
   username: !secret mqtt_username
   password: !secret mqtt_password
@@ -1112,7 +1112,7 @@ lvgl:
         - label: { id: reveil_wifi_label, text: "--", x: 550, y: 255, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "Fonctionnement", x: 100, y: 340, text_font: control_font }
         - label: { id: reveil_uptime_label, text: "--", x: 550, y: 340, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "MQTT : 192.168.0.44:1883", x: 100, y: 430, text_font: label_font }
+        - label: { text: "MQTT : port 1883", x: 100, y: 430, text_font: label_font }
         - button:
             x: 460
             y: 555
