@@ -48,6 +48,7 @@ jobs:
               f.write("wifi_password: " + json.dumps(os.environ["WIFI_PASSWORD"]) + "\n")
               # Valeurs factices pour valider la compilation si les secrets MQTT sont absents.
               # Elles ne donnent pas acces au broker : renseigner les secrets avant le flash.
+              f.write("mqtt_broker: " + json.dumps("192.168.0.44") + "\n")
               f.write("mqtt_username: " + json.dumps(os.environ.get("MQTT_USERNAME") or "a_configurer") + "\n")
               f.write("mqtt_password: " + json.dumps(os.environ.get("MQTT_PASSWORD") or "a_configurer") + "\n")
           PY
