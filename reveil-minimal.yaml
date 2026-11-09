@@ -1227,13 +1227,13 @@ lvgl:
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "100 % / 80 %"
+            text: "Charge désactivée"
             x: 55
             y: 275
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Classique / Rapide"
+            text: "Mode inactif"
             x: 355
             y: 275
             text_font: label_font
@@ -2023,12 +2023,16 @@ interval:
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
-            set_label_if_changed(id(reveil_batt_etat), id(reveil_batt_current).has_state() && id(reveil_batt_current).state < -0.05f ? "En charge" : "Détectée");
+            set_label_if_changed(id(reveil_batt_etat), id(reveil_batt_current).has_state() && id(reveil_batt_current).state < -0.05f ? "Courant entrant" : "Détectée");
             if (id(reveil_batt_current).has_state() && std::isfinite(id(reveil_batt_current).state)) {
               snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
               set_label_if_changed(id(reveil_batt_conso), diag);
             }
-            set_label_if_changed(id(reveil_batt_niveau), "À calibrer");
+            // Estimation indicative de l’état de charge, non utilisée pour commander le chargeur.
+            float pct = (id(reveil_batt_voltage).state - 6.6f) * (100.0f / 1.75f);
+            pct = std::max(0.0f, std::min(100.0f, pct));
+            snprintf(diag, sizeof(diag), "~%.0f %%", pct);
+            set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
             set_label_if_changed(id(sys_batt), "Non détectée");
             set_label_if_changed(id(reveil_batt_etat), "Non détectée");
