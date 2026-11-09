@@ -33,6 +33,10 @@ mqtt:
     topic: reveil-tab5/disponibilite
     payload: hors_ligne
 api:
+button:
+  - platform: restart
+    id: reveil_restart
+    name: Redémarrer réveil
 ota:
   - platform: esphome
 esp32_hosted:
@@ -1540,12 +1544,50 @@ lvgl:
               - lvgl.page.show: reveil_page
             widgets:
               - label: { text: "Retour réveil", align: CENTER, text_font: label_font }
+        - button:
+            x: 670
+            y: 580
+            width: 260
+            height: 68
+            bg_color: 0x753333
+            on_click:
+              - lvgl.page.show: reveil_confirm_restart_page
+            widgets:
+              - label: { text: "Redémarrer", align: CENTER, text_font: label_font }
         - label:
             text: "Actions HA indisponibles en mode autonome"
             x: 670
             y: 600
             text_font: label_font
             text_color: 0xD7E7EB
+    - id: reveil_confirm_restart_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            text: "Redémarrer le réveil ?"
+            align: TOP_MID
+            y: 200
+            text_font: alarm_font
+        - button:
+            x: 260
+            y: 390
+            width: 320
+            height: 100
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_systeme_page
+            widgets:
+              - label: { text: "Annuler", align: CENTER, text_font: control_font }
+        - button:
+            x: 700
+            y: 390
+            width: 320
+            height: 100
+            bg_color: 0x753333
+            on_click:
+              - button.press: reveil_restart
+            widgets:
+              - label: { text: "Confirmer", align: CENTER, text_font: control_font }
     - id: clock_settings_page
       bg_color: 0x000000
       widgets:
