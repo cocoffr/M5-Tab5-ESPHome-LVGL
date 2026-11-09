@@ -1111,40 +1111,403 @@ lvgl:
     - id: reveil_batterie_page
       bg_color: 0x000000
       widgets:
-        - label: { text: "Batterie", align: TOP_MID, y: 35, text_font: alarm_font, text_color: 0xB5E8F4 }
-        - label: { text: "Niveau et tension : non disponibles", align: TOP_MID, y: 220, text_font: control_font }
-        - label: { text: "Capteur batterie à intégrer après essai matériel", align: TOP_MID, y: 310, text_font: label_font }
+        - label:
+            text: "Batterie"
+            x: 40
+            y: 28
+            text_font: alarm_font
+            text_color: 0xB5E8F4
         - button:
-            x: 460
-            y: 555
-            width: 360
-            height: 100
-            bg_color: 0x075BA8
+            x: 1040
+            y: 20
+            width: 190
+            height: 64
+            radius: 12
+            bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_settings_page
             widgets:
-              - label: { text: "Retour aux paramètres", align: CENTER, text_font: label_font }
+              - label: { text: "Retour", align: CENTER, text_font: label_font }
+        - obj:
+            x: 24
+            y: 125
+            width: 600
+            height: 555
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - obj:
+            x: 644
+            y: 125
+            width: 612
+            height: 555
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            text: "BATTERIE"
+            x: 55
+            y: 145
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "ÉTAT"
+            x: 675
+            y: 145
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Limite de charge"
+            x: 55
+            y: 225
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Mode de charge"
+            x: 355
+            y: 225
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Économie d'énergie"
+            x: 55
+            y: 345
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Wi-Fi éco"
+            x: 55
+            y: 465
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Batterie montée"
+            x: 55
+            y: 585
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "100 % / 80 %"
+            x: 55
+            y: 275
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Classique / Rapide"
+            x: 355
+            y: 275
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Non disponible"
+            x: 55
+            y: 395
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Non disponible"
+            x: 55
+            y: 515
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Non configurée"
+            x: 55
+            y: 630
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "État"
+            x: 675
+            y: 225
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: reveil_batt_etat
+            text: "Non mesuré"
+            x: 705
+            y: 275
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Niveau"
+            x: 675
+            y: 345
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: reveil_batt_niveau
+            text: "--"
+            x: 705
+            y: 395
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Tension"
+            x: 675
+            y: 465
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: reveil_batt_tension
+            text: "--"
+            x: 705
+            y: 515
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            text: "Consommation"
+            x: 675
+            y: 585
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: reveil_batt_conso
+            text: "--"
+            x: 705
+            y: 630
+            text_font: label_font
+            text_color: 0xD7E7EB
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
-        - label: { text: "Système", align: TOP_MID, y: 35, text_font: alarm_font, text_color: 0xB5E8F4 }
-        - label: { text: "Adresse IP", x: 100, y: 170, text_font: control_font }
-        - label: { id: reveil_ip_label, text: "--", x: 550, y: 170, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "Signal Wi-Fi", x: 100, y: 255, text_font: control_font }
-        - label: { id: reveil_wifi_label, text: "--", x: 550, y: 255, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "Fonctionnement", x: 100, y: 340, text_font: control_font }
-        - label: { id: reveil_uptime_label, text: "--", x: 550, y: 340, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "MQTT : port 1883", x: 100, y: 430, text_font: label_font }
+        - label:
+            text: "Système"
+            x: 40
+            y: 28
+            text_font: alarm_font
+            text_color: 0xB5E8F4
         - button:
-            x: 460
-            y: 555
-            width: 360
-            height: 100
-            bg_color: 0x075BA8
+            x: 1040
+            y: 20
+            width: 190
+            height: 64
+            radius: 12
+            bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_settings_page
             widgets:
-              - label: { text: "Retour aux paramètres", align: CENTER, text_font: label_font }
+              - label: { text: "Retour", align: CENTER, text_font: label_font }
+        - obj:
+            x: 24
+            y: 125
+            width: 600
+            height: 270
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - obj:
+            x: 644
+            y: 125
+            width: 600
+            height: 270
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - obj:
+            x: 24
+            y: 410
+            width: 600
+            height: 270
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - obj:
+            x: 644
+            y: 410
+            width: 600
+            height: 270
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            text: "MÉMOIRE"
+            x: 50
+            y: 142
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "RÉSEAU"
+            x: 670
+            y: 142
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "SYSTÈME"
+            x: 50
+            y: 425
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "GESTION"
+            x: 670
+            y: 425
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "SRAM"
+            x: 50
+            y: 207
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_sram
+            text: "--"
+            x: 310
+            y: 207
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "PSRAM"
+            x: 50
+            y: 267
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_psram
+            text: "--"
+            x: 310
+            y: 267
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Bloc max"
+            x: 50
+            y: 327
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_bloc
+            text: "--"
+            x: 310
+            y: 327
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Wi-Fi"
+            x: 670
+            y: 207
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_ssid
+            text: "--"
+            x: 930
+            y: 207
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Adresse IP"
+            x: 670
+            y: 267
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_ip
+            text: "--"
+            x: 930
+            y: 267
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Signal"
+            x: 670
+            y: 327
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_rssi
+            text: "--"
+            x: 930
+            y: 327
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Temps actif"
+            x: 50
+            y: 485
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_uptime
+            text: "--"
+            x: 310
+            y: 485
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Temp. CPU"
+            x: 50
+            y: 535
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_temp
+            text: "--"
+            x: 310
+            y: 535
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Charge CPU"
+            x: 50
+            y: 585
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_cpu
+            text: "--"
+            x: 310
+            y: 585
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Batterie"
+            x: 50
+            y: 635
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_batt
+            text: "--"
+            x: 310
+            y: 635
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - button:
+            x: 670
+            y: 505
+            width: 260
+            height: 64
+            radius: 12
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_systeme_page
+            widgets:
+              - label: { text: "Rafraîchir", align: CENTER, text_font: label_font }
+        - button:
+            x: 955
+            y: 505
+            width: 265
+            height: 64
+            radius: 12
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_page
+            widgets:
+              - label: { text: "Retour réveil", align: CENTER, text_font: label_font }
+        - label:
+            text: "Actions HA indisponibles en mode autonome"
+            x: 670
+            y: 600
+            text_font: label_font
+            text_color: 0xD7E7EB
     - id: clock_settings_page
       bg_color: 0x000000
       widgets:
@@ -1607,6 +1970,18 @@ interval:
             snprintf(system_value, sizeof(system_value), "%.0f min", id(reveil_uptime).state / 60.0f);
             set_label_if_changed(id(reveil_uptime_label), system_value);
           }
+          // Diagnostics locaux, sans dépendance aux entités domotiques du projet HMI.
+          set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
+          set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
+          char diag[48];
+          if (id(reveil_wifi_signal).has_state()) { snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state); set_label_if_changed(id(sys_rssi), diag); }
+          if (id(reveil_uptime).has_state()) { snprintf(diag, sizeof(diag), "%.0f min", id(reveil_uptime).state / 60.0f); set_label_if_changed(id(sys_uptime), diag); }
+          snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_sram), diag);
+          snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024)); set_label_if_changed(id(sys_psram), diag);
+          snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
+          set_label_if_changed(id(sys_temp), "Non mesurée");
+          set_label_if_changed(id(sys_cpu), "Non mesurée");
+          set_label_if_changed(id(sys_batt), "Non mesurée");
           char clock_value[16];
           snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_hour));
           set_label_if_changed(id(clock_hour_label), clock_value);
