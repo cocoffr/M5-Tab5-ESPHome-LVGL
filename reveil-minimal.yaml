@@ -461,19 +461,19 @@ font:
   - file: "gfonts://Noto Sans Symbols 2"
     id: icon_font
     size: 44
-    glyphs: "☀⚡"
+    glyphs: "☀⚡⚙⌁"
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz."
+    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
     id: alarm_font
     size: 52
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
     id: control_font
     size: 43
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
 lvgl:
   displays:
     - screen
@@ -497,6 +497,28 @@ lvgl:
             y: 4
             text_font: icon_font
             text_color: 0x00CC33
+        - label:
+            id: reveil_wifi_icon
+            text: "⌁"
+            x: 1085
+            y: 9
+            text_font: icon_font
+            text_color: 0x535B65
+        - button:
+            x: 1185
+            y: 0
+            width: 90
+            height: 66
+            bg_opa: TRANSP
+            border_width: 0
+            on_click:
+              - script.execute: open_settings
+            widgets:
+              - label:
+                  text: "⚙"
+                  align: CENTER
+                  text_font: icon_font
+                  text_color: 0xB5E8F4
         - label:
             id: date_label
             text: "Synchronisation..."
@@ -912,7 +934,7 @@ lvgl:
             text_font: icon_font
             text_color: 0xE6F5F9
         - button:
-            x: 89
+            x: 132
             y: 624
             width: 78
             height: 68
@@ -930,15 +952,15 @@ lvgl:
                   text_font: control_font
         - label:
             id: brightness_label
-            x: 167
+            x: 210
             y: 630
-            width: 197
+            width: 111
             text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
         - button:
-            x: 364
+            x: 321
             y: 624
             width: 78
             height: 68
@@ -970,7 +992,7 @@ lvgl:
             text_font: montserrat_48
             text_color: 0xE6F5F9
         - button:
-            x: 884
+            x: 927
             y: 624
             width: 78
             height: 68
@@ -988,15 +1010,15 @@ lvgl:
                   text_font: control_font
         - label:
             id: volume_label
-            x: 962
+            x: 1005
             y: 630
-            width: 197
+            width: 111
             text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
         - button:
-            x: 1159
+            x: 1116
             y: 624
             width: 78
             height: 68
@@ -1036,7 +1058,7 @@ lvgl:
             bg_opa: TRANSP
             border_width: 0
             on_click:
-              - script.execute: open_settings
+              - script.execute: open_clock_settings
     - id: reveil_settings_page
       bg_color: 0x000000
       widgets:
@@ -1140,6 +1162,7 @@ lvgl:
             text_font: control_font
             text_color: 0xB5E8F4
         - button:
+            id: clock_wifi_button
             x: 185
             y: 230
             width: 420
@@ -1153,6 +1176,7 @@ lvgl:
                   align: CENTER
                   text_font: control_font
         - button:
+            id: clock_manual_button
             x: 675
             y: 230
             width: 420
@@ -1407,6 +1431,7 @@ lvgl:
             text_font: control_font
             text_color: 0xFFFFFF
         - button:
+            id: alarm_buzzer_button
             x: 355
             y: 394
             width: 250
@@ -1421,6 +1446,7 @@ lvgl:
                   align: CENTER
                   text_font: control_font
         - button:
+            id: alarm_radio_button
             x: 635
             y: 394
             width: 250
@@ -1586,6 +1612,9 @@ interval:
           set_label_if_changed(id(clock_hour_label), clock_value);
           snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_minute));
           set_label_if_changed(id(clock_minute_label), clock_value);
+          lv_obj_set_style_bg_color(id(clock_wifi_button), lv_color_hex(!id(manual_clock) ? 0x00AD22 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(clock_manual_button), lv_color_hex(id(manual_clock) ? 0x00AD22 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(reveil_wifi_icon), lv_color_hex(id(reveil_ip).has_state() && !id(reveil_ip).state.empty() && id(reveil_ip).state != "0.0.0.0" ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
           set_label_if_changed(id(clock_mode_label), id(manual_clock) ? "Mode manuel actif" : (t.is_valid() ? "Mode Wi-Fi actif" : "Wi-Fi : non synchronise"));
           set_label_if_changed(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
           static int last_one_enabled = -1;
@@ -1614,6 +1643,9 @@ interval:
           set_label_if_changed(id(settings_minute), value);
           snprintf(value, sizeof(value), "%d/10", id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume));
           set_label_if_changed(id(settings_volume), value);
+          bool radio_choisie = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
+          lv_obj_set_style_bg_color(id(alarm_radio_button), lv_color_hex(radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(alarm_buzzer_button), lv_color_hex(!radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           set_label_if_changed(id(settings_mode), (id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio)) ? "Radio" : "Buzzer");
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_one_hour).state, (int) id(alarm_one_minute).state);
           set_label_if_changed(id(alarm_one_time_label), value);
