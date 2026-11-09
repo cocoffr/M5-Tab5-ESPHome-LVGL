@@ -56,6 +56,19 @@ sensor:
     id: reveil_wifi_signal
     name: Reveil Wi-Fi signal
     update_interval: 30s
+  - platform: ina226
+    id: reveil_ina226
+    address: 0x41
+    shunt_resistance: 0.005ohm
+    max_current: 8.192A
+    adc_averaging: 16
+    update_interval: 15s
+    bus_voltage:
+      id: reveil_batt_voltage
+      name: Réveil tension batterie
+    current:
+      id: reveil_batt_current
+      name: Réveil courant batterie
   - platform: uptime
     id: reveil_uptime
     name: Reveil temps de fonctionnement
@@ -147,6 +160,22 @@ switch:
       pi4ioe5v6408: wifi_ioexp
       number: 0
     restore_mode: ALWAYS_ON
+  # Chargeur désactivé par défaut : activation uniquement après portage des sécurités.
+  - platform: gpio
+    id: reveil_charge_enable
+    internal: true
+    pin:
+      pi4ioe5v6408: wifi_ioexp
+      number: 7
+    restore_mode: ALWAYS_OFF
+  - platform: gpio
+    id: reveil_charge_fast
+    internal: true
+    pin:
+      pi4ioe5v6408: wifi_ioexp
+      number: 5
+      inverted: true
+    restore_mode: ALWAYS_OFF
   - platform: template
     id: alarm_one_enabled
     name: Alarme 1
@@ -1984,7 +2013,23 @@ interval:
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
           set_label_if_changed(id(sys_temp), "Non mesurée");
           set_label_if_changed(id(sys_cpu), "Non mesurée");
-          set_label_if_changed(id(sys_batt), "Non mesurée");
+          if (id(reveil_batt_voltage).has_state() && std::isfinite(id(reveil_batt_voltage).state) && id(reveil_batt_voltage).state >= 5.5f) {
+            snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
+            set_label_if_changed(id(reveil_batt_tension), diag);
+            set_label_if_changed(id(sys_batt), diag);
+            set_label_if_changed(id(reveil_batt_etat), id(reveil_batt_current).has_state() && id(reveil_batt_current).state < -0.05f ? "En charge" : "Détectée");
+            if (id(reveil_batt_current).has_state() && std::isfinite(id(reveil_batt_current).state)) {
+              snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
+              set_label_if_changed(id(reveil_batt_conso), diag);
+            }
+            set_label_if_changed(id(reveil_batt_niveau), "À calibrer");
+          } else {
+            set_label_if_changed(id(sys_batt), "Non détectée");
+            set_label_if_changed(id(reveil_batt_etat), "Non détectée");
+            set_label_if_changed(id(reveil_batt_tension), "--");
+            set_label_if_changed(id(reveil_batt_niveau), "--");
+            set_label_if_changed(id(reveil_batt_conso), "--");
+          }
           char clock_value[16];
           snprintf(clock_value, sizeof(clock_value), "%02d", id(manual_hour));
           set_label_if_changed(id(clock_hour_label), clock_value);
