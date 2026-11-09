@@ -465,15 +465,15 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
-    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.'éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
     id: alarm_font
     size: 52
-    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
     id: control_font
     size: 43
-    glyphs: "0123456789: /+\-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\u0027éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
 lvgl:
   displays:
     - screen
