@@ -34,6 +34,8 @@ jobs:
         env:
           WIFI_SSID: ${{ secrets.REVEIL_WIFI_SSID }}
           WIFI_PASSWORD: ${{ secrets.REVEIL_WIFI_PASSWORD }}
+          MQTT_USERNAME: ${{ secrets.REVEIL_MQTT_USERNAME }}
+          MQTT_PASSWORD: ${{ secrets.REVEIL_MQTT_PASSWORD }}
         run: |
           if [ -z "$WIFI_SSID" ] || [ -z "$WIFI_PASSWORD" ]; then
             echo "::error::Configure REVEIL_WIFI_SSID and REVEIL_WIFI_PASSWORD in GitHub Actions secrets before building a flashable firmware."
@@ -44,6 +46,10 @@ jobs:
           with open("secrets.yaml", "w", encoding="utf-8") as f:
               f.write("wifi_ssid: " + json.dumps(os.environ["WIFI_SSID"]) + "\n")
               f.write("wifi_password: " + json.dumps(os.environ["WIFI_PASSWORD"]) + "\n")
+              # Valeurs factices pour valider la compilation si les secrets MQTT sont absents.
+              # Elles ne donnent pas acces au broker : renseigner les secrets avant le flash.
+              f.write("mqtt_username: " + json.dumps(os.environ.get("MQTT_USERNAME") or "a_configurer") + "\n")
+              f.write("mqtt_password: " + json.dumps(os.environ.get("MQTT_PASSWORD") or "a_configurer") + "\n")
           PY
       - name: Compile ST7121 firmware without unsupported manifest generation
         run: |
