@@ -1466,10 +1466,10 @@ static const char* const kI18nKeys[] = {
     "Aimant mineur",
     "Air humide",
     "Air sec",
-    "Albums",
-    "Alerte Météo Orange en cours ! Restez prudent.",
     "Alarme 1",
     "Alarme 2",
+    "Albums",
+    "Alerte Météo Orange en cours ! Restez prudent.",
     "Alerte Météo Rouge en cours ! Restez prudent.",
     "Alertes",
     "Aller à",
@@ -2061,6 +2061,7 @@ static const char* const kI18nKeys[] = {
     "Nulle par accord entre les joueurs",
     "Némésis",
     "Néon calme",
+    "OFF",
     "OPTIONS",
     "Obsidienne",
     "Oct",
@@ -2079,7 +2080,6 @@ static const char* const kI18nKeys[] = {
     "Ouverture",
     "Ouvrir",
     "PARTIE",
-    "OFF",
     "PARTIE NULLE",
     "PARTIE TERMINÉE",
     "PAUSE",
@@ -2782,10 +2782,10 @@ static const char* const kI18n_en[] = {
     "Minor Magnet",  // "Aimant mineur"
     "Humid air",  // "Air humide"
     "Dry air",  // "Air sec"
-    "Albums",  // "Albums"
-    "Orange weather warning in progress! Stay safe.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Alarm 1",  // "Alarme 1"
     "Alarm 2",  // "Alarme 2"
+    "Albums",  // "Albums"
+    "Orange weather warning in progress! Stay safe.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Red weather warning in progress! Stay safe.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Alerts",  // "Alertes"
     "Go to",  // "Aller à"
@@ -3377,6 +3377,7 @@ static const char* const kI18n_en[] = {
     "Draw by mutual agreement",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Calm neon",  // "Néon calme"
+    "OFF",  // "OFF"
     "OPTIONS",  // "OPTIONS"
     "Obsidian",  // "Obsidienne"
     "Oct",  // "Oct"
@@ -3395,7 +3396,6 @@ static const char* const kI18n_en[] = {
     "Shift start",  // "Ouverture"
     "Open",  // "Ouvrir"
     "GAME",  // "PARTIE"
-    "OFF",  // "OFF"
     "DRAW",  // "PARTIE NULLE"
     "GAME OVER",  // "PARTIE TERMINÉE"
     "PAUSED",  // "PAUSE"
@@ -4098,10 +4098,10 @@ static const char* const kI18n_de[] = {
     "Kleiner Magnet",  // "Aimant mineur"
     "Feuchte Luft",  // "Air humide"
     "Trockene Luft",  // "Air sec"
-    "Alben",  // "Albums"
-    "Unwetterwarnung Orange aktiv! Bleib vorsichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Alarm 1",  // "Alarme 1" (repli en)
     "Alarm 2",  // "Alarme 2" (repli en)
+    "Alben",  // "Albums"
+    "Unwetterwarnung Orange aktiv! Bleib vorsichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Unwetterwarnung Rot aktiv! Bleib vorsichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Warnungen",  // "Alertes"
     "Gehe zu",  // "Aller à"
@@ -4693,6 +4693,7 @@ static const char* const kI18n_de[] = {
     "Remis durch Einigung",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Ruhiges Neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "OPTIONEN",  // "OPTIONS"
     "Obsidian",  // "Obsidienne"
     "Okt",  // "Oct"
@@ -4711,7 +4712,6 @@ static const char* const kI18n_de[] = {
     "Schicht",  // "Ouverture"
     "Öffnen",  // "Ouvrir"
     "PARTIE",  // "PARTIE"
-    "OFF",  // "OFF" (repli en)
     "REMIS",  // "PARTIE NULLE"
     "SPIEL VORBEI",  // "PARTIE TERMINÉE"
     "PAUSE",  // "PAUSE"
@@ -5414,10 +5414,10 @@ static const char* const kI18n_nl[] = {
     "Kleine magneet",  // "Aimant mineur"
     "Vochtige lucht",  // "Air humide"
     "Droge lucht",  // "Air sec"
-    "Albums",  // "Albums"
-    "Weeralarm code oranje! Wees voorzichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Alarm 1",  // "Alarme 1" (repli en)
     "Alarm 2",  // "Alarme 2" (repli en)
+    "Albums",  // "Albums"
+    "Weeralarm code oranje! Wees voorzichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Weeralarm code rood! Wees voorzichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Meldingen",  // "Alertes"
     "Ga naar",  // "Aller à"
@@ -6009,6 +6009,7 @@ static const char* const kI18n_nl[] = {
     "Remise in onderling overleg",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Rustig neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "OPTIES",  // "OPTIONS"
     "Obsidiaan",  // "Obsidienne"
     "Okt",  // "Oct"
@@ -6027,7 +6028,6 @@ static const char* const kI18n_nl[] = {
     "Werkbegin",  // "Ouverture"
     "Openen",  // "Ouvrir"
     "PARTIJ",  // "PARTIE"
-    "OFF",  // "OFF" (repli en)
     "REMISE",  // "PARTIE NULLE"
     "SPEL VOORBIJ",  // "PARTIE TERMINÉE"
     "PAUZE",  // "PAUSE"
@@ -6730,10 +6730,10 @@ static const char* const kI18n_es[] = {
     "Imán menor",  // "Aimant mineur"
     "Aire húmedo",  // "Air humide"
     "Aire seco",  // "Air sec"
-    "Álbumes",  // "Albums"
-    "¡Alerta meteorológica naranja! Ten cuidado.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Alarma 1",  // "Alarme 1"
     "Alarma 2",  // "Alarme 2"
+    "Álbumes",  // "Albums"
+    "¡Alerta meteorológica naranja! Ten cuidado.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "¡Alerta meteorológica roja! Ten cuidado.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Alertas",  // "Alertes"
     "Ir a",  // "Aller à"
@@ -7325,6 +7325,7 @@ static const char* const kI18n_es[] = {
     "Tablas por mutuo acuerdo",  // "Nulle par accord entre les joueurs"
     "Némesis",  // "Némésis"
     "Neón tranquilo",  // "Néon calme"
+    "APAGADO",  // "OFF"
     "OPCIONES",  // "OPTIONS"
     "Obsidiana",  // "Obsidienne"
     "Oct",  // "Oct"
@@ -7343,7 +7344,6 @@ static const char* const kI18n_es[] = {
     "Turno",  // "Ouverture"
     "Abrir",  // "Ouvrir"
     "PARTIDA",  // "PARTIE"
-    "APAGADO",  // "OFF"
     "TABLAS",  // "PARTIE NULLE"
     "FIN DE PARTIDA",  // "PARTIE TERMINÉE"
     "PAUSA",  // "PAUSE"
@@ -8046,10 +8046,10 @@ static const char* const kI18n_it[] = {
     "Magnete minore",  // "Aimant mineur"
     "Aria umida",  // "Air humide"
     "Aria secca",  // "Air sec"
-    "Album",  // "Albums"
-    "Allerta meteo arancione in corso! Fai attenzione.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Sveglia 1",  // "Alarme 1"
     "Sveglia 2",  // "Alarme 2"
+    "Album",  // "Albums"
+    "Allerta meteo arancione in corso! Fai attenzione.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Allerta meteo rossa in corso! Fai attenzione.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Avvisi",  // "Alertes"
     "Vai a",  // "Aller à"
@@ -8641,6 +8641,7 @@ static const char* const kI18n_it[] = {
     "Patta d'accordo tra i giocatori",  // "Nulle par accord entre les joueurs"
     "Nemesi",  // "Némésis"
     "Neon calmo",  // "Néon calme"
+    "SPENTO",  // "OFF"
     "OPZIONI",  // "OPTIONS"
     "Ossidiana",  // "Obsidienne"
     "Ott",  // "Oct"
@@ -8659,7 +8660,6 @@ static const char* const kI18n_it[] = {
     "Inizio turno",  // "Ouverture"
     "Apri",  // "Ouvrir"
     "PARTITA",  // "PARTIE"
-    "SPENTO",  // "OFF"
     "PATTA",  // "PARTIE NULLE"
     "PARTITA FINITA",  // "PARTIE TERMINÉE"
     "PAUSA",  // "PAUSE"
@@ -9362,10 +9362,10 @@ static const char* const kI18n_tr[] = {
     "Küçük Mıknatıs",  // "Aimant mineur"
     "Nemli hava",  // "Air humide"
     "Kuru hava",  // "Air sec"
-    "Albümler",  // "Albums"
-    "Turuncu hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Alarm 1",  // "Alarme 1" (repli en)
     "Alarm 2",  // "Alarme 2" (repli en)
+    "Albümler",  // "Albums"
+    "Turuncu hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Kırmızı hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Rouge en cours ! Restez prudent."
     "Uyarılar",  // "Alertes"
     "Git",  // "Aller à"
@@ -9957,6 +9957,7 @@ static const char* const kI18n_tr[] = {
     "Oyuncuların anlaşmasıyla beraberlik",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Sakin neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "SEÇENEKLER",  // "OPTIONS"
     "Obsidyen",  // "Obsidienne"
     "Eki",  // "Oct"
@@ -9975,7 +9976,6 @@ static const char* const kI18n_tr[] = {
     "Mesai başı",  // "Ouverture"
     "Aç",  // "Ouvrir"
     "OYUN",  // "PARTIE"
-    "OFF",  // "OFF" (repli en)
     "BERABERLİK",  // "PARTIE NULLE"
     "OYUN BİTTİ",  // "PARTIE TERMINÉE"
     "DURAKLATILDI",  // "PAUSE"
