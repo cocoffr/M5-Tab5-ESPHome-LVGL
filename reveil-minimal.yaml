@@ -181,6 +181,11 @@ switch:
       inverted: true
     restore_mode: ALWAYS_OFF
   - platform: template
+    id: reveil_battery_installed
+    name: Batterie montée (déclaration)
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: template
     id: alarm_one_enabled
     name: Alarme 1
     optimistic: true
@@ -190,6 +195,37 @@ switch:
     name: Alarme 2
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
+# Préférences de batterie : la commande matérielle du chargeur reste
+# volontairement désactivée jusqu'au portage des protections d'origine.
+select:
+  - platform: template
+    id: reveil_charge_limit
+    name: Limite de charge souhaitée
+    optimistic: true
+    restore_value: true
+    options: ["100 %", "80 %"]
+    initial_option: "80 %"
+  - platform: template
+    id: reveil_charge_mode
+    name: Mode de charge souhaité
+    optimistic: true
+    restore_value: true
+    options: ["Classique", "Rapide"]
+    initial_option: "Classique"
+  - platform: template
+    id: reveil_power_save
+    name: Économie énergie
+    optimistic: true
+    restore_value: true
+    options: ["Jamais", "Sur batterie", "Toujours"]
+    initial_option: "Jamais"
+  - platform: template
+    id: reveil_wifi_save
+    name: Wi-Fi éco
+    optimistic: true
+    restore_value: true
+    options: ["Jamais", "Sur batterie", "Toujours"]
+    initial_option: "Jamais"
 # Réglages locaux indépendants de Home Assistant.
 number:
   - platform: template
@@ -500,6 +536,10 @@ rtttl:
   speaker: alarm_speaker
   gain: 50%
 font:
+  - file: "gfonts://Noto Sans Symbols"
+    id: gear_font
+    size: 42
+    glyphs: "⚙"
   - file: "gfonts://Noto Sans Symbols 2"
     id: icon_font
     size: 44
@@ -557,7 +597,7 @@ lvgl:
               - script.execute: open_settings
             widgets:
               - label:
-                  text: "Régl."
+                  text: "⚙"
                   align: CENTER
                   text_font: label_font
                   text_color: 0xB5E8F4
@@ -1243,23 +1283,56 @@ lvgl:
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Non disponible"
+            id: reveil_power_save_label
+            text: "Jamais"
             x: 55
             y: 395
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Non disponible"
+            id: reveil_wifi_save_label
+            text: "Jamais"
             x: 55
             y: 515
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Non configurée"
+            id: reveil_battery_installed_label
+            text: "Non"
             x: 55
             y: 630
             text_font: label_font
             text_color: 0xD7E7EB
+        - button:
+            x: 310
+            y: 370
+            width: 250
+            height: 65
+            bg_color: 0x304458
+            on_click:
+              - select.next: reveil_power_save
+            widgets:
+              - label: { text: "Changer", align: CENTER, text_font: label_font }
+        - button:
+            x: 310
+            y: 485
+            width: 250
+            height: 65
+            bg_color: 0x304458
+            on_click:
+              - select.next: reveil_wifi_save
+            widgets:
+              - label: { text: "Changer", align: CENTER, text_font: label_font }
+        - button:
+            x: 310
+            y: 595
+            width: 250
+            height: 65
+            bg_color: 0x304458
+            on_click:
+              - switch.toggle: reveil_battery_installed
+            widgets:
+              - label: { text: "Oui / Non", align: CENTER, text_font: label_font }
         - label:
             text: "État"
             x: 675
@@ -2035,7 +2108,7 @@ interval:
           if (!id(manual_clock) && t.is_valid() && t.day_of_year != last_drawn_day) {
             last_drawn_day = t.day_of_year;
             const char *jours[] = {"dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"};
-            const char *mois[] = {"janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"};
+            const char *mois[] = {"janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"};
             char date_text[64];
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             set_label_if_changed(id(date_label), date_text);
