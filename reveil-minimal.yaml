@@ -8,6 +8,7 @@ esphome:
   includes:
     - Tab5/ecran/tab5_lien_c6.h
     - Tab5/ecran/tab5_lien_c6.cpp
+    - Tab5/socle/tab5_core.h
     - Tab5/socle/tab5_batterie.h
 esp32:
   board: esp32-p4-evboard
