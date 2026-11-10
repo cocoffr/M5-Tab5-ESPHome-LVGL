@@ -97,19 +97,6 @@ sensor:
     id: reveil_uptime
     name: Reveil temps de fonctionnement
     update_interval: 60s
-globals:
-  - id: reveil_voltage_sample_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-  - id: reveil_current_sample_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
-  - id: reveil_temperature_sample_ms
-    type: uint32_t
-    restore_value: no
-    initial_value: '0'
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -371,6 +358,18 @@ media_player:
     volume_min: 0.05
     volume_max: 1.0
 globals:
+  - id: reveil_voltage_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: reveil_current_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: reveil_temperature_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
   - id: lien_c6_branche
     type: bool
     initial_value: 'lien_c6_demarrage()'
