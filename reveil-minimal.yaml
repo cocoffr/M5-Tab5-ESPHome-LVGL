@@ -476,6 +476,38 @@ script:
       - lambda: |-
           id(manual_clock) = false;
           id(last_alarm_minute) = -1;
+  - id: next_radio_station
+    then:
+      - lambda: |-
+          static const char *stations[] = {
+            "Chérie FM", "Chérie FM 90", "Chérie FM Acoustic", "Rire et Chansons"
+          };
+          const auto selected = id(reveil_station_radio).current_option();
+          int index = 0;
+          for (int i = 0; i < 4; ++i) {
+            if (selected == stations[i]) { index = i; break; }
+          }
+          auto call = id(reveil_station_radio).make_call();
+          call.set_option(stations[(index + 1) % 4]);
+          call.perform();
+      - if:
+          condition:
+            lambda: 'return id(radio_manual) && !id(alarm_ringing);'
+          then:
+            - media_player.stop: radio_player
+            - delay: 200ms
+            - media_player.play_media:
+                id: radio_player
+                media_url: !lambda |-
+                  const auto station = id(reveil_station_radio).current_option();
+                  if (station == "Chérie FM 90")
+                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
+                  if (station == "Chérie FM Acoustic")
+                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
+                  if (station == "Rire et Chansons")
+                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
+                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
+                announcement: false
   - id: toggle_radio
     then:
       - if:
@@ -1241,6 +1273,22 @@ lvgl:
               - lvgl.page.show: reveil_systeme_page
             widgets:
               - label: { text: "Système", align: CENTER, text_font: control_font }
+        - button:
+            x: 300
+            y: 355
+            width: 680
+            height: 110
+            radius: 18
+            bg_color: 0x304458
+            on_click:
+              - script.execute: next_radio_station
+            widgets:
+              - label:
+                  id: reveil_station_label
+                  text: "Station : Chérie FM"
+                  align: CENTER
+                  text_font: label_font
+                  text_color: 0xFFFFFF
         - button:
             x: 460
             y: 560
@@ -2392,6 +2440,8 @@ interval:
           snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
           set_label_if_changed(id(volume_label), value);
           set_label_if_changed(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
+          const std::string station_texte = std::string("Station : ") + id(reveil_station_radio).current_option();
+          set_label_if_changed(id(reveil_station_label), station_texte.c_str());
           set_label_if_changed(id(settings_title), id(selected_alarm) == 1 ? "Alarme 1" : "Alarme 2");
           snprintf(value, sizeof(value), "%02d", (int)(id(selected_alarm) == 1 ? id(alarm_one_hour).state : id(alarm_two_hour).state));
           set_label_if_changed(id(settings_hour), value);
