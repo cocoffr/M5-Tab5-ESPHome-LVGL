@@ -70,7 +70,7 @@ int main() {
 
   // Redémarrage avec verrou thermique mémorisé : ne jamais recharger.
   EtatChargeur locked;
-  chargeur_demarrer(locked, static_cast<uint8_t>(MemoireBatterie::PRESENTE),
+  chargeur_demarrer(locked, static_cast<uint8_t>(MemoireBatterie::VUE),
                    true, true, true, 1000);
   assert(chargeur_securite_posee(locked));
   chargeur_tick(locked, 0, true, 9001);
