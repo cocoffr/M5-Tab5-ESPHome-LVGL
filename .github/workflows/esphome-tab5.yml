@@ -178,6 +178,12 @@ jobs:
           g++ -std=c++17 -O2 -Wall -Wextra -I Tab5/socle -o "$RUNNER_TEMP/test_alarm_clock" \
             tools/test_alarm_clock.cpp Tab5/socle/alarm_clock.cpp Tab5/socle/tab5_core.cpp Tab5/socle/tab5_i18n.cpp
           "$RUNNER_TEMP/test_alarm_clock"
+      - name: Contrôleur batterie du réveil C++ (états, protections, limites)
+        run: |
+          g++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer \
+            -Wall -Wextra -I . -I Tab5/socle -o "$RUNNER_TEMP/test_reveil_batterie" \
+            tools/test_reveil_batterie.cpp
+          "$RUNNER_TEMP/test_reveil_batterie"
       - name: Socle C++ commun (tab5_champs.cpp + tab5_core.cpp, géométrie, modèle des tuiles)
         # Lecture bornée des payloads, dates et heures « HH:MM », ce que les tuiles
         # partagent (audit du 07/10/2026, lot L5) : pur, testé ici comme le réveil.
