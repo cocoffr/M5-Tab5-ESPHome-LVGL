@@ -432,6 +432,10 @@ globals:
     type: int
     restore_value: yes
     initial_value: '5'
+  - id: alarm_two_queued
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: active_alarm_radio
     type: bool
     restore_value: no
@@ -567,6 +571,15 @@ script:
           id: alarm_buzzer
       - media_player.stop: radio_player
       - lvgl.page.show: reveil_page
+      - if:
+          condition:
+            lambda: 'return id(alarm_two_queued);'
+          then:
+            - lambda: |-
+                id(alarm_two_queued) = false;
+                id(selected_alarm) = 2;
+                id(active_alarm_radio) = id(alarm_two_radio);
+            - script.execute: start_alarm
   - id: snooze_alarm
     then:
       - lambda: |-
@@ -1343,6 +1356,12 @@ lvgl:
             y: 145
             text_font: control_font
             text_color: 0xB5E8F4
+        - label:
+            text: "Charge matérielle désactivée"
+            x: 675
+            y: 185
+            text_font: label_font
+            text_color: 0xFFB86B
         - label:
             text: "ÉTAT"
             x: 675
@@ -2360,8 +2379,14 @@ interval:
           char diag[48];
           if (id(reveil_wifi_signal).has_state()) { snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state); set_label_if_changed(id(sys_rssi), diag); }
           if (id(reveil_uptime).has_state()) { snprintf(diag, sizeof(diag), "%.0f min", id(reveil_uptime).state / 60.0f); set_label_if_changed(id(sys_uptime), diag); }
-          snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_sram), diag);
-          snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024)); set_label_if_changed(id(sys_psram), diag);
+          snprintf(diag, sizeof(diag), "%u / %u Ko libres",
+            (unsigned)(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024),
+            (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024));
+          set_label_if_changed(id(sys_sram), diag);
+          snprintf(diag, sizeof(diag), "%u / %u Ko libres",
+            (unsigned)(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024),
+            (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024));
+          set_label_if_changed(id(sys_psram), diag);
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
           if (id(reveil_cpu_temperature).has_state()) {
             snprintf(diag, sizeof(diag), "%.1f °C", id(reveil_cpu_temperature).state);
@@ -2481,6 +2506,9 @@ interval:
               shown_minute == (int) id(alarm_two_minute).state;
             if (minute_key != id(last_alarm_minute) && (match_one || match_two)) {
               id(last_alarm_minute) = minute_key;
+              // Deux alarmes à la même minute : Réveil 1 sonne en premier,
+              // Réveil 2 attend l'arrêt explicite de la première sonnerie.
+              id(alarm_two_queued) = match_one && match_two;
               id(selected_alarm) = match_one ? 1 : 2;
               id(active_alarm_radio) = id(selected_alarm) == 1
                 ? id(alarm_one_radio) : id(alarm_two_radio);
