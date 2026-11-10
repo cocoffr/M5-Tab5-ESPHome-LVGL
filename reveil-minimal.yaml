@@ -252,6 +252,13 @@ select:
     restore_value: true
     options: ["Jamais", "Sur batterie", "Toujours"]
     initial_option: "Jamais"
+  - platform: template
+    id: reveil_station_radio
+    name: Station radio
+    optimistic: true
+    restore_value: true
+    options: ["Chérie FM", "Chérie FM 90", "Chérie FM Acoustic", "Rire et Chansons"]
+    initial_option: "Chérie FM"
 # Réglages locaux indépendants de Home Assistant.
 number:
   - platform: template
@@ -484,7 +491,15 @@ script:
                 volume: !lambda 'return id(volume_level).state / 10.0f;'
             - media_player.play_media:
                 id: radio_player
-                media_url: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios"
+                media_url: !lambda |-
+                  const auto station = id(reveil_station_radio).current_option();
+                  if (station == "Chérie FM 90")
+                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
+                  if (station == "Chérie FM Acoustic")
+                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
+                  if (station == "Rire et Chansons")
+                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
+                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
                 announcement: false
   - id: start_alarm
     then:
@@ -499,7 +514,15 @@ script:
                 volume: !lambda 'return (id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f;'
             - media_player.play_media:
                 id: radio_player
-                media_url: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios"
+                media_url: !lambda |-
+                  const auto station = id(reveil_station_radio).current_option();
+                  if (station == "Chérie FM 90")
+                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
+                  if (station == "Chérie FM Acoustic")
+                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
+                  if (station == "Rire et Chansons")
+                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
+                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
                 announcement: false
           else:
             - rtttl.play:
