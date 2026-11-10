@@ -2144,6 +2144,7 @@ interval:
           set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).current_option().c_str());
           set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).current_option().c_str());
           set_label_if_changed(id(reveil_battery_installed_label), id(reveil_battery_installed).state ? "Oui" : "Non");
+          // La présence déclarée seule ne suffit pas : chargeur coupé au démarrage.
           const bool batt_present = id(reveil_battery_installed).state &&
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
@@ -2182,13 +2183,35 @@ interval:
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
             set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" : "Détectée");
-            if (id(reveil_batt_current).has_state() && std::isfinite(id(reveil_batt_current).state)) {
+            if (on_battery && id(reveil_batt_current).state >= 0.020f) {
               snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
               set_label_if_changed(id(reveil_batt_conso), diag);
+            } else {
+              set_label_if_changed(id(reveil_batt_conso), "--");
             }
-            // Estimation indicative de l’état de charge, non utilisée pour commander le chargeur.
-            float pct = (id(reveil_batt_voltage).state - 6.6f) * (100.0f / 1.75f);
-            pct = std::max(0.0f, std::min(100.0f, pct));
+            // Courbe 2S à 25 points du contrôleur batterie du projet d'origine.
+            // Indication seulement, sans commande de charge et sans compensation
+            // de la tension sous courant : précision limitée.
+            static const uint16_t curve_mv[] = {
+              3300,3350,3500,3550,3625,3675,3700,3725,3750,3775,
+              3800,3825,3850,3875,3900,3925,3950,3975,4000,4025,
+              4050,4075,4100,4125,4175
+            };
+            static const uint8_t curve_pct[] = {
+              0,1,2,3,4,5,7,11,13,15,18,22,30,41,47,51,53,57,
+              62,81,90,95,97,98,100
+            };
+            const float cell_mv = id(reveil_batt_voltage).state * 500.0f;
+            float pct = 100.0f;
+            if (cell_mv <= curve_mv[0]) pct = 0.0f;
+            else for (size_t i = 1; i < 25; ++i) {
+              if (cell_mv <= curve_mv[i]) {
+                pct = curve_pct[i-1] + (cell_mv - curve_mv[i-1]) *
+                  (curve_pct[i] - curve_pct[i-1]) /
+                  float(curve_mv[i] - curve_mv[i-1]);
+                break;
+              }
+            }
             snprintf(diag, sizeof(diag), "~%.0f %%", pct);
             set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
