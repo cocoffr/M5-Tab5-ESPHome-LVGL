@@ -36,5 +36,27 @@ int main() {
   assert(!chargeur_tick(d, 0, true, 9400 + 15u*60u*1000u - 1).allumer);
   chargeur_surveillance_thermique(d, 40.0f, 9400 + 15u*60u*1000u);
   assert(!d.verrou_thermique);
+  // Une surtension déclenche une sonde et coupe immédiatement le chargeur.
+  EtatChargeur e;
+  chargeur_demarrer(e, 0, false, true, false, 1000);
+  chargeur_tick(e, 0, false, 9001);
+  chargeur_lecture(e, 7.80f, 9100);
+  assert(chargeur_tick(e, 0, false, 9200).allumer);
+  chargeur_lecture(e, 8.60f, 9300);
+  assert(!e.allume);
+  assert(e.sonde);
+  assert(e.securite_sonde == CauseSecurite::TENSION);
+  assert(!chargeur_tick(e, 0, false, 9400).allumer);
+  chargeur_tick(e, 0, false, 17400);
+  chargeur_lecture(e, 7.80f, 17500);
+  assert(e.electrique_vu);
+
+  // Limite 80 % : une batterie déjà au-dessus du seuil ne doit pas
+  // démarrer une nouvelle charge.
+  EtatChargeur limit;
+  chargeur_demarrer(limit, 0, false, true, false, 1000);
+  chargeur_tick(limit, 1, false, 9001);
+  chargeur_lecture(limit, 8.20f, 9100);
+  assert(!chargeur_tick(limit, 1, false, 9200).allumer);
   std::cout << "Tests batterie OK\\n";
 }
