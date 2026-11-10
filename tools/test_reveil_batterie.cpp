@@ -58,5 +58,32 @@ int main() {
   chargeur_tick(limit, 1, false, 9001);
   chargeur_lecture(limit, 8.20f, 9100);
   assert(!chargeur_tick(limit, 1, false, 9200).allumer);
+  // Absence de batterie : aucune activation même après plusieurs cycles.
+  EtatChargeur absent;
+  chargeur_demarrer(absent, static_cast<uint8_t>(MemoireBatterie::INCONNUE),
+                   false, true, false, 1000);
+  chargeur_tick(absent, 0, false, 9001);
+  chargeur_lecture(absent, 1.90f, 9100);
+  for (uint32_t ms = 9200; ms < 30000; ms += 1000) {
+    assert(!chargeur_tick(absent, 0, false, ms).allumer);
+  }
+
+  // Redémarrage avec verrou thermique mémorisé : ne jamais recharger.
+  EtatChargeur locked;
+  chargeur_demarrer(locked, static_cast<uint8_t>(MemoireBatterie::PRESENTE),
+                   true, true, true, 1000);
+  assert(chargeur_securite_posee(locked));
+  chargeur_tick(locked, 0, true, 9001);
+  chargeur_lecture(locked, 7.70f, 9100);
+  assert(!chargeur_tick(locked, 0, true, 9200).allumer);
+
+  // Lecture invalide : ne pas inventer une présence de batterie.
+  EtatChargeur invalid;
+  chargeur_demarrer(invalid, static_cast<uint8_t>(MemoireBatterie::INCONNUE),
+                   false, true, false, 1000);
+  chargeur_tick(invalid, 0, false, 9001);
+  chargeur_lecture(invalid, NAN, 9100);
+  assert(invalid.presence == PresenceBatterie::INCONNUE);
+  assert(!chargeur_tick(invalid, 0, false, 9200).allumer);
   std::cout << "Tests batterie OK\\n";
 }
