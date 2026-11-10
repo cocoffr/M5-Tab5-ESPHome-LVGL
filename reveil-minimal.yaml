@@ -8,6 +8,7 @@ esphome:
   includes:
     - Tab5/ecran/tab5_lien_c6.h
     - Tab5/ecran/tab5_lien_c6.cpp
+    - Tab5/socle/tab5_batterie.h
 esp32:
   board: esp32-p4-evboard
   flash_size: 16MB
@@ -73,6 +74,12 @@ sensor:
     current:
       id: reveil_batt_current
       name: Réveil courant batterie
+  # La sonde thermique CPU est requise avant toute activation future du chargeur.
+  # Sans température valide, la commande de charge reste matériellement coupée.
+  - platform: internal_temperature
+    id: reveil_cpu_temperature
+    name: Réveil température CPU
+    update_interval: 15s
   - platform: uptime
     id: reveil_uptime
     name: Reveil temps de fonctionnement
@@ -179,6 +186,12 @@ switch:
       pi4ioe5v6408: wifi_ioexp
       number: 5
       inverted: true
+    restore_mode: ALWAYS_OFF
+  # Interverrouillage explicite : aucun chargeur actif par défaut.
+  - platform: template
+    id: reveil_charge_authorized
+    name: Autoriser charge batterie (maintenance)
+    optimistic: true
     restore_mode: ALWAYS_OFF
   - platform: template
     id: reveil_battery_installed
@@ -2145,6 +2158,31 @@ interval:
           set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).current_option().c_str());
           set_label_if_changed(id(reveil_battery_installed_label), id(reveil_battery_installed).state ? "Oui" : "Non");
           // La présence déclarée seule ne suffit pas : chargeur coupé au démarrage.
+          // Contrôleur original importé en lecture seule pour diagnostic.
+          // L'interverrouillage de sécurité interdit toute activation de CHG_EN
+          // tant que le portage complet des transitions/sondes n'est pas validé.
+          static EtatChargeur controle_charge;
+          static bool controle_initialise = false;
+          if (!controle_initialise) {
+            chargeur_demarrer(controle_charge, static_cast<uint8_t>(MemoireBatterie::INCONNUE),
+              id(reveil_battery_installed).state, true, false, millis());
+            controle_initialise = true;
+          }
+          if (id(reveil_batt_voltage).has_state()) {
+            chargeur_lecture(controle_charge, id(reveil_batt_voltage).state, millis());
+          }
+          if (id(reveil_batt_current).has_state()) {
+            chargeur_lecture_courant(controle_charge, id(reveil_batt_current).state, millis());
+          }
+          if (id(reveil_cpu_temperature).has_state()) {
+            chargeur_surveillance_thermique(controle_charge, id(reveil_cpu_temperature).state, millis());
+          } else {
+            chargeur_surveillance_thermique(controle_charge, NAN, millis());
+          }
+          // Sécurité fail-closed : les sorties restent coupées même en cas
+          // de demande utilisateur. Ne pas retirer avant tests sur matériel.
+          if (id(reveil_charge_enable).state) id(reveil_charge_enable).turn_off();
+          if (id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
           const bool batt_present = id(reveil_battery_installed).state &&
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
