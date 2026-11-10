@@ -2171,17 +2171,14 @@ interval:
           }
           // Les valeurs INA226 sont publiées toutes les 15 s : ne pas traiter
           // 15 fois la même lecture comme autant de nouvelles mesures.
-          static float derniere_tension = NAN;
-          static float dernier_courant = NAN;
+          static uint32_t derniere_lecture_ms = 0;
           const float tension = id(reveil_batt_voltage).has_state() ? id(reveil_batt_voltage).state : NAN;
           const float courant = id(reveil_batt_current).has_state() ? id(reveil_batt_current).state : NAN;
-          if (std::isfinite(tension) && (!std::isfinite(derniere_tension) || tension != derniere_tension)) {
-            chargeur_lecture(controle_charge, tension, millis());
-            derniere_tension = tension;
-          }
-          if (std::isfinite(courant) && (!std::isfinite(dernier_courant) || courant != dernier_courant)) {
-            chargeur_lecture_courant(controle_charge, courant, millis());
-            dernier_courant = courant;
+          // Échantillonnage au rythme INA226, y compris si la valeur ne change pas.
+          if (millis() - derniere_lecture_ms >= 15000UL) {
+            derniere_lecture_ms = millis();
+            if (std::isfinite(tension)) chargeur_lecture(controle_charge, tension, millis());
+            if (std::isfinite(courant)) chargeur_lecture_courant(controle_charge, courant, millis());
           }
           if (id(reveil_cpu_temperature).has_state()) {
             chargeur_surveillance_thermique(controle_charge, id(reveil_cpu_temperature).state, millis());
