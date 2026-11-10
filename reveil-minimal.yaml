@@ -2460,19 +2460,30 @@ interval:
           if (id(alarm_ringing) && !id(active_alarm_radio) && !id(alarm_buzzer).is_playing()) {
             id(alarm_buzzer).play("reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p");
           }
-          if (clock_valid) {
-            int minute_key = id(manual_clock) ? (shown_hour * 60 + shown_minute) : (int)(t.timestamp / 60);
-            bool snooze_due = id(snooze_pending) && (int32_t)(millis() - id(snooze_deadline_ms)) >= 0;
-            bool match_one = id(alarm_one_enabled).state && shown_hour == (int) id(alarm_one_hour).state && shown_minute == (int) id(alarm_one_minute).state;
-            bool match_two = id(alarm_two_enabled).state && shown_hour == (int) id(alarm_two_hour).state && shown_minute == (int) id(alarm_two_minute).state;
-            if (snooze_due || (minute_key != id(last_alarm_minute) && (match_one || match_two) && !id(snooze_pending))) {
+          // Le snooze utilise millis() : il doit fonctionner même si le Wi-Fi
+          // et l'heure SNTP deviennent indisponibles après la première sonnerie.
+          const bool snooze_due = id(snooze_pending) &&
+            (int32_t)(millis() - id(snooze_deadline_ms)) >= 0;
+          if (snooze_due && !id(alarm_ringing)) {
+            id(snooze_pending) = false;
+            id(start_alarm).execute();
+          }
+          if (clock_valid && !id(alarm_ringing) && !id(snooze_pending) && !snooze_due) {
+            // En mode SNTP, l'horodatage absolu distingue les deux occurrences
+            // de la même heure lors du passage à l'heure d'hiver.
+            const int minute_key = id(manual_clock)
+              ? (shown_hour * 60 + shown_minute) : (int)(t.timestamp / 60);
+            const bool match_one = id(alarm_one_enabled).state &&
+              shown_hour == (int) id(alarm_one_hour).state &&
+              shown_minute == (int) id(alarm_one_minute).state;
+            const bool match_two = id(alarm_two_enabled).state &&
+              shown_hour == (int) id(alarm_two_hour).state &&
+              shown_minute == (int) id(alarm_two_minute).state;
+            if (minute_key != id(last_alarm_minute) && (match_one || match_two)) {
               id(last_alarm_minute) = minute_key;
-              if (!snooze_due) {
-                id(selected_alarm) = match_one ? 1 : 2;
-                id(active_alarm_radio) = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
-              }
-              id(snooze_pending) = false;
-              if (id(alarm_ringing)) id(stop_alarm).execute();
+              id(selected_alarm) = match_one ? 1 : 2;
+              id(active_alarm_radio) = id(selected_alarm) == 1
+                ? id(alarm_one_radio) : id(alarm_two_radio);
               id(start_alarm).execute();
             }
           }
