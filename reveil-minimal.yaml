@@ -503,7 +503,7 @@ font:
   - file: "gfonts://Noto Sans Symbols 2"
     id: icon_font
     size: 44
-    glyphs: "☀⚡⚙⌁"
+    glyphs: "☀⚡"
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
@@ -541,10 +541,10 @@ lvgl:
             text_color: 0x00CC33
         - label:
             id: reveil_wifi_icon
-            text: "⌁"
+            text: "Wi-Fi"
             x: 1085
             y: 9
-            text_font: icon_font
+            text_font: label_font
             text_color: 0x535B65
         - button:
             x: 1185
@@ -557,9 +557,9 @@ lvgl:
               - script.execute: open_settings
             widgets:
               - label:
-                  text: "⚙"
+                  text: "Régl."
                   align: CENTER
-                  text_font: icon_font
+                  text_font: label_font
                   text_color: 0xB5E8F4
         - label:
             id: date_label
