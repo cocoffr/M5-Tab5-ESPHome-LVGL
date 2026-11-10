@@ -1271,13 +1271,15 @@ lvgl:
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Charge désactivée"
+            id: reveil_charge_limit_label
+            text: "80 % (inactif)"
             x: 55
             y: 275
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
-            text: "Mode inactif"
+            id: reveil_charge_mode_label
+            text: "Classique (inactif)"
             x: 355
             y: 275
             text_font: label_font
@@ -1303,6 +1305,26 @@ lvgl:
             y: 630
             text_font: label_font
             text_color: 0xD7E7EB
+        - button:
+            x: 55
+            y: 305
+            width: 245
+            height: 43
+            bg_color: 0x304458
+            on_click:
+              - select.next: reveil_charge_limit
+            widgets:
+              - label: { text: "80 / 100 %", align: CENTER, text_font: label_font }
+        - button:
+            x: 355
+            y: 305
+            width: 235
+            height: 43
+            bg_color: 0x304458
+            on_click:
+              - select.next: reveil_charge_mode
+            widgets:
+              - label: { text: "Changer", align: CENTER, text_font: label_font }
         - button:
             x: 310
             y: 370
@@ -2113,6 +2135,37 @@ interval:
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             set_label_if_changed(id(date_label), date_text);
           }
+          // Chargeur toujours désactivé : préférences enregistrées uniquement.
+          char pref[48];
+          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_limit).state.c_str());
+          set_label_if_changed(id(reveil_charge_limit_label), pref);
+          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_mode).state.c_str());
+          set_label_if_changed(id(reveil_charge_mode_label), pref);
+          set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).state.c_str());
+          set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).state.c_str());
+          set_label_if_changed(id(reveil_battery_installed_label), id(reveil_battery_installed).state ? "Oui" : "Non");
+          const bool batt_present = id(reveil_battery_installed).state &&
+            id(reveil_batt_voltage).has_state() &&
+            std::isfinite(id(reveil_batt_voltage).state) &&
+            id(reveil_batt_voltage).state >= 5.5f;
+          const bool on_battery = batt_present &&
+            id(reveil_batt_current).has_state() &&
+            std::isfinite(id(reveil_batt_current).state) &&
+            id(reveil_batt_current).state > 0.05f;
+          const std::string power_mode = id(reveil_power_save).state;
+          const bool eco_screen = power_mode == "Toujours" ||
+            (power_mode == "Sur batterie" && on_battery);
+          static int previous_screen_pct = -1;
+          const int requested_screen_pct = (int)(id(brightness_level).state * 10.0f);
+          const int effective_screen_pct = eco_screen ? std::min(requested_screen_pct, 30) : requested_screen_pct;
+          if (effective_screen_pct != previous_screen_pct) {
+            previous_screen_pct = effective_screen_pct;
+            auto call = id(backlight).turn_on();
+            call.set_brightness(effective_screen_pct / 100.0f);
+            call.perform();
+          }
+          // Wi-Fi éco conservé comme préférence : ne pas couper le réseau
+          // nécessaire à la synchronisation SNTP et à la radio.
           // Diagnostics locaux, sans dépendance aux entités domotiques du projet HMI.
           set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
           set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
@@ -2124,11 +2177,11 @@ interval:
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
           set_label_if_changed(id(sys_temp), "Non mesurée");
           set_label_if_changed(id(sys_cpu), "Non mesurée");
-          if (id(reveil_batt_voltage).has_state() && std::isfinite(id(reveil_batt_voltage).state) && id(reveil_batt_voltage).state >= 5.5f) {
+          if (batt_present) {
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
-            set_label_if_changed(id(reveil_batt_etat), id(reveil_batt_current).has_state() && id(reveil_batt_current).state < -0.05f ? "Courant entrant" : "Détectée");
+            set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" : "Détectée");
             if (id(reveil_batt_current).has_state() && std::isfinite(id(reveil_batt_current).state)) {
               snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
               set_label_if_changed(id(reveil_batt_conso), diag);
