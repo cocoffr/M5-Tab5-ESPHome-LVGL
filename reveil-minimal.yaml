@@ -72,19 +72,44 @@ sensor:
     bus_voltage:
       id: reveil_batt_voltage
       name: Réveil tension batterie
+      on_value:
+        then:
+          - lambda: |-
+              id(reveil_voltage_sample_ms) = millis();
     current:
       id: reveil_batt_current
       name: Réveil courant batterie
+      on_value:
+        then:
+          - lambda: |-
+              id(reveil_current_sample_ms) = millis();
   # La sonde thermique CPU est requise avant toute activation future du chargeur.
   # Sans température valide, la commande de charge reste matériellement coupée.
   - platform: internal_temperature
     id: reveil_cpu_temperature
     name: Réveil température CPU
     update_interval: 15s
+    on_value:
+      then:
+        - lambda: |-
+            id(reveil_temperature_sample_ms) = millis();
   - platform: uptime
     id: reveil_uptime
     name: Reveil temps de fonctionnement
     update_interval: 60s
+globals:
+  - id: reveil_voltage_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: reveil_current_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
+  - id: reveil_temperature_sample_ms
+    type: uint32_t
+    restore_value: no
+    initial_value: '0'
 text_sensor:
   - platform: wifi_info
     ip_address:
@@ -2171,14 +2196,21 @@ interval:
           }
           // Les valeurs INA226 sont publiées toutes les 15 s : ne pas traiter
           // 15 fois la même lecture comme autant de nouvelles mesures.
-          static uint32_t derniere_lecture_ms = 0;
           const float tension = id(reveil_batt_voltage).has_state() ? id(reveil_batt_voltage).state : NAN;
           const float courant = id(reveil_batt_current).has_state() ? id(reveil_batt_current).state : NAN;
-          // Échantillonnage au rythme INA226, y compris si la valeur ne change pas.
-          if (millis() - derniere_lecture_ms >= 15000UL) {
-            derniere_lecture_ms = millis();
-            if (std::isfinite(tension)) chargeur_lecture(controle_charge, tension, millis());
-            if (std::isfinite(courant)) chargeur_lecture_courant(controle_charge, courant, millis());
+          // Ne transmettre que les mesures réellement renouvelées par INA226.
+          // Une valeur inchangée reste une nouvelle mesure si on_value a été appelé.
+          static uint32_t tension_traitee_ms = 0;
+          static uint32_t courant_traite_ms = 0;
+          if (id(reveil_voltage_sample_ms) != 0 &&
+              id(reveil_voltage_sample_ms) != tension_traitee_ms && std::isfinite(tension)) {
+            tension_traitee_ms = id(reveil_voltage_sample_ms);
+            chargeur_lecture(controle_charge, tension, millis());
+          }
+          if (id(reveil_current_sample_ms) != 0 &&
+              id(reveil_current_sample_ms) != courant_traite_ms && std::isfinite(courant)) {
+            courant_traite_ms = id(reveil_current_sample_ms);
+            chargeur_lecture_courant(controle_charge, courant, millis());
           }
           if (id(reveil_cpu_temperature).has_state()) {
             chargeur_surveillance_thermique(controle_charge, id(reveil_cpu_temperature).state, millis());
@@ -2190,11 +2222,22 @@ interval:
           const uint8_t limite = id(reveil_charge_limit).current_option() == "80 %" ? 1 : 0;
           const ActionChargeur decision = chargeur_tick(controle_charge, limite,
             id(reveil_battery_installed).state, millis());
+          // La machine d'états demande une lecture de confirmation :
+          // forcer un vrai cycle INA226, pas recycler le dernier état publié.
+          if (decision.lire) id(reveil_ina226).update();
           // Mode simulation sûr : le contrôleur calcule les ordres, mais
           // aucun ordre d'activation ne peut atteindre le matériel.
           // L'INA226 en mode simulation voit donc toujours CHG_EN coupé.
           constexpr bool kChargeMaterielleValidee = false;
-          const bool mesures_valides = std::isfinite(tension) && std::isfinite(courant) &&
+          const uint32_t maintenant = millis();
+          const bool mesures_fraiches =
+            id(reveil_voltage_sample_ms) != 0 && id(reveil_current_sample_ms) != 0 &&
+            id(reveil_temperature_sample_ms) != 0 &&
+            (uint32_t)(maintenant - id(reveil_voltage_sample_ms)) <= 30000UL &&
+            (uint32_t)(maintenant - id(reveil_current_sample_ms)) <= 30000UL &&
+            (uint32_t)(maintenant - id(reveil_temperature_sample_ms)) <= 30000UL;
+          const bool mesures_valides = mesures_fraiches &&
+            std::isfinite(tension) && std::isfinite(courant) &&
             id(reveil_cpu_temperature).has_state() &&
             std::isfinite(id(reveil_cpu_temperature).state);
           const bool autorise = kChargeMaterielleValidee &&
