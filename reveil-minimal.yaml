@@ -2113,16 +2113,6 @@ interval:
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             set_label_if_changed(id(date_label), date_text);
           }
-          if (id(reveil_ip).has_state()) set_label_if_changed(id(reveil_ip_label), id(reveil_ip).state.c_str());
-          char system_value[48];
-          if (id(reveil_wifi_signal).has_state()) {
-            snprintf(system_value, sizeof(system_value), "%.0f dBm", id(reveil_wifi_signal).state);
-            set_label_if_changed(id(reveil_wifi_label), system_value);
-          }
-          if (id(reveil_uptime).has_state()) {
-            snprintf(system_value, sizeof(system_value), "%.0f min", id(reveil_uptime).state / 60.0f);
-            set_label_if_changed(id(reveil_uptime_label), system_value);
-          }
           // Diagnostics locaux, sans dépendance aux entités domotiques du projet HMI.
           set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
           set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
