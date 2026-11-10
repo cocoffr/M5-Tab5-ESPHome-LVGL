@@ -2149,7 +2149,7 @@ interval:
             snprintf(date_text, sizeof(date_text), "%s %d %s", jours[t.day_of_week - 1], t.day_of_month, mois[t.month - 1]);
             set_label_if_changed(id(date_label), date_text);
           }
-          // Chargeur toujours désactivé : préférences enregistrées uniquement.
+          // Contrôleur de charge : calcul des décisions, sorties verrouillées en attente des essais matériels.
           char pref[48];
           snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_limit).current_option().c_str());
           set_label_if_changed(id(reveil_charge_limit_label), pref);
@@ -2169,21 +2169,59 @@ interval:
               id(reveil_battery_installed).state, true, false, millis());
             controle_initialise = true;
           }
-          if (id(reveil_batt_voltage).has_state()) {
-            chargeur_lecture(controle_charge, id(reveil_batt_voltage).state, millis());
+          // Les valeurs INA226 sont publiées toutes les 15 s : ne pas traiter
+          // 15 fois la même lecture comme autant de nouvelles mesures.
+          static float derniere_tension = NAN;
+          static float dernier_courant = NAN;
+          const float tension = id(reveil_batt_voltage).has_state() ? id(reveil_batt_voltage).state : NAN;
+          const float courant = id(reveil_batt_current).has_state() ? id(reveil_batt_current).state : NAN;
+          if (std::isfinite(tension) && (!std::isfinite(derniere_tension) || tension != derniere_tension)) {
+            chargeur_lecture(controle_charge, tension, millis());
+            derniere_tension = tension;
           }
-          if (id(reveil_batt_current).has_state()) {
-            chargeur_lecture_courant(controle_charge, id(reveil_batt_current).state, millis());
+          if (std::isfinite(courant) && (!std::isfinite(dernier_courant) || courant != dernier_courant)) {
+            chargeur_lecture_courant(controle_charge, courant, millis());
+            dernier_courant = courant;
           }
           if (id(reveil_cpu_temperature).has_state()) {
             chargeur_surveillance_thermique(controle_charge, id(reveil_cpu_temperature).state, millis());
           } else {
             chargeur_surveillance_thermique(controle_charge, NAN, millis());
           }
-          // Sécurité fail-closed : les sorties restent coupées même en cas
-          // de demande utilisateur. Ne pas retirer avant tests sur matériel.
-          if (id(reveil_charge_enable).state) id(reveil_charge_enable).turn_off();
-          if (id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
+          // Exécute la machine d'états d'origine : repos de sonde 8 s,
+          // contrôle présence, limite 80/100 %, sonde périodique et verrous.
+          const uint8_t limite = id(reveil_charge_limit).current_option() == "80 %" ? 1 : 0;
+          const ActionChargeur decision = chargeur_tick(controle_charge, limite,
+            id(reveil_battery_installed).state, millis());
+          // Mode simulation sûr : le contrôleur calcule les ordres, mais
+          // aucun ordre d'activation ne peut atteindre le matériel.
+          // L'INA226 en mode simulation voit donc toujours CHG_EN coupé.
+          constexpr bool kChargeMaterielleValidee = false;
+          const bool mesures_valides = std::isfinite(tension) && std::isfinite(courant) &&
+            id(reveil_cpu_temperature).has_state() &&
+            std::isfinite(id(reveil_cpu_temperature).state);
+          const bool autorise = kChargeMaterielleValidee &&
+            id(reveil_charge_authorized).state &&
+            id(reveil_battery_installed).state && mesures_valides &&
+            !chargeur_securite_posee(controle_charge);
+          const bool activer = autorise && decision.allumer;
+          if (!activer && id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
+          if (id(reveil_charge_enable).state != activer) {
+            if (activer) id(reveil_charge_enable).turn_on();
+            else id(reveil_charge_enable).turn_off();
+          }
+          const bool rapide = activer &&
+            id(reveil_charge_mode).current_option() == "Rapide";
+          if (id(reveil_charge_fast).state != rapide) {
+            if (rapide) id(reveil_charge_fast).turn_on();
+            else id(reveil_charge_fast).turn_off();
+          }
+          // En simulation, les états internes ne doivent pas croire qu'une
+          // commande de charge a effectivement été appliquée.
+          if (!activer && controle_charge.allume) {
+            chargeur_commander(controle_charge, false, millis());
+            controle_charge.reveil = false;
+          }
           const bool batt_present = id(reveil_battery_installed).state &&
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
@@ -2215,7 +2253,10 @@ interval:
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_sram), diag);
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024)); set_label_if_changed(id(sys_psram), diag);
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
-          set_label_if_changed(id(sys_temp), "Non mesurée");
+          if (id(reveil_cpu_temperature).has_state()) {
+            snprintf(diag, sizeof(diag), "%.1f °C", id(reveil_cpu_temperature).state);
+            set_label_if_changed(id(sys_temp), diag);
+          } else set_label_if_changed(id(sys_temp), "Non mesurée");
           set_label_if_changed(id(sys_cpu), "Non mesurée");
           if (batt_present) {
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
