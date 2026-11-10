@@ -2137,12 +2137,12 @@ interval:
           }
           // Chargeur toujours désactivé : préférences enregistrées uniquement.
           char pref[48];
-          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_limit).state.c_str());
+          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_limit).current_option().c_str());
           set_label_if_changed(id(reveil_charge_limit_label), pref);
-          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_mode).state.c_str());
+          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_mode).current_option().c_str());
           set_label_if_changed(id(reveil_charge_mode_label), pref);
-          set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).state.c_str());
-          set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).state.c_str());
+          set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).current_option().c_str());
+          set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).current_option().c_str());
           set_label_if_changed(id(reveil_battery_installed_label), id(reveil_battery_installed).state ? "Oui" : "Non");
           const bool batt_present = id(reveil_battery_installed).state &&
             id(reveil_batt_voltage).has_state() &&
@@ -2152,7 +2152,7 @@ interval:
             id(reveil_batt_current).has_state() &&
             std::isfinite(id(reveil_batt_current).state) &&
             id(reveil_batt_current).state > 0.05f;
-          const std::string power_mode = id(reveil_power_save).state;
+          const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
           static int previous_screen_pct = -1;
