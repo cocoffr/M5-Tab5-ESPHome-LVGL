@@ -3473,14 +3473,15 @@ lvgl:
             text: "Home Assistant"
             x: 670
             y: 372
-            text_font: label_font
+            text_font: appearance_option_font
             text_color: 0xD7E7EB
         - label:
             id: sys_ha
             text: "Non connecté"
-            x: 930
+            x: 960
             y: 372
-            text_font: label_font
+            width: 270
+            text_font: appearance_option_font
             text_color: 0xB5E8F4
         - label:
             text: "Temps actif"
@@ -4158,7 +4159,8 @@ interval:
           const int shown_hour = (id(manual_clock) || offline_clock) ? id(manual_hour) : t.hour;
           const int shown_minute = (id(manual_clock) || offline_clock) ? id(manual_minute) : t.minute;
           // Apparence sauvegardée : police, échelle et couleur de l'heure.
-          const std::string font_choice = id(appearance_font).current_option();
+          const std::string saved_font = id(appearance_font).current_option();
+          const std::string font_choice = (saved_font == "Roboto" || saved_font == "Montserrat" || saved_font == "Oswald" || saved_font == "Orbitron" || saved_font == "Rajdhani") ? saved_font : "Segments";
           const std::string size_choice = id(appearance_size).current_option();
           const std::string color_choice = id(appearance_color).current_option();
           const char *color_names[] = {"Bleu clair","Bleu foncé","Blanc","Bleu ciel","Bleu roi","Bleu nuit","Bleu glacier","Cyan","Turquoise","Vert menthe","Vert","Vert foncé","Vert citron","Jaune","Or","Orange","Corail","Rouge","Bordeaux","Rose","Fuchsia","Violet","Mauve","Lavande","Gris perle","Gris clair","Gris moyen","Gris ardoise","Gris foncé","Beige"};
@@ -4195,7 +4197,7 @@ interval:
           lv_obj_set_style_text_color(id(appearance_preview), lv_color_hex(clock_color), LV_PART_MAIN);
           // La sélection de police est reflétée immédiatement dans l'aperçu.
           // La taille de l'aperçu utilise une échelle indépendante de l'heure principale.
-          const int preview_zoom = 60 + size_level * 6;
+          const int preview_zoom = 70 + size_level * 6;
           lv_obj_set_style_transform_zoom(id(appearance_preview), preview_zoom, LV_PART_MAIN);
           char appearance_preview_time[8];
           snprintf(appearance_preview_time, sizeof(appearance_preview_time), "%02d:%02d", shown_hour, shown_minute);
@@ -4252,7 +4254,9 @@ interval:
           const bool color_changed = last_clock_color != clock_color;
           last_clock_color = clock_color;
           static int last_drawn_minute = -1;
-          if (color_changed) last_drawn_minute = -1;
+          static bool previous_segments_visible = false;
+          if (color_changed || (show_segments && !previous_segments_visible)) last_drawn_minute = -1;
+          previous_segments_visible = show_segments;
           const int current_drawn_minute = clock_valid ? shown_hour * 60 + shown_minute : -1;
           if (clock_valid && current_drawn_minute != last_drawn_minute) {
             last_drawn_minute = current_drawn_minute;
