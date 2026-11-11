@@ -660,6 +660,10 @@ globals:
     type: int
     restore_value: yes
     initial_value: '0'
+  - id: radio_long_press_handled
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: radio_edit_slot
     type: int
     restore_value: no
@@ -908,6 +912,7 @@ script:
           if (slot == 10) { auto n = id(radio_name_11).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_11).make_call(); u.set_value(url); u.perform(); }
           if (slot == 11) { auto n = id(radio_name_12).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_12).make_call(); u.set_value(url); u.perform(); }
       - lvgl.page.show: reveil_radio_page
+      - lambda: 'id(radio_long_press_handled) = false;'
   - id: toggle_radio
     then:
       - if:
@@ -1781,6 +1786,7 @@ lvgl:
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_radio_page
+              - lambda: 'id(radio_long_press_handled) = false;'
             widgets:
               - label: { text: "Annuler", align: CENTER, text_font: control_font }
         - button:
@@ -1821,10 +1827,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 0
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 0
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 0
@@ -1843,10 +1854,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 1
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 1
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 1
@@ -1865,10 +1881,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 2
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 2
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 2
@@ -1887,10 +1908,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 3
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 3
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 3
@@ -1909,10 +1935,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 4
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 4
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 4
@@ -1931,10 +1962,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 5
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 5
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 5
@@ -1953,10 +1989,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 6
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 6
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 6
@@ -1975,10 +2016,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 7
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 7
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 7
@@ -1997,10 +2043,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 8
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 8
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 8
@@ -2019,10 +2070,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 9
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 9
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 9
@@ -2041,10 +2097,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 10
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 10
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 10
@@ -2063,10 +2124,15 @@ lvgl:
             radius: 16
             bg_color: 0x304458
             on_click:
-              - script.execute:
-                  id: select_radio_slot
-                  slot: 11
+              - if:
+                  condition:
+                    lambda: 'return !id(radio_long_press_handled);'
+                  then:
+                    - script.execute:
+                        id: select_radio_slot
+                        slot: 11
             on_long_press:
+              - lambda: 'id(radio_long_press_handled) = true;'
               - script.execute:
                   id: edit_radio_slot
                   slot: 11
@@ -3104,24 +3170,10 @@ lvgl:
                   text_font: alarm_font
                   text_color: 0xFFFFFF
         - button:
-            id: preset_save_button
             x: 675
-            y: 665
+            y: 530
             width: 550
-            height: 50
-            bg_color: 0x075BA8
-            on_click:
-              - script.execute: save_preset
-            widgets:
-              - label:
-                  text: "Enregistrer l'horaire sélectionné"
-                  align: CENTER
-                  text_font: label_font
-        - button:
-            x: 675
-            y: 570
-            width: 550
-            height: 85
+            height: 70
             bg_color: 0x304458
             on_click:
               - lambda: |-
@@ -3141,6 +3193,39 @@ lvgl:
               - label:
                   id: preset_edit_label
                   text: "Modifier les préréglages"
+                  align: CENTER
+                  text_font: label_font
+        - button:
+            id: preset_cancel_button
+            x: 675
+            y: 610
+            width: 260
+            height: 72
+            bg_color: 0x304458
+            on_click:
+              - lambda: |-
+                  if (id(preset_edit)) {
+                    auto &h = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
+                    auto &m = id(selected_alarm) == 1 ? id(alarm_one_minute) : id(alarm_two_minute);
+                    auto hc = h->make_call(); hc.set_value(id(preset_original_hour)); hc.perform();
+                    auto mc = m->make_call(); mc.set_value(id(preset_original_minute)); mc.perform();
+                  }
+                  id(preset_edit) = false;
+                  id(preset_selected) = -1;
+            widgets:
+              - label: { text: "Annuler", align: CENTER, text_font: label_font }
+        - button:
+            id: preset_save_button
+            x: 965
+            y: 610
+            width: 260
+            height: 72
+            bg_color: 0x075BA8
+            on_click:
+              - script.execute: save_preset
+            widgets:
+              - label:
+                  text: "Enregistrer"
                   align: CENTER
                   text_font: label_font
 
