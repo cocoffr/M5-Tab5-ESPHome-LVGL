@@ -1320,7 +1320,7 @@ font:
   - file: "gfonts://Roboto"
     id: appearance_option_font
     size: 24
-    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-éèêàùûôîïçÉÈÊÀÇ"
   - file: "gfonts://Roboto"
     id: control_font
     size: 43
@@ -2515,23 +2515,13 @@ lvgl:
         - button:
             x: 350
             y: 645
-            width: 270
+            width: 590
             height: 62
             bg_color: 0x075BA8
             on_click:
               - lvgl.page.show: reveil_page
             widgets:
-              - label: { text: "Appliquer", align: CENTER, text_font: appearance_option_font }
-        - button:
-            x: 670
-            y: 645
-            width: 270
-            height: 62
-            bg_color: 0x304458
-            on_click:
-              - lvgl.page.show: reveil_settings_page
-            widgets:
-              - label: { text: "Enregistrer", align: CENTER, text_font: appearance_option_font }
+              - label: { text: "Retour à l'heure", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_0
             x: 230
@@ -4203,6 +4193,20 @@ interval:
           for (int i=0; i<10; ++i)
             lv_obj_set_style_bg_color(size_buttons[i], lv_color_hex(size_level == i+1 ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(appearance_preview), lv_color_hex(clock_color), LV_PART_MAIN);
+          // Aperçu immédiat : utilise la police réellement choisie et
+          // ajuste sa taille selon le niveau 1..10.
+          lv_font_t const *preview_fonts[] = {
+            id(clock_roboto_font), id(clock_roboto_font), id(clock_montserrat_font),
+            id(clock_roboto_font), id(clock_oswald_font), id(clock_orbitron_font)
+          };
+          const lv_font_t *preview_font = font_choice == "Montserrat" ? id(clock_montserrat_font) :
+            font_choice == "Oswald" ? id(clock_oswald_font) :
+            font_choice == "Orbitron" ? id(clock_orbitron_font) :
+            font_choice == "Rajdhani" ? id(clock_rajdhani_font) : id(clock_roboto_font);
+          lv_obj_set_style_text_font(id(appearance_preview), preview_font, LV_PART_MAIN);
+          // La police numérique à 230 px est redimensionnée visuellement par zoom.
+          const int preview_zoom = 70 + size_level * 8;
+          lv_obj_set_style_transform_zoom(id(appearance_preview), preview_zoom, LV_PART_MAIN);
           char appearance_preview_time[8];
           snprintf(appearance_preview_time, sizeof(appearance_preview_time), "%02d:%02d", shown_hour, shown_minute);
           set_label_if_changed(id(appearance_preview), appearance_preview_time);
