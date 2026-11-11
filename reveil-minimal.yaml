@@ -359,6 +359,27 @@ switch:
     restore_mode: RESTORE_DEFAULT_OFF
 # Préférences de batterie : la machine d'états d'origine commande le chargeur.
 select:
+  - platform: template
+    id: appearance_font
+    name: "Réveil apparence police"
+    optimistic: true
+    restore_value: true
+    options: ["Segments", "Roboto", "Montserrat"]
+    initial_option: "Segments"
+  - platform: template
+    id: appearance_size
+    name: "Réveil apparence taille"
+    optimistic: true
+    restore_value: true
+    options: ["Petit", "Normal", "Grand"]
+    initial_option: "Normal"
+  - platform: template
+    id: appearance_color
+    name: "Réveil apparence couleur"
+    optimistic: true
+    restore_value: true
+    options: ["Bleu clair", "Bleu foncé", "Blanc"]
+    initial_option: "Bleu clair"
   # Routage explicite du codec ES8388 vers les sorties analogiques.
   # Sans sélection, le DAC peut fonctionner sans alimenter le haut-parleur.
   - platform: es8388
@@ -1204,6 +1225,18 @@ font:
     size: 52
     glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
+    id: date_font
+    size: 46
+    glyphs: "0123456789 abcdefghijklmnopqrstuvwxyzéèêûôàùîïç"
+  - file: "gfonts://Roboto"
+    id: clock_roboto_font
+    size: 230
+    glyphs: "0123456789:"
+  - file: "gfonts://Montserrat"
+    id: clock_montserrat_font
+    size: 230
+    glyphs: "0123456789:"
+  - file: "gfonts://Roboto"
     id: control_font
     size: 43
     glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
@@ -1257,8 +1290,24 @@ lvgl:
             text: "Synchronisation..."
             align: TOP_MID
             y: 8
-            text_font: control_font
+            text_font: date_font
             text_color: 0xE5E7EB
+        - label:
+            id: clock_roboto_label
+            text: "12:34"
+            align: TOP_MID
+            y: 160
+            text_font: clock_roboto_font
+            text_color: 0xB5E8F4
+            hidden: true
+        - label:
+            id: clock_montserrat_label
+            text: "12:34"
+            align: TOP_MID
+            y: 160
+            text_font: clock_montserrat_font
+            text_color: 0xB5E8F4
+            hidden: true
         - obj:
             id: digit_0_0
             x: 40
@@ -2277,8 +2326,18 @@ lvgl:
             widgets:
               - label: { text: "Système", align: CENTER, text_font: control_font }
         - button:
+            x: 90
+            y: 315
+            width: 340
+            height: 115
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_apparence_page
+            widgets:
+              - label: { text: "Apparence", align: CENTER, text_font: control_font }
+        - button:
             x: 300
-            y: 355
+            y: 465
             width: 680
             height: 110
             radius: 18
@@ -2294,7 +2353,7 @@ lvgl:
                   text_color: 0xFFFFFF
         - button:
             x: 460
-            y: 560
+            y: 605
             width: 360
             height: 95
             bg_color: 0x075BA8
@@ -2302,6 +2361,131 @@ lvgl:
               - lvgl.page.show: reveil_page
             widgets:
               - label: { text: "Retour au réveil", align: CENTER, text_font: label_font }
+    - id: reveil_apparence_page
+      bg_color: 0x0B1520
+      widgets:
+        - label: { text: "Apparence", x: 40, y: 20, text_font: alarm_font, text_color: 0xB5E8F4 }
+        - button:
+            x: 1040
+            y: 20
+            width: 190
+            height: 64
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_settings_page
+            widgets:
+              - label: { text: "Retour", align: CENTER, text_font: label_font }
+        - label: { text: "Police de l'heure", x: 55, y: 135, text_font: control_font }
+        - label: { text: "Taille de l'heure", x: 55, y: 325, text_font: control_font }
+        - label: { text: "Couleur de l'heure", x: 55, y: 515, text_font: control_font }
+        - button:
+            id: appearance_font_btn_0
+            x: 55
+            y: 205
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_font, option: "Segments" }
+            widgets:
+              - label: { text: "Segments", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_font_btn_1
+            x: 455
+            y: 205
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_font, option: "Roboto" }
+            widgets:
+              - label: { text: "Roboto", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_font_btn_2
+            x: 855
+            y: 205
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_font, option: "Montserrat" }
+            widgets:
+              - label: { text: "Montserrat", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_size_btn_0
+            x: 55
+            y: 395
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_size, option: "Petit" }
+            widgets:
+              - label: { text: "Petit", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_size_btn_1
+            x: 455
+            y: 395
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_size, option: "Normal" }
+            widgets:
+              - label: { text: "Normal", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_size_btn_2
+            x: 855
+            y: 395
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_size, option: "Grand" }
+            widgets:
+              - label: { text: "Grand", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_color_btn_0
+            x: 55
+            y: 585
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu clair" }
+            widgets:
+              - label: { text: "Bleu clair", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_color_btn_1
+            x: 455
+            y: 585
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu foncé" }
+            widgets:
+              - label: { text: "Bleu foncé", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_color_btn_2
+            x: 855
+            y: 585
+            width: 355
+            height: 76
+            bg_color: 0x304458
+            radius: 14
+            on_click:
+              - select.set: { id: appearance_color, option: "Blanc" }
+            widgets:
+              - label: { text: "Blanc", align: CENTER, text_font: label_font }
     - id: reveil_batterie_page
       bg_color: 0x0B1520
       widgets:
