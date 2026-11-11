@@ -3586,6 +3586,11 @@ interval:
           // Le cycle de réveil/sonde est piloté exclusivement par chargeur_tick().
           // Comme l'original, la présence mesurée est indépendante de la
           // déclaration « Batterie montée » (qui pilote l'affichage/réveil).
+          const bool mesures_fraiches =
+            id(reveil_voltage_sample_ms) != 0 &&
+            id(reveil_current_sample_ms) != 0 &&
+            (uint32_t)(millis() - id(reveil_voltage_sample_ms)) <= 30000UL &&
+            (uint32_t)(millis() - id(reveil_current_sample_ms)) <= 30000UL;
           const bool batt_present = mesures_fraiches &&
             controle_charge.presence == PresenceBatterie::PRESENTE &&
             id(reveil_batt_voltage).has_state() &&
