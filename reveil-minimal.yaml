@@ -145,6 +145,10 @@ sensor:
     device_class: power
     state_class: measurement
     update_interval: never
+  - platform: template
+    id: reveil_battery_charger_locked
+    name: Réveil chargeur verrouillé
+    update_interval: never
   - platform: uptime
     id: reveil_uptime
     name: Reveil temps de fonctionnement
@@ -170,8 +174,10 @@ text_sensor:
           !std::isfinite(id(reveil_batt_current).state) ||
           !std::isfinite(id(reveil_cpu_temperature).state))
         return {"Mesures invalides"};
+      if (id(reveil_charge_thermal_latch)) return {"Charge bloquée : verrou thermique"};
       if (id(reveil_batt_voltage).state < 5.5f)
         return {"Tension absente"};
+      if (id(reveil_batt_voltage).state > 8.45f) return {"Charge bloquée : surtension"};
       return {"Mesures valides - charge matérielle désactivée"};
   - platform: wifi_info
     ip_address:
@@ -679,6 +685,10 @@ globals:
   - id: reveil_battery_memory
     type: uint8_t
     restore_value: yes
+    initial_value: '0'
+  - id: reveil_battery_security_code
+    type: int
+    restore_value: no
     initial_value: '0'
   - id: reveil_battery_alert_level
     type: int
@@ -3380,6 +3390,15 @@ interval:
           const uint8_t next_memory = batterie_memoire_suivante(controle_charge, id(reveil_battery_memory));
           if (next_memory != id(reveil_battery_memory)) id(reveil_battery_memory) = next_memory;
           if (controle_charge.verrou_thermique) id(reveil_charge_thermal_latch) = true;
+          const bool charge_bloquee = id(reveil_charge_thermal_latch) || chargeur_securite_posee(controle_charge);
+          id(reveil_battery_charger_locked).publish_state(charge_bloquee ? 1.0f : 0.0f);
+          const SignalSecurite signal = chargeur_signal_prendre(controle_charge);
+          if (signal.cause != CauseSecurite::AUCUNE) {
+            char message[96];
+            snprintf(message, sizeof(message), "cause=%d;mesure=%.2f;verrou=%d",
+              (int)signal.cause, signal.mesure, signal.verrouille ? 1 : 0);
+            id(mqtt_client).publish("reveil-tab5/batterie/securite", message, 0, true);
+          }
           // La machine d'états demande une lecture de confirmation :
           // forcer un vrai cycle INA226, pas recycler le dernier état publié.
           if (decision.lire) id(reveil_ina226).update();
@@ -3395,7 +3414,8 @@ interval:
             (uint32_t)(maintenant - id(reveil_current_sample_ms)) <= 30000UL &&
             (uint32_t)(maintenant - id(reveil_temperature_sample_ms)) <= 30000UL;
           const bool mesures_valides = mesures_fraiches &&
-            std::isfinite(tension) && std::isfinite(courant) &&
+            std::isfinite(tension) && tension >= 5.5f && tension <= 8.45f &&
+            std::isfinite(courant) &&
             id(reveil_cpu_temperature).has_state() &&
             std::isfinite(id(reveil_cpu_temperature).state);
           const bool autorise = kChargeMaterielleValidee &&
@@ -3422,10 +3442,12 @@ interval:
             controle_charge.reveil = false;
           }
           const bool batt_present = id(reveil_battery_installed).state &&
+            mesures_fraiches && controle_charge.presence == PresenceBatterie::PRESENTE &&
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
-            id(reveil_batt_voltage).state >= 5.5f;
-          const bool on_battery = batt_present &&
+            id(reveil_batt_voltage).state >= 5.5f && id(reveil_batt_voltage).state <= 8.45f;
+          // Indication de décharge seulement, pas une mesure directe du secteur USB.
+          const bool on_battery = batt_present && !id(reveil_charge_enable).state &&
             id(reveil_batt_current).has_state() &&
             std::isfinite(id(reveil_batt_current).state) &&
             id(reveil_batt_current).state > 0.05f;
@@ -3547,6 +3569,7 @@ interval:
           } else {
             id(reveil_batterie_pourcentage).publish_state(NAN);
             id(reveil_batterie_puissance).publish_state(NAN);
+            id(reveil_battery_alert_level) = 0;
             set_label_if_changed(id(sys_batt), "Non détectée");
             set_label_if_changed(id(reveil_batt_etat),
             id(reveil_battery_installed).state ? "Mesure absente / batterie à vérifier" : "Non installée");
