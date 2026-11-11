@@ -3952,7 +3952,10 @@ interval:
           auto set_label_if_changed = [](lv_obj_t *label, const char *value) {
             if (strcmp(lv_label_get_text(label), value) != 0) lv_label_set_text(label, value);
           };
-          if (id(manual_clock)) {
+          // En l'absence de synchronisation SNTP, afficher l'heure locale
+          // mémorisée plutôt qu'un écran d'horloge vide.
+          const bool offline_clock = !id(manual_clock) && !t.is_valid();
+          if (id(manual_clock) || offline_clock) {
             uint32_t now_ms = millis();
             if (id(manual_last_tick) == 0) id(manual_last_tick) = now_ms;
             while ((uint32_t)(now_ms - id(manual_last_tick)) >= 60000UL) {
@@ -3960,9 +3963,9 @@ interval:
               if (++id(manual_minute) >= 60) { id(manual_minute) = 0; id(manual_hour) = (id(manual_hour) + 1) % 24; }
             }
           }
-          const bool clock_valid = id(manual_clock) || t.is_valid();
-          const int shown_hour = id(manual_clock) ? id(manual_hour) : t.hour;
-          const int shown_minute = id(manual_clock) ? id(manual_minute) : t.minute;
+          const bool clock_valid = true;
+          const int shown_hour = (id(manual_clock) || offline_clock) ? id(manual_hour) : t.hour;
+          const int shown_minute = (id(manual_clock) || offline_clock) ? id(manual_minute) : t.minute;
           // Apparence sauvegardée : police, échelle et couleur de l'heure.
           const std::string font_choice = id(appearance_font).current_option();
           const std::string size_choice = id(appearance_size).current_option();
@@ -4081,8 +4084,8 @@ interval:
             lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? clock_color : 0x000000), LV_PART_MAIN);
           }
           static int last_drawn_day = -1;
-          if (id(manual_clock)) {
-            set_label_if_changed(id(date_label), "Heure manuelle");
+          if (id(manual_clock) || offline_clock) {
+            set_label_if_changed(id(date_label), offline_clock ? "Heure non synchronisée" : "Heure manuelle");
             last_drawn_day = -1;
           }
           if (!id(manual_clock) && t.is_valid() && t.day_of_year != last_drawn_day) {
@@ -4477,7 +4480,7 @@ interval:
               shown_hour * 60 + shown_minute != id(last_alarm_minute)) {
             id(last_alarm_minute) = -1;
           }
-          if (clock_valid && !id(alarm_ringing) && !id(snooze_pending) && !snooze_due) {
+          if (!offline_clock && clock_valid && !id(alarm_ringing) && !id(snooze_pending) && !snooze_due) {
             // En mode SNTP, l'horodatage absolu distingue les deux occurrences
             // de la même heure lors du passage à l'heure d'hiver.
             const int minute_key = id(manual_clock)
