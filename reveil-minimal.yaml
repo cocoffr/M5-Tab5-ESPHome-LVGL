@@ -3852,7 +3852,7 @@ interval:
           lv_label_set_text(id(reveil_power_icon), power_on_battery ? "\U000F0079" : "\U000F06A5");
           lv_obj_set_style_text_color(id(reveil_power_icon),
             lv_color_hex(power_on_battery ? 0x4DA6E8 : 0x00CC33), LV_PART_MAIN);
-          const bool wifi_ok = WiFi.isConnected();
+          const bool wifi_ok = wifi::global_wifi_component != nullptr && wifi::global_wifi_component->is_connected();
           lv_obj_set_style_text_color(id(reveil_wifi_icon),
             lv_color_hex(wifi_ok ? 0x00CC33 : 0x535B65), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(reveil_ha_icon),
