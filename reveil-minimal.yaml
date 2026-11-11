@@ -360,7 +360,7 @@ number:
     set_action:
       - if:
           condition:
-            lambda: 'return id(radio_manual) && !id(alarm_ringing);'
+            lambda: 'return id(radio_manual) || (id(alarm_ringing) && id(active_alarm_radio));'
           then:
             - media_player.volume_set:
                 id: radio_player
@@ -659,6 +659,9 @@ script:
                   return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
                 announcement: false
           else:
+            - lambda: |-
+                id(alarm_buzzer).set_gain((id(selected_alarm) == 1
+                  ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f);
             - rtttl.play:
                 id: alarm_buzzer
                 rtttl: "reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p"
@@ -753,7 +756,7 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.'éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-°ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.'éèêëàâùûôîïçÉÈÊÀÇ%()"
   - file: "gfonts://Roboto"
     id: alarm_font
     size: 52
@@ -805,7 +808,7 @@ lvgl:
               - label:
                   text: "⚙"
                   align: CENTER
-                  text_font: label_font
+                  text_font: gear_font
                   text_color: 0xB5E8F4
         - label:
             id: date_label
@@ -1909,12 +1912,6 @@ lvgl:
               - lvgl.page.show: reveil_confirm_restart_page
             widgets:
               - label: { text: "Redémarrer", align: CENTER, text_font: label_font }
-        - label:
-            text: "Actions HA indisponibles en mode autonome"
-            x: 670
-            y: 600
-            text_font: label_font
-            text_color: 0xD7E7EB
     - id: reveil_confirm_restart_page
       bg_color: 0x000000
       widgets:
@@ -2520,11 +2517,11 @@ interval:
               (unsigned)((secondes / 60) % 60));
             set_label_if_changed(id(sys_uptime), diag);
           } else set_label_if_changed(id(sys_uptime), "Indisponible");
-          snprintf(diag, sizeof(diag), "%u / %u Ko libres",
+          snprintf(diag, sizeof(diag), "%u / %u Ko",
             (unsigned)(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024),
             (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024));
           set_label_if_changed(id(sys_sram), diag);
-          snprintf(diag, sizeof(diag), "%u / %u Ko libres",
+          snprintf(diag, sizeof(diag), "%u / %u Ko",
             (unsigned)(heap_caps_get_free_size(MALLOC_CAP_SPIRAM) / 1024),
             (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024));
           set_label_if_changed(id(sys_psram), diag);
@@ -2534,7 +2531,27 @@ interval:
             snprintf(diag, sizeof(diag), "%.1f °C", id(reveil_cpu_temperature).state);
             set_label_if_changed(id(sys_temp), diag);
           } else set_label_if_changed(id(sys_temp), "Non mesurée");
-          set_label_if_changed(id(sys_cpu), "Non mesurée");
+          // Utilisation CPU mesurée à partir du temps idle FreeRTOS.
+          #if defined(configGENERATE_RUN_TIME_STATS) && configGENERATE_RUN_TIME_STATS
+          {
+            static uint32_t last_idle = 0;
+            static uint32_t last_total = 0;
+            const TaskHandle_t idle_task = xTaskGetIdleTaskHandleForCore(0);
+            const uint32_t idle_now = idle_task ? ulTaskGetRunTimeCounter(idle_task) : 0;
+            const uint32_t total_now = portGET_RUN_TIME_COUNTER_VALUE();
+            if (last_total && total_now != last_total) {
+              const uint32_t delta_total = total_now - last_total;
+              const uint32_t delta_idle = idle_now - last_idle;
+              const float load = 100.0f * (1.0f - std::min(1.0f, (float)delta_idle / delta_total));
+              snprintf(diag, sizeof(diag), "%.0f %%", load);
+              set_label_if_changed(id(sys_cpu), diag);
+            }
+            last_idle = idle_now;
+            last_total = total_now;
+          }
+          #else
+          set_label_if_changed(id(sys_cpu), "Indisponible");
+          #endif
           if (batt_present) {
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
             set_label_if_changed(id(reveil_batt_tension), diag);
@@ -2645,6 +2662,8 @@ interval:
           snprintf(value, sizeof(value), "%02d:%02d", (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
           set_label_if_changed(id(alarm_two_time_label), value);
           if (id(alarm_ringing) && !id(active_alarm_radio) && !id(alarm_buzzer).is_playing()) {
+            id(alarm_buzzer).set_gain((id(selected_alarm) == 1
+              ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f);
             id(alarm_buzzer).play("reveil:d=8,o=5,b=120:c6,p,c6,p,g5,p,g5,p");
           }
           // Le snooze utilise millis() : il doit fonctionner même si le Wi-Fi
