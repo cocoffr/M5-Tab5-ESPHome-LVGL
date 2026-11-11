@@ -6,7 +6,7 @@ Ce document fixe le périmètre et les conditions de validation. **Ne pas active
 ## Source de vérité
 - `Tab5/socle/tab5_batterie.h` : présence 2S, courbe de décharge mesurée, limites 80/100 %, machine d'états, sécurités.
 - `Tab5/ecran/tab5_batterie.cpp` : intégration NVS, surveillance, journalisation.
-- `Tab5/tab5-sensors-diagnostics.yaml` : INA226, GPIO de charge, sélecteurs, événements HA et cadence des mesures.
+- `Tab5/paquets/tab5-sensors-diagnostics.yaml` : INA226, GPIO de charge, sélecteurs, événements HA et cadence des mesures.
 - `tests/test_batterie.py` : invariants de sécurité.
 - `reveil-minimal.yaml` : écran et mesures déjà amorcés, contrôleur actuellement en simulation.
 
@@ -17,6 +17,7 @@ Ce document fixe le périmètre et les conditions de validation. **Ne pas active
 - La déclaration manuelle de présence n'est pas équivalente à une détection physique fiable.
 - La logique d'économie Wi-Fi est encore une préférence, non un contrôle matériel.
 - La correspondance complète des états, alertes, icônes et sécurités avec le projet d'origine reste à vérifier.
+- Audit du 11/11 : aucune modification du firmware sur cette branche ; seuls le plan et sa correction sont committés. Les appels `batterie_niveau_pct` et `batterie_alerte` ne sont pas encore présents dans `reveil-minimal.yaml`.
 
 ## Ordre de travail
 1. Comparer précisément les entités, commandes et widgets du projet d'origine et du réveil.
