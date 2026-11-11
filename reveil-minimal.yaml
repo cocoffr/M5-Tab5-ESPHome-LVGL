@@ -100,6 +100,16 @@ mqtt:
             id(mqtt_client).publish(topic,payload,0,true);
 api:
   id: reveil_api
+  on_client_connected:
+    - lambda: |-
+        if (client_info.find("Home Assistant") != std::string::npos) {
+          id(reveil_ha_connected) = true;
+        }
+  on_client_disconnected:
+    - lambda: |-
+        if (client_info.find("Home Assistant") != std::string::npos) {
+          id(reveil_ha_connected) = false;
+        }
 button:
   - platform: restart
     id: reveil_restart
@@ -744,6 +754,10 @@ text:
     max_length: 255
     initial_value: ""
 globals:
+  - id: reveil_ha_connected
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: reveil_charge_thermal_latch
     type: bool
     restore_value: yes
@@ -1208,6 +1222,14 @@ rtttl:
   speaker: alarm_speaker
   gain: 100%
 font:
+  - file: "Tab5/fonts/materialdesignicons-webfont.ttf"
+    id: status_icon_font
+    size: 44
+    glyphs:
+      - "\\U000F06A5"
+      - "\\U000F0079"
+      - "\\U000F05A9"
+      - "\\U000F0493"
   - file: "gfonts://Noto Sans Symbols"
     id: gear_font
     size: 42
@@ -1256,23 +1278,25 @@ lvgl:
       bg_color: 0x000000
       widgets:
         - label:
-            text: "Secteur"
-            x: 85
+            id: reveil_power_icon
+            text: "\\U000F06A5"
+            x: 32
             y: 9
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "⚡"
-            x: 30
-            y: 4
-            text_font: icon_font
+            text_font: status_icon_font
             text_color: 0x00CC33
         - label:
-            id: reveil_wifi_icon
-            text: "Wi-Fi"
-            x: 1085
+            id: reveil_ha_icon
+            text: "\\U000F0493"
+            x: 1010
             y: 9
-            text_font: label_font
+            text_font: status_icon_font
+            text_color: 0x535B65
+        - label:
+            id: reveil_wifi_icon
+            text: "\\U000F05A9"
+            x: 1100
+            y: 9
+            text_font: status_icon_font
             text_color: 0x535B65
         - button:
             x: 1185
@@ -3812,6 +3836,18 @@ interval:
           // Indicateur de présence : ne pas confondre batterie déclarée et détectée.
           // CHG_STAT détecte la charge, et le courant positif la décharge.
           // « Sur USB » reste une inférence en dehors de ces deux états.
+          // Indicateurs d'état : courant positif = alimentation par batterie.
+          // En l'absence de mesure fraîche, conserver le dernier état connu.
+          static bool power_on_battery = false;
+          if (mesures_fraiches && batt_present) power_on_battery = on_battery;
+          lv_label_set_text(id(reveil_power_icon), power_on_battery ? "\\U000F0079" : "\\U000F06A5");
+          lv_obj_set_style_text_color(id(reveil_power_icon),
+            lv_color_hex(power_on_battery ? 0x4DA6E8 : 0x00CC33), LV_PART_MAIN);
+          const bool wifi_ok = WiFi.isConnected();
+          lv_obj_set_style_text_color(id(reveil_wifi_icon),
+            lv_color_hex(wifi_ok ? 0x00CC33 : 0x535B65), LV_PART_MAIN);
+          lv_obj_set_style_text_color(id(reveil_ha_icon),
+            lv_color_hex(id(reveil_ha_connected) ? 0x2196F3 : 0x535B65), LV_PART_MAIN);
           const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
@@ -3830,7 +3866,7 @@ interval:
           set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
           set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
           // Connexion à un client de l'API native (HA ou autre client ESPHome).
-          set_label_if_changed(id(sys_ha), id(reveil_api).is_connected() ? "API connectée" : "Non connecté");
+          set_label_if_changed(id(sys_ha), id(reveil_ha_connected) ? "Connecté" : "Non connecté");
           char diag[48];
           if (id(reveil_wifi_signal).has_state() && std::isfinite(id(reveil_wifi_signal).state)) {
             snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state);
