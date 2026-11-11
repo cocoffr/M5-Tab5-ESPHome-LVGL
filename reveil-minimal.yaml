@@ -4325,12 +4325,17 @@ interval:
                 base_h[i] * scale_pct / 100);
             }
           }
-          // La première seconde doit afficher l'horloge, sans attendre SNTP.
-          // Les segments sont visibles par défaut dès la création de la page.
+          // Rendu original 7 segments : les rectangles sont des objets LVGL,
+          // pas des glyphes. Forcer explicitement opacité et ordre d'empilement.
+          // Ne pas dépendre des drapeaux HIDDEN hérités des changements de police.
           for (lv_obj_t *o : segments) {
-            if (show_segments) lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
-            else lv_obj_add_flag(o, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_style_bg_opa(o, LV_OPA_COVER, LV_PART_MAIN);
+            lv_obj_set_style_opa(o, show_segments ? LV_OPA_COVER : LV_OPA_TRANSP, LV_PART_MAIN);
           }
+          // Le séparateur doit rester deux points ronds, comme l'ancienne version.
+          lv_obj_set_style_bg_color(id(clock_colon_top), lv_color_hex(clock_color), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(clock_colon_bottom), lv_color_hex(clock_color), LV_PART_MAIN);
           static uint32_t last_clock_color = 0;
           const bool color_changed = last_clock_color != clock_color;
           last_clock_color = clock_color;
