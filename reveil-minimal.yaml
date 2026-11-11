@@ -3519,11 +3519,14 @@ interval:
             if (rapide) id(reveil_charge_fast).turn_on();
             else id(reveil_charge_fast).turn_off();
           }
-          // En simulation, les états internes ne doivent pas croire qu'une
-          // commande de charge a effectivement été appliquée.
-          if (!activer && controle_charge.allume) {
+          // Garder la machine d'états synchronisée avec la sortie physique.
+          // Avant, annuler controle_charge.reveil à chaque seconde empêchait
+          // toute tentative de réveil après une tension initiale basse.
+          // L'interverrouillage de maintenance reste coupé par défaut.
+          if (!activer && controle_charge.allume && !controle_charge.sonde) {
             chargeur_commander(controle_charge, false, millis());
-            controle_charge.reveil = false;
+            // Ne pas effacer le réveil demandé : chargeur_tick() doit
+            // gérer lui-même sa durée et la sonde de confirmation.
           }
           const bool batt_present = id(reveil_battery_installed).state &&
             mesures_fraiches && controle_charge.presence == PresenceBatterie::PRESENTE &&
