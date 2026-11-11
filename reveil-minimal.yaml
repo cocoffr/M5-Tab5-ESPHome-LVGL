@@ -4306,26 +4306,23 @@ interval:
             set_label_if_changed(visible, clock_valid ? clock_text : "--:--");
             lv_obj_set_style_text_color(visible, lv_color_hex(clock_color), LV_PART_MAIN);
           }
+          // Géométrie d'origine figée : ne jamais relire les coordonnées LVGL
+          // lors du premier tick (elles peuvent ne pas être calculées).
+          // À 10/10, les segments gardent exactement les dimensions historiques.
+          static const int base_x[30] = {40,269,269,40,17,17,40,345,574,574,345,322,322,345,700,929,929,700,677,677,700,1005,1234,1234,1005,982,982,1005,640,640};
+          static const int base_y[30] = {70,102,285,438,285,102,254,70,102,285,438,285,102,254,70,102,285,438,285,102,254,70,102,285,438,285,102,254,180,300};
+          static const int base_w[30] = {227,30,30,227,30,30,227,227,30,30,227,30,30,227,227,30,30,227,30,30,227,227,30,30,227,30,30,227,28,28};
+          static const int base_h[30] = {30,151,151,30,151,151,30,30,151,151,30,151,151,30,30,151,151,30,151,151,30,30,151,151,30,151,151,30,28,28};
           static int previous_scale = -1;
           if (previous_scale != scale_pct) {
             previous_scale = scale_pct;
-            // Redimensionner les 30 éléments autour du centre de l'horloge.
             for (int i = 0; i < 30; ++i) {
-              lv_obj_t *o = segments[i];
-              static lv_coord_t orig_x[30],orig_y[30],orig_w[30],orig_h[30];
-              static bool initialized = false;
-              if (!initialized) {
-                for (int k = 0; k < 30; ++k) {
-                  orig_x[k] = lv_obj_get_x(segments[k]);
-                  orig_y[k] = lv_obj_get_y(segments[k]);
-                  orig_w[k] = lv_obj_get_width(segments[k]);
-                  orig_h[k] = lv_obj_get_height(segments[k]);
-                }
-                initialized = true;
-              }
-              lv_obj_set_pos(o, 640 + (orig_x[i] - 640) * scale_pct / 100,
-                              275 + (orig_y[i] - 275) * scale_pct / 100);
-              lv_obj_set_size(o, orig_w[i] * scale_pct / 100, orig_h[i] * scale_pct / 100);
+              lv_obj_set_pos(segments[i],
+                640 + (base_x[i] - 640) * scale_pct / 100,
+                275 + (base_y[i] - 275) * scale_pct / 100);
+              lv_obj_set_size(segments[i],
+                base_w[i] * scale_pct / 100,
+                base_h[i] * scale_pct / 100);
             }
           }
           // La première seconde doit afficher l'horloge, sans attendre SNTP.
