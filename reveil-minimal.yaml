@@ -2592,7 +2592,7 @@ lvgl:
             text_font: control_font
             text_color: 0xB5E8F4
         - label:
-            text: "Charge désactivée par sécurité - diagnostic en cours"
+            text: "Charge automatique - protections actives"
             x: 675
             y: 640
             width: 540
@@ -3533,11 +3533,13 @@ interval:
             courant_traite_ms = id(reveil_current_sample_ms);
             chargeur_lecture_courant(controle_charge, courant, millis());
           }
-          if (id(reveil_cpu_temperature).has_state()) {
-            chargeur_surveillance_thermique(controle_charge, id(reveil_cpu_temperature).state, millis());
-          } else {
-            chargeur_surveillance_thermique(controle_charge, NAN, millis());
-          }
+          const bool temperature_fraiche =
+            id(reveil_temperature_sample_ms) != 0 &&
+            (uint32_t)(millis() - id(reveil_temperature_sample_ms)) <= 30000UL &&
+            id(reveil_cpu_temperature).has_state() &&
+            std::isfinite(id(reveil_cpu_temperature).state);
+          chargeur_surveillance_thermique(controle_charge,
+            temperature_fraiche ? id(reveil_cpu_temperature).state : NAN, millis());
           // Exécute la machine d'états d'origine : repos de sonde 8 s,
           // contrôle présence, limite 80/100 %, sonde périodique et verrous.
           const uint8_t limite = id(reveil_charge_limit).current_option() == "80 %" ? 1 : 0;
@@ -3564,7 +3566,8 @@ interval:
           // Reprise du pilotage original : la sortie physique suit la
           // machine d'états, sans désynchronisation entre c.allume et CHG_EN.
           // Sonde, seuils, limite 80 %, réveil et verrous restent internes.
-          const bool activer = decision.allumer;
+          // Sécurité additionnelle : aucune activation sur température périmée.
+          const bool activer = decision.allumer && temperature_fraiche;
           if (!activer && id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
           if (id(reveil_charge_enable).state != activer) {
             ESP_LOGI("reveil.batterie", "Chargeur %s, presence=%d, sonde=%d, reveil=%d",
