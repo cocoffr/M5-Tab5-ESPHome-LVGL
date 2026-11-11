@@ -85,7 +85,7 @@ mqtt:
             auto n = names[slot-1]->make_call(); n.set_value(name); n.perform();
             auto u = urls[slot-1]->make_call(); u.set_value(url); u.perform();
             char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",slot);
-            std::string payload = std::string("{\\\"slot\\\":") + std::to_string(slot) + ",\\\"name\\\":\\\"" + name + "\\",\\\"url\\\":\\\"" + url + "\\"}";
+            std::string payload = std::string("{\"slot\":") + std::to_string(slot) + ",\"name\":\"" + name + "\",\"url\":\"" + url + "\"}";
             id(mqtt_client).publish(topic,payload,0,true);
 api:
 button:
