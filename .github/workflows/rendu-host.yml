@@ -163,7 +163,19 @@ jobs:
         run: |
           # Réessais : PyPI répond parfois « from versions: none » (tools/ci/pip_reessai.sh).
           bash tools/ci/pip_reessai.sh "esphome==$ESPHOME_VERSION" pillow
-          sudo apt-get install -y --no-install-recommends faketime
+          # Les miroirs Ubuntu ont parfois une panne DNS transitoire sur les runners.
+          # Ne pas masquer un vrai échec : réessayer l'installation trois fois.
+          for tentative in 1 2 3; do
+            if sudo apt-get update -o Acquire::Retries=3 && \
+               sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 faketime; then
+              break
+            fi
+            if [ "$tentative" -eq 3 ]; then
+              echo "::error::Installation de faketime impossible après trois tentatives"
+              exit 1
+            fi
+            sleep $((tentative * 15))
+          done
       - name: Rendu compilé par la tâche « compiler »
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
