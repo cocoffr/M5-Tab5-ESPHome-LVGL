@@ -3464,94 +3464,94 @@ lvgl:
         - label:
             text: "SRAM"
             x: 50
-            y: 207
+            y: 192
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_sram
             text: "--"
             x: 310
-            y: 207
+            y: 192
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "PSRAM"
             x: 50
-            y: 267
+            y: 242
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_psram
             text: "--"
             x: 310
-            y: 267
+            y: 242
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Bloc max"
             x: 50
-            y: 327
+            y: 292
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_bloc
             text: "--"
             x: 310
-            y: 327
+            y: 292
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Wi-Fi"
             x: 670
-            y: 207
+            y: 192
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_ssid
             text: "--"
             x: 930
-            y: 207
+            y: 192
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Adresse IP"
             x: 670
-            y: 267
+            y: 242
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_ip
             text: "--"
             x: 930
-            y: 267
+            y: 242
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Signal"
             x: 670
-            y: 327
+            y: 292
             text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_rssi
             text: "--"
             x: 930
-            y: 327
+            y: 292
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Home Assistant"
             x: 670
-            y: 372
-            text_font: appearance_option_font
+            y: 342
+            text_font: label_font
             text_color: 0xD7E7EB
         - label:
             id: sys_ha
             text: "Non connecté"
-            x: 960
-            y: 372
-            width: 270
-            text_font: appearance_option_font
+            x: 975
+            y: 344
+            width: 250
+            text_font: label_font
             text_color: 0xB5E8F4
         - label:
             text: "Temps actif"
@@ -4256,7 +4256,7 @@ interval:
             }
           }
           const int size_level = std::max(1, std::min(10, atoi(size_choice.c_str())));
-          const int scale_pct = 45 + size_level * 5;
+          const int scale_pct = 40 + size_level * 6;
           lv_obj_t *font_buttons[] = {id(appearance_font_btn_0),id(appearance_font_btn_1),id(appearance_font_btn_2),id(appearance_font_btn_3),id(appearance_font_btn_4),id(appearance_font_btn_5)};
           const char *font_names[] = {"Segments","Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
           for (int i=0; i<6; ++i)
