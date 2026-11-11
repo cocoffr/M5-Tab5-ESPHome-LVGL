@@ -1,7 +1,17 @@
-# Radio Browser -> 12 favoris du réveil Tab5.
-# Installer comme package Home Assistant (homeassistant.packages: !include_dir_named packages).
-# Les entités text.* sont créées par l'API ESPHome de reveil-minimal.yaml.
-# Si HA leur attribue un suffixe différent, adapter le préfixe ci-dessous.
+# Recherche Radio Browser et synchronisation des 12 favoris du réveil Tab5.
+# Installer dans les packages Home Assistant ; redémarrer HA après installation.
+# Le Tab5 reçoit les changements via MQTT reveil-tab5/radio/favori/set
+# et renvoie chaque favori sur reveil-tab5/radio/favori/{1..12} (retained).
+#
+# Mode d'emploi :
+# 1. Exécuter script.reveil_tab5_radio_browser_chercher avec le nom voulu.
+# 2. Lire la notification : numéros 1 à 10, noms et flux disponibles.
+# 3. Exécuter script.reveil_tab5_radio_browser_favori avec emplacement,
+#    nom recherché et numéro du résultat choisi (défaut 1).
+# 4. Vérifier l'actualisation du bouton correspondant sur le Tab5.
+#
+# Remarque : Radio Browser répertorie des URL, mais ne garantit pas que chaque
+# flux est lisible par le décodeur audio ESPHome du Tab5.
 rest_command:
   reveil_tab5_radio_browser_search:
     url: "https://de1.api.radio-browser.info/json/stations/search"
@@ -15,8 +25,7 @@ rest_command:
 
 script:
   reveil_tab5_radio_browser_chercher:
-    alias: "Réveil Tab5 — rechercher une radio sur Radio Browser"
-    description: "Recherche une station et retourne les résultats dans la trace du script. Utiliser le script d'enregistrement pour mémoriser un favori."
+    alias: "Réveil Tab5 — rechercher une station Radio Browser"
     mode: queued
     fields:
       nom:
@@ -29,22 +38,27 @@ script:
           nom: "{{ nom }}"
         response_variable: stations
       - variables:
-          resultats: "{{ stations.content if stations.status == 200 else [] }}"
+          candidats: >-
+            {{ stations.content if stations.status == 200 and stations.content is sequence and stations.content is not string else [] }}
+          resultats: >-
+            {{ candidats | selectattr('url_resolved', 'defined') | list }}
       - action: persistent_notification.create
         data:
           title: "Radio Browser — {{ nom }}"
           message: >-
-            {% if resultats is sequence and resultats is not string and resultats | count > 0 %}
+            {% if resultats | count > 0 %}
               {% for s in resultats[:10] %}
-                {{ loop.index }}. {{ s.name }} — {{ s.url_resolved | default(s.url, true) }}
+                {{ loop.index }}. {{ s.name }} — {{ s.codec | default('?') }} — {{ s.url_resolved }}
               {% endfor %}
+              Pour enregistrer : script « Réveil Tab5 — enregistrer un favori »,
+              nom={{ nom }}, numéro du résultat et emplacement 1–12.
             {% else %}
-              Aucune station trouvée (ou service indisponible).
+              Aucune station trouvée ou service indisponible.
             {% endif %}
 
   reveil_tab5_radio_browser_favori:
-    alias: "Réveil Tab5 — enregistrer une station Radio Browser"
-    description: "Recherche par nom, puis écrit la première station exploitable dans un des 12 favoris ESPHome."
+    alias: "Réveil Tab5 — enregistrer un favori Radio Browser"
+    description: "Choisir le numéro d'un résultat Radio Browser et l'envoyer au Tab5 via MQTT."
     mode: queued
     fields:
       emplacement:
@@ -59,11 +73,20 @@ script:
         required: true
         selector:
           text: {}
+      resultat:
+        description: "Numéro dans la liste des résultats (1 par défaut)"
+        selector:
+          number:
+            min: 1
+            max: 10
+            step: 1
+            mode: box
     sequence:
       - variables:
           slot: "{{ emplacement | int(0) }}"
+          choix: "{{ resultat | default(1, true) | int(1) }}"
       - condition: template
-        value_template: "{{ 1 <= slot <= 12 and nom | trim | length > 0 }}"
+        value_template: "{{ 1 <= slot <= 12 and 1 <= choix <= 10 and nom | trim | length > 0 }}"
       - action: rest_command.reveil_tab5_radio_browser_search
         data:
           nom: "{{ nom }}"
@@ -71,31 +94,29 @@ script:
       - variables:
           candidats: >-
             {{ stations.content if stations.status == 200 and stations.content is sequence and stations.content is not string else [] }}
-      - variables:
           valides: >-
-            {{ candidats | selectattr('url_resolved', 'defined') | selectattr('url_resolved', 'search', '^https?://') | list }}
+            {{ candidats | selectattr('url_resolved', 'defined') | list }}
       - condition: template
-        value_template: "{{ valides | count > 0 }}"
+        value_template: "{{ valides | count >= choix }}"
       - variables:
-          station: "{{ valides[0] }}"
-          entite_nom: "{{ 'text.reveil_tab5_radio_' ~ slot ~ '_nom' }}"
-          entite_url: "{{ 'text.reveil_tab5_radio_' ~ slot ~ '_url' }}"
+          station: "{{ valides[choix - 1] }}"
+          flux: "{{ station.url_resolved | default('', true) }}"
       - condition: template
-        value_template: "{{ has_value(entite_nom) and has_value(entite_url) }}"
-      - action: text.set_value
-        target:
-          entity_id: "{{ entite_nom }}"
+        value_template: >-
+          {{ flux.startswith('http://') or flux.startswith('https://') }}
+      - condition: template
+        value_template: "{{ flux | length <= 255 and station.name | length > 0 }}"
+      - action: mqtt.publish
         data:
-          value: "{{ station.name[:48] }}"
-      - action: text.set_value
-        target:
-          entity_id: "{{ entite_url }}"
-        data:
-          value: "{{ station.url_resolved[:255] }}"
+          topic: reveil-tab5/radio/favori/set
+          payload: >-
+            {{ {'slot': slot | int, 'name': station.name[:48], 'url': flux} | to_json }}
+          qos: 1
+          retain: false
 
   reveil_tab5_radio_browser_initialiser:
-    alias: "Réveil Tab5 — remplir les 12 stations depuis Radio Browser"
-    description: "Recherche les 12 noms de stations par défaut et les synchronise avec les favoris du Tab5. À lancer depuis HA une fois l'ESPHome connecté."
+    alias: "Réveil Tab5 — rechercher les 12 stations par défaut"
+    description: "Initialise les favoris un à un par Radio Browser. Contrôler les URL avant utilisation."
     mode: single
     sequence:
       - repeat:
@@ -117,3 +138,4 @@ script:
               data:
                 emplacement: "{{ repeat.index }}"
                 nom: "{{ repeat.item }}"
+                resultat: 1
