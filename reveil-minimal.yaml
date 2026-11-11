@@ -129,6 +129,22 @@ sensor:
       then:
         - lambda: |-
             id(reveil_temperature_sample_ms) = millis();
+  - platform: template
+    id: reveil_batterie_pourcentage
+    name: Réveil batterie niveau
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    device_class: battery
+    state_class: measurement
+    update_interval: never
+  - platform: template
+    id: reveil_batterie_puissance
+    name: Réveil batterie puissance
+    unit_of_measurement: "W"
+    accuracy_decimals: 2
+    device_class: power
+    state_class: measurement
+    update_interval: never
   - platform: uptime
     id: reveil_uptime
     name: Reveil temps de fonctionnement
@@ -3395,6 +3411,9 @@ interval:
             id(reveil_batt_current).has_state() &&
             std::isfinite(id(reveil_batt_current).state) &&
             id(reveil_batt_current).state > 0.05f;
+          // Indicateur de présence : ne pas confondre batterie déclarée et détectée.
+          // Le statut de l'alimentation secteur est indisponible dans cette version :
+          // le courant batterie ne suffit pas à identifier avec certitude l'USB.
           const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
@@ -3493,9 +3512,14 @@ interval:
                 break;
               }
             }
+            id(reveil_batterie_pourcentage).publish_state(pct);
+            if (on_battery && std::isfinite(courant)) id(reveil_batterie_puissance).publish_state(std::max(0.0f, tension * courant));
+            else id(reveil_batterie_puissance).publish_state(NAN);
             snprintf(diag, sizeof(diag), "~%.0f %%", pct);
             set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
+            id(reveil_batterie_pourcentage).publish_state(NAN);
+            id(reveil_batterie_puissance).publish_state(NAN);
             set_label_if_changed(id(sys_batt), "Non détectée");
             set_label_if_changed(id(reveil_batt_etat),
             id(reveil_battery_installed).state ? "Mesure absente / batterie à vérifier" : "Non installée");
