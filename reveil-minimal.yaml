@@ -829,7 +829,9 @@ script:
           condition:
             lambda: |-
               const std::string urls[] = {id(radio_url_1).state, id(radio_url_2).state, id(radio_url_3).state, id(radio_url_4).state, id(radio_url_5).state, id(radio_url_6).state, id(radio_url_7).state, id(radio_url_8).state, id(radio_url_9).state, id(radio_url_10).state, id(radio_url_11).state, id(radio_url_12).state};
-              return id(radio_slot) >= 0 && id(radio_slot) < 12 && !urls[id(radio_slot)].empty();
+              if (id(radio_slot) < 0 || id(radio_slot) >= 12) return false;
+              const auto &url = urls[id(radio_slot)];
+              return url.rfind("http://", 0) == 0 || url.rfind("https://", 0) == 0;
           then:
             - media_player.play_media:
                 id: radio_player
