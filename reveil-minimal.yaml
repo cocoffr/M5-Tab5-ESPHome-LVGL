@@ -1360,6 +1360,15 @@ lvgl:
     - id: reveil_page
       bg_color: 0x000000
       widgets:
+        - button:
+            x: 0
+            y: 68
+            width: 1280
+            height: 405
+            bg_opa: TRANSP
+            border_width: 0
+            on_click:
+              - script.execute: open_clock_settings
         - label:
             id: reveil_power_icon
             text: "\U000F06A5"
@@ -2003,15 +2012,6 @@ lvgl:
                   align: CENTER
                   text_font: alarm_font
                   text_color: 0xFFFFFF
-        - button:
-            x: 0
-            y: 68
-            width: 1280
-            height: 405
-            bg_opa: TRANSP
-            border_width: 0
-            on_click:
-              - script.execute: open_clock_settings
     - id: reveil_radio_edit_page
       bg_color: 0x000000
       widgets:
@@ -4290,6 +4290,8 @@ interval:
           // le rendu d'une police alternative n'a pas été effectivement activé.
           const bool show_segments = font_choice == "Segments";
           // Toujours rendre l’horloge principale, y compris au premier démarrage.
+          // Les objets d'horloge sont dessinés au-dessus de la zone tactile
+          // transparente (créée en premier dans la page).
           lv_obj_t *font_labels[] = {id(clock_roboto_label),id(clock_montserrat_label),id(clock_oswald_label),id(clock_orbitron_label),id(clock_rajdhani_label)};
           const char *font_options[] = {"Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
           lv_obj_t *visible = nullptr;
