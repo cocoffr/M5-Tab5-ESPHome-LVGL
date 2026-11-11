@@ -401,7 +401,7 @@ select:
     optimistic: true
     restore_value: true
     options: ["Petit", "Normal", "Grand"]
-    initial_option: "Normal"
+    initial_option: "Grand"
   - platform: template
     id: appearance_color
     name: "Réveil apparence couleur"
@@ -2907,7 +2907,7 @@ lvgl:
         - obj:
             x: 24
             y: 106
-            width: 605
+            width: 755
             height: 598
             radius: 22
             bg_color: 0x1A2935
@@ -2915,9 +2915,9 @@ lvgl:
             border_width: 2
             border_color: 0x547084
         - obj:
-            x: 650
+            x: 800
             y: 106
-            width: 605
+            width: 455
             height: 598
             radius: 22
             bg_color: 0x1A2935
@@ -2925,16 +2925,16 @@ lvgl:
             border_width: 2
             border_color: 0x547084
         - label: { text: "BATTERIE", x: 46, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "ÉTAT", x: 672, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
+        - label: { text: "ÉTAT", x: 822, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "\U000F0084", x: 41, y: 166, text_font: battery_mdi_font, text_color: 0x9BAFBD }
         - label: { text: "Limite de charge", x: 81, y: 166, text_font: label_font, text_color: 0x9BAFBD }
-        - label: { text: "\U000F12A6", x: 324, y: 166, text_font: battery_mdi_font, text_color: 0x9BAFBD }
-        - label: { text: "Mode de charge", x: 364, y: 166, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "\U000F12A6", x: 404, y: 166, text_font: battery_mdi_font, text_color: 0x9BAFBD }
+        - label: { text: "Mode de charge", x: 444, y: 166, text_font: label_font, text_color: 0x9BAFBD }
         - button:
             id: batt_limit_100
             x: 41
             y: 206
-            width: 131
+            width: 168
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -2944,9 +2944,9 @@ lvgl:
               - label: { text: "100 %", align: CENTER, text_font: label_font }
         - button:
             id: batt_limit_80
-            x: 182
+            x: 216
             y: 206
-            width: 131
+            width: 168
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -2956,9 +2956,9 @@ lvgl:
               - label: { text: "80 %", align: CENTER, text_font: label_font }
         - button:
             id: batt_mode_normal
-            x: 324
+            x: 404
             y: 206
-            width: 131
+            width: 168
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -2968,9 +2968,9 @@ lvgl:
               - label: { text: "Classique", align: CENTER, text_font: label_font }
         - button:
             id: batt_mode_fast
-            x: 465
+            x: 594
             y: 206
-            width: 131
+            width: 168
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -2984,7 +2984,7 @@ lvgl:
             id: batt_eco_0
             x: 41
             y: 347
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -2994,9 +2994,9 @@ lvgl:
               - label: { text: "Jamais", align: CENTER, text_font: label_font }
         - button:
             id: batt_eco_1
-            x: 229
+            x: 279
             y: 347
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3006,9 +3006,9 @@ lvgl:
               - label: { text: "Sur batterie", align: CENTER, text_font: label_font }
         - button:
             id: batt_eco_2
-            x: 418
+            x: 517
             y: 347
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3022,7 +3022,7 @@ lvgl:
             id: batt_wifi_0
             x: 41
             y: 488
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3032,9 +3032,9 @@ lvgl:
               - label: { text: "Jamais", align: CENTER, text_font: label_font }
         - button:
             id: batt_wifi_1
-            x: 229
+            x: 279
             y: 488
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3044,9 +3044,9 @@ lvgl:
               - label: { text: "Sur batterie", align: CENTER, text_font: label_font }
         - button:
             id: batt_wifi_2
-            x: 418
+            x: 517
             y: 488
-            width: 178
+            width: 220
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3060,7 +3060,7 @@ lvgl:
             id: batt_fitted_yes
             x: 41
             y: 629
-            width: 272
+            width: 342
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3070,9 +3070,9 @@ lvgl:
               - label: { text: "Oui", align: CENTER, text_font: label_font }
         - button:
             id: batt_fitted_no
-            x: 324
+            x: 404
             y: 629
-            width: 272
+            width: 342
             height: 55
             bg_color: 0x304458
             radius: 12
@@ -3080,44 +3080,44 @@ lvgl:
               - switch.turn_off: reveil_battery_installed
             widgets:
               - label: { text: "Non", align: CENTER, text_font: label_font }
-        - label: { text: "\U000F06A5", x: 667, y: 166, text_font: battery_mdi_font, text_color: 0x9BAFBD }
-        - label: { text: "État", x: 707, y: 166, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "\U000F06A5", x: 817, y: 166, text_font: battery_mdi_font, text_color: 0x9BAFBD }
+        - label: { text: "État", x: 857, y: 166, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_etat
             text: "Mesure indisponible"
-            x: 707
+            x: 857
             y: 215
-            width: 500
+            width: 365
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "\U000F12A2", x: 667, y: 307, text_font: battery_mdi_font, text_color: 0x9BAFBD }
-        - label: { text: "Niveau", x: 707, y: 307, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "\U000F12A2", x: 817, y: 307, text_font: battery_mdi_font, text_color: 0x9BAFBD }
+        - label: { text: "Niveau", x: 857, y: 307, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_niveau
             text: "--"
-            x: 707
+            x: 857
             y: 356
-            width: 500
+            width: 365
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "\U000F0241", x: 667, y: 448, text_font: battery_mdi_font, text_color: 0x9BAFBD }
-        - label: { text: "Tension", x: 707, y: 448, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "\U000F0241", x: 817, y: 448, text_font: battery_mdi_font, text_color: 0x9BAFBD }
+        - label: { text: "Tension", x: 857, y: 448, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_tension
             text: "--"
-            x: 707
+            x: 857
             y: 497
-            width: 500
+            width: 365
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "\U000F029A", x: 667, y: 589, text_font: battery_mdi_font, text_color: 0x9BAFBD }
-        - label: { text: "Consommation", x: 707, y: 589, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "\U000F029A", x: 817, y: 589, text_font: battery_mdi_font, text_color: 0x9BAFBD }
+        - label: { text: "Consommation", x: 857, y: 589, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_conso
             text: "--"
-            x: 707
+            x: 857
             y: 638
-            width: 500
+            width: 365
             text_font: control_font
             text_color: 0xB5E8F4
     - id: reveil_systeme_page
@@ -3287,7 +3287,7 @@ lvgl:
         - label:
             id: sys_ha
             text: "Non connecté"
-            x: 965
+            x: 930
             y: 372
             text_font: label_font
             text_color: 0xB5E8F4
@@ -4303,12 +4303,15 @@ interval:
           #endif
           if (batt_present) {
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
+            for (char *p = diag; *p; ++p) if (*p == '.') *p = ',';
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
             set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" :
               (id(reveil_battery_charging).state && activer ? "En charge" : "Sur USB"));
-            if (on_battery && id(reveil_batt_current).state >= 0.020f) {
-              snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
+            if (std::isfinite(id(reveil_batt_current).state)) {
+              const float power = id(reveil_batt_voltage).state * id(reveil_batt_current).state;
+              snprintf(diag, sizeof(diag), "%+.2f W", power);
+              for (char *p = diag; *p; ++p) if (*p == '.') *p = ',';
               set_label_if_changed(id(reveil_batt_conso), diag);
             } else {
               set_label_if_changed(id(reveil_batt_conso), "--");
@@ -4327,7 +4330,7 @@ interval:
               id(reveil_battery_alert_level) = 1;
               id(mqtt_client).publish(std::string("reveil-tab5/batterie/alerte"), std::string("faible_20"), 0, false);
             }
-            snprintf(diag, sizeof(diag), "~%.0f %%", pct);
+            snprintf(diag, sizeof(diag), on_battery ? "%.0f %%" : "+%.0f %%", pct);
             set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
             id(reveil_batterie_pourcentage).publish_state(NAN);
