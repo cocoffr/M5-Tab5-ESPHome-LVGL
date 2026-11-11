@@ -4287,6 +4287,7 @@ interval:
             id(clock_colon_top),id(clock_colon_bottom)
           };
           const bool show_segments = font_choice == "Segments";
+          // Toujours rendre l’horloge principale, y compris au premier démarrage.
           lv_obj_t *font_labels[] = {id(clock_roboto_label),id(clock_montserrat_label),id(clock_oswald_label),id(clock_orbitron_label),id(clock_rajdhani_label)};
           const char *font_options[] = {"Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
           lv_obj_t *visible = nullptr;
@@ -4335,7 +4336,7 @@ interval:
           if (color_changed || (show_segments && !previous_segments_visible)) last_drawn_minute = -1;
           previous_segments_visible = show_segments;
           const int current_drawn_minute = clock_valid ? shown_hour * 60 + shown_minute : -1;
-          if (clock_valid && current_drawn_minute != last_drawn_minute) {
+          if (clock_valid) {
             last_drawn_minute = current_drawn_minute;
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
             int digits[4] = {shown_hour / 10, shown_hour % 10, shown_minute / 10, shown_minute % 10};
