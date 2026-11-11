@@ -2300,7 +2300,7 @@ lvgl:
         - label:
             text: "Batterie"
             x: 40
-            y: 28
+            y: 18
             text_font: alarm_font
             text_color: 0xB5E8F4
         - button:
@@ -2314,204 +2314,208 @@ lvgl:
               - lvgl.page.show: reveil_settings_page
             widgets:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
-        # Console synthétique inspirée du projet HMI : état et mesures en haut,
-        # paramètres en dessous. Aucun contrôle de charge matériel n'est activé.
+        # Disposition d'origine : deux cartes côte à côte, réglages à gauche, état à droite.
+        # Les options de charge sont mémorisées mais ne commandent pas le chargeur.
         - obj:
             x: 24
-            y: 115
-            width: 1232
-            height: 195
+            y: 106
+            width: 605
+            height: 586
             radius: 18
             bg_color: 0x15232E
             border_width: 2
             border_color: 0x375365
-        - label:
-            text: "DIAGNOSTIC ET ALIMENTATION"
+        - obj:
+            x: 650
+            y: 106
+            width: 605
+            height: 586
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label: { text: "BATTERIE", x: 48, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
+        - label: { text: "ÉTAT", x: 675, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
+        - label: { text: "Limite de charge", x: 48, y: 179, text_font: label_font }
+        - label: { text: "Mode de charge", x: 348, y: 179, text_font: label_font }
+        - button:
+            id: batt_limit_100
             x: 48
-            y: 90
-            text_font: label_font
-            text_color: 0xFFB86B
-        - label:
-            text: "ÉTAT BATTERIE"
+            y: 218
+            width: 128
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_charge_limit, option: "100 %" }
+            widgets:
+              - label: { text: "100 %", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_limit_80
+            x: 186
+            y: 218
+            width: 128
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_charge_limit, option: "80 %" }
+            widgets:
+              - label: { text: "80 %", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_mode_normal
+            x: 348
+            y: 218
+            width: 128
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_charge_mode, option: "Classique" }
+            widgets:
+              - label: { text: "Classique", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_mode_fast
+            x: 486
+            y: 218
+            width: 128
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_charge_mode, option: "Rapide" }
+            widgets:
+              - label: { text: "Rapide", align: CENTER, text_font: label_font }
+        - label: { text: "Économie d'énergie", x: 48, y: 297, text_font: label_font }
+        - button:
+            id: batt_eco_0
             x: 48
-            y: 128
-            text_font: control_font
-            text_color: 0xB5E8F4
+            y: 337
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_power_save, option: "Jamais" }
+            widgets:
+              - label: { text: "Jamais", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_eco_1
+            x: 238
+            y: 337
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_power_save, option: "Sur batterie" }
+            widgets:
+              - label: { text: "Sur batterie", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_eco_2
+            x: 428
+            y: 337
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_power_save, option: "Toujours" }
+            widgets:
+              - label: { text: "Toujours", align: CENTER, text_font: label_font }
+        - label: { text: "Wi-Fi éco", x: 48, y: 416, text_font: label_font }
+        - button:
+            id: batt_wifi_0
+            x: 48
+            y: 456
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_wifi_save, option: "Jamais" }
+            widgets:
+              - label: { text: "Jamais", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_wifi_1
+            x: 238
+            y: 456
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_wifi_save, option: "Sur batterie" }
+            widgets:
+              - label: { text: "Sur batterie", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_wifi_2
+            x: 428
+            y: 456
+            width: 180
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - select.set: { id: reveil_wifi_save, option: "Toujours" }
+            widgets:
+              - label: { text: "Toujours", align: CENTER, text_font: label_font }
+        - label: { text: "Batterie montée", x: 48, y: 536, text_font: label_font }
+        - button:
+            id: batt_fitted_yes
+            x: 48
+            y: 574
+            width: 270
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - switch.turn_on: reveil_battery_installed
+            widgets:
+              - label: { text: "Oui", align: CENTER, text_font: label_font }
+        - button:
+            id: batt_fitted_no
+            x: 338
+            y: 574
+            width: 270
+            height: 52
+            bg_color: 0x304458
+            on_click:
+              - switch.turn_off: reveil_battery_installed
+            widgets:
+              - label: { text: "Non", align: CENTER, text_font: label_font }
+        - label: { text: "État", x: 675, y: 179, text_font: label_font }
         - label:
             id: reveil_batt_etat
             text: "Mesure indisponible"
-            x: 50
-            y: 195
+            x: 700
+            y: 221
             width: 500
-            text_font: label_font
-            text_color: 0xFFFFFF
-        - label:
-            text: "Niveau"
-            x: 600
-            y: 170
-            text_font: label_font
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label: { text: "Niveau", x: 675, y: 294, text_font: label_font }
         - label:
             id: reveil_batt_niveau
             text: "--"
-            x: 600
-            y: 225
+            x: 700
+            y: 336
+            width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label:
-            text: "Tension"
-            x: 830
-            y: 170
-            text_font: label_font
+        - label: { text: "Tension", x: 675, y: 409, text_font: label_font }
         - label:
             id: reveil_batt_tension
             text: "--"
-            x: 830
-            y: 225
+            x: 700
+            y: 451
+            width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label:
-            text: "Puissance"
-            x: 1060
-            y: 170
-            text_font: label_font
+        - label: { text: "Consommation", x: 675, y: 524, text_font: label_font }
         - label:
             id: reveil_batt_conso
             text: "--"
-            x: 1060
-            y: 225
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - obj:
-            x: 24
-            y: 325
-            width: 1232
-            height: 355
-            radius: 18
-            bg_color: 0x15232E
-            border_width: 2
-            border_color: 0x375365
-        - label:
-            text: "RÉGLAGES"
-            x: 48
-            y: 339
+            x: 700
+            y: 566
+            width: 500
             text_font: control_font
             text_color: 0xB5E8F4
         - label:
-            text: "Charge coupée - sécurité"
-            x: 665
-            y: 349
+            text: "Charge désactivée par sécurité - diagnostic en cours"
+            x: 675
+            y: 640
+            width: 540
             text_font: label_font
             text_color: 0xFFB86B
-        - label:
-            text: "Limite de charge"
-            x: 48
-            y: 410
-            text_font: label_font
-        - label:
-            id: reveil_charge_limit_label
-            text: "80 % (inactif)"
-            x: 48
-            y: 460
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - button:
-            x: 320
-            y: 442
-            width: 220
-            height: 58
-            bg_color: 0x304458
-            on_click:
-              - select.next: reveil_charge_limit
-            widgets:
-              - label: { text: "80 / 100 %", align: CENTER, text_font: label_font }
-        - label:
-            text: "Mode de charge"
-            x: 665
-            y: 410
-            text_font: label_font
-        - label:
-            id: reveil_charge_mode_label
-            text: "Classique (inactif)"
-            x: 665
-            y: 460
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - button:
-            x: 1010
-            y: 442
-            width: 215
-            height: 58
-            bg_color: 0x304458
-            on_click:
-              - select.next: reveil_charge_mode
-            widgets:
-              - label: { text: "Changer", align: CENTER, text_font: label_font }
-        - label:
-            text: "Économie énergie"
-            x: 48
-            y: 525
-            text_font: label_font
-        - label:
-            id: reveil_power_save_label
-            text: "Jamais"
-            x: 48
-            y: 575
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - button:
-            x: 320
-            y: 562
-            width: 220
-            height: 58
-            bg_color: 0x304458
-            on_click:
-              - select.next: reveil_power_save
-            widgets:
-              - label: { text: "Changer", align: CENTER, text_font: label_font }
-        - label:
-            text: "Wi-Fi éco"
-            x: 665
-            y: 525
-            text_font: label_font
-        - label:
-            id: reveil_wifi_save_label
-            text: "Jamais"
-            x: 665
-            y: 575
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - button:
-            x: 1010
-            y: 562
-            width: 215
-            height: 58
-            bg_color: 0x304458
-            on_click:
-              - select.next: reveil_wifi_save
-            widgets:
-              - label: { text: "Changer", align: CENTER, text_font: label_font }
-        - label:
-            text: "Batterie installée"
-            x: 48
-            y: 630
-            text_font: label_font
-        - label:
-            id: reveil_battery_installed_label
-            text: "Non"
-            x: 340
-            y: 630
-            text_font: label_font
-            text_color: 0xB5E8F4
-        - button:
-            x: 465
-            y: 622
-            width: 180
-            height: 55
-            bg_color: 0x304458
-            on_click:
-              - switch.toggle: reveil_battery_installed
-            widgets:
-              - label: { text: "Oui / Non", align: CENTER, text_font: label_font }
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
@@ -3400,7 +3404,26 @@ interval:
           set_label_if_changed(id(reveil_charge_mode_label), pref);
           set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).current_option().c_str());
           set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).current_option().c_str());
-          set_label_if_changed(id(reveil_battery_installed_label), id(reveil_battery_installed).state ? "Oui" : "Non");
+          // Boutons de sélection : vert = option active, bleu = autres choix.
+          auto battery_choice = [&](lv_obj_t *button, bool active) {
+            lv_obj_set_style_bg_color(button, lv_color_hex(active ? 0x00AD22 : 0x075BA8), LV_PART_MAIN);
+          };
+          const std::string charge_limit = id(reveil_charge_limit).current_option();
+          battery_choice(id(batt_limit_100), charge_limit == "100 %");
+          battery_choice(id(batt_limit_80), charge_limit == "80 %");
+          const std::string charge_mode = id(reveil_charge_mode).current_option();
+          battery_choice(id(batt_mode_normal), charge_mode == "Classique");
+          battery_choice(id(batt_mode_fast), charge_mode == "Rapide");
+          const std::string power_save = id(reveil_power_save).current_option();
+          battery_choice(id(batt_eco_0), power_save == "Jamais");
+          battery_choice(id(batt_eco_1), power_save == "Sur batterie");
+          battery_choice(id(batt_eco_2), power_save == "Toujours");
+          const std::string wifi_save = id(reveil_wifi_save).current_option();
+          battery_choice(id(batt_wifi_0), wifi_save == "Jamais");
+          battery_choice(id(batt_wifi_1), wifi_save == "Sur batterie");
+          battery_choice(id(batt_wifi_2), wifi_save == "Toujours");
+          battery_choice(id(batt_fitted_yes), id(reveil_battery_installed).state);
+          battery_choice(id(batt_fitted_no), !id(reveil_battery_installed).state);
           // La présence déclarée seule ne suffit pas : chargeur coupé au démarrage.
           // Contrôleur original importé en lecture seule pour diagnostic.
           // L'interverrouillage de sécurité interdit toute activation de CHG_EN
