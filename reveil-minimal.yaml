@@ -617,7 +617,7 @@ script:
   - id: start_alarm
     then:
       - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
-      - lvgl.page.show: alarm_ringing_page
+      - lvgl.page.show: reveil_page
       - if:
           condition:
             lambda: 'return id(active_alarm_radio);'
@@ -716,8 +716,10 @@ script:
 
 rtttl:
   id: alarm_buzzer
-  speaker: alarm_speaker
-  gain: 50%
+  # Le mixer détient la sortie I2S physique : RTTTL doit entrer
+  # par une de ses sources, comme le lecteur radio.
+  speaker: reveil_announcement_speaker
+  gain: 100%
 font:
   - file: "gfonts://Noto Sans Symbols"
     id: gear_font
@@ -1183,6 +1185,38 @@ lvgl:
                   align: CENTER
                   text_font: control_font
                   text_color: 0xFFFFFF
+        - button:
+            id: alarm_snooze_main_button
+            hidden: true
+            x: 18
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0x075BA8
+            on_click:
+              - script.execute: snooze_alarm
+            widgets:
+              - label:
+                  text: "Snooze 9 min"
+                  align: CENTER
+                  text_font: alarm_font
+        - button:
+            id: alarm_stop_main_button
+            hidden: true
+            x: 650
+            y: 487
+            width: 612
+            height: 106
+            radius: 18
+            bg_color: 0xB23B3B
+            on_click:
+              - script.execute: stop_alarm
+            widgets:
+              - label:
+                  text: "Arrêter"
+                  align: CENTER
+                  text_font: alarm_font
         - obj:
             x: 20
             y: 613
@@ -1217,15 +1251,15 @@ lvgl:
                   text_font: control_font
         - label:
             id: brightness_label
-            x: 210
+            x: 205
             y: 630
-            width: 111
+            width: 140
             text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
         - button:
-            x: 321
+            x: 345
             y: 624
             width: 78
             height: 68
@@ -1275,15 +1309,15 @@ lvgl:
                   text_font: control_font
         - label:
             id: volume_label
-            x: 1005
+            x: 1000
             y: 630
-            width: 111
+            width: 140
             text_align: CENTER
             text: "5/10"
             text_font: control_font
             text_color: 0xB5E8F4
         - button:
-            x: 1116
+            x: 1140
             y: 624
             width: 78
             height: 68
@@ -2533,6 +2567,13 @@ interval:
           lv_obj_set_style_bg_color(id(clock_manual_button), lv_color_hex(id(manual_clock) ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(reveil_wifi_icon), lv_color_hex(id(reveil_ip).has_state() && !id(reveil_ip).state.empty() && id(reveil_ip).state != "0.0.0.0" ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
           set_label_if_changed(id(clock_mode_label), id(manual_clock) ? "Mode manuel actif" : (t.is_valid() ? "Mode Wi-Fi actif" : "Wi-Fi : non synchronise"));
+          if (id(alarm_ringing)) {
+            lv_obj_remove_flag(id(alarm_snooze_main_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(id(alarm_stop_main_button), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_obj_add_flag(id(alarm_snooze_main_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(alarm_stop_main_button), LV_OBJ_FLAG_HIDDEN);
+          }
           set_label_if_changed(id(alarm_one_label), id(alarm_one_enabled).state ? "ON" : "OFF");
           static int last_one_enabled = -1;
           int one_enabled = id(alarm_one_enabled).state ? 1 : 0;
