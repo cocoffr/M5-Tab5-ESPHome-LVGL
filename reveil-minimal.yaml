@@ -2385,8 +2385,17 @@ interval:
           set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
           set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
           char diag[48];
-          if (id(reveil_wifi_signal).has_state()) { snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state); set_label_if_changed(id(sys_rssi), diag); }
-          if (id(reveil_uptime).has_state()) { snprintf(diag, sizeof(diag), "%.0f min", id(reveil_uptime).state / 60.0f); set_label_if_changed(id(sys_uptime), diag); }
+          if (id(reveil_wifi_signal).has_state() && std::isfinite(id(reveil_wifi_signal).state)) {
+            snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state);
+            set_label_if_changed(id(sys_rssi), diag);
+          } else set_label_if_changed(id(sys_rssi), "Indisponible");
+          if (id(reveil_uptime).has_state() && std::isfinite(id(reveil_uptime).state)) {
+            const uint32_t secondes = (uint32_t) id(reveil_uptime).state;
+            snprintf(diag, sizeof(diag), "%u j %02u h %02u min",
+              (unsigned)(secondes / 86400), (unsigned)((secondes / 3600) % 24),
+              (unsigned)((secondes / 60) % 60));
+            set_label_if_changed(id(sys_uptime), diag);
+          } else set_label_if_changed(id(sys_uptime), "Indisponible");
           snprintf(diag, sizeof(diag), "%u / %u Ko libres",
             (unsigned)(heap_caps_get_free_size(MALLOC_CAP_INTERNAL) / 1024),
             (unsigned)(heap_caps_get_total_size(MALLOC_CAP_INTERNAL) / 1024));
@@ -2396,7 +2405,8 @@ interval:
             (unsigned)(heap_caps_get_total_size(MALLOC_CAP_SPIRAM) / 1024));
           set_label_if_changed(id(sys_psram), diag);
           snprintf(diag, sizeof(diag), "%u Ko", (unsigned)(heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL) / 1024)); set_label_if_changed(id(sys_bloc), diag);
-          if (id(reveil_cpu_temperature).has_state()) {
+          if (id(reveil_cpu_temperature).has_state() &&
+              std::isfinite(id(reveil_cpu_temperature).state)) {
             snprintf(diag, sizeof(diag), "%.1f °C", id(reveil_cpu_temperature).state);
             set_label_if_changed(id(sys_temp), diag);
           } else set_label_if_changed(id(sys_temp), "Non mesurée");
@@ -2439,7 +2449,8 @@ interval:
             set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
             set_label_if_changed(id(sys_batt), "Non détectée");
-            set_label_if_changed(id(reveil_batt_etat), "Non détectée");
+            set_label_if_changed(id(reveil_batt_etat),
+            id(reveil_battery_installed).state ? "Mesure absente / batterie à vérifier" : "Non installée");
             set_label_if_changed(id(reveil_batt_tension), "--");
             set_label_if_changed(id(reveil_batt_niveau), "--");
             set_label_if_changed(id(reveil_batt_conso), "--");
