@@ -1228,8 +1228,8 @@ font:
     glyphs:
       - "\\U000F06A5"
       - "\\U000F0079"
-      - "\\U000F05A9"
-      - "\\U000F0493"
+      - "\\U000F0928"
+      - "\\U000F07D0"
   - file: "gfonts://Noto Sans Symbols"
     id: gear_font
     size: 42
@@ -1286,14 +1286,14 @@ lvgl:
             text_color: 0x00CC33
         - label:
             id: reveil_ha_icon
-            text: "\\U000F0493"
+            text: "\\U000F07D0"
             x: 1010
             y: 9
             text_font: status_icon_font
             text_color: 0x535B65
         - label:
             id: reveil_wifi_icon
-            text: "\\U000F05A9"
+            text: "\\U000F0928"
             x: 1100
             y: 9
             text_font: status_icon_font
