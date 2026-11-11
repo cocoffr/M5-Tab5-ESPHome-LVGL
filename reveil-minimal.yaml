@@ -1589,6 +1589,7 @@ lvgl:
             border_width: 0
             pad_all: 0
         - obj:
+            id: clock_colon_top
             x: 640
             y: 180
             width: 28
@@ -1597,6 +1598,7 @@ lvgl:
             bg_color: 0xB5E8F4
             border_width: 0
         - obj:
+            id: clock_colon_bottom
             x: 640
             y: 300
             width: 28
@@ -3627,7 +3629,67 @@ interval:
           const bool clock_valid = id(manual_clock) || t.is_valid();
           const int shown_hour = id(manual_clock) ? id(manual_hour) : t.hour;
           const int shown_minute = id(manual_clock) ? id(manual_minute) : t.minute;
+          // Apparence sauvegardée : police, échelle et couleur de l'heure.
+          const std::string font_choice = id(appearance_font).current_option();
+          const std::string size_choice = id(appearance_size).current_option();
+          const std::string color_choice = id(appearance_color).current_option();
+          const uint32_t clock_color = color_choice == "Bleu foncé" ? 0x287BB9 :
+            (color_choice == "Blanc" ? 0xFFFFFF : 0xB5E8F4);
+          const int scale_pct = size_choice == "Petit" ? 80 :
+            (size_choice == "Grand" ? 100 : 90);
+          lv_obj_t *segments[] = {
+            id(digit_0_0),id(digit_0_1),id(digit_0_2),id(digit_0_3),id(digit_0_4),id(digit_0_5),id(digit_0_6),
+            id(digit_1_0),id(digit_1_1),id(digit_1_2),id(digit_1_3),id(digit_1_4),id(digit_1_5),id(digit_1_6),
+            id(digit_2_0),id(digit_2_1),id(digit_2_2),id(digit_2_3),id(digit_2_4),id(digit_2_5),id(digit_2_6),
+            id(digit_3_0),id(digit_3_1),id(digit_3_2),id(digit_3_3),id(digit_3_4),id(digit_3_5),id(digit_3_6),
+            id(clock_colon_top),id(clock_colon_bottom)
+          };
+          const bool show_segments = font_choice == "Segments";
+          lv_obj_t *font_roboto = id(clock_roboto_label);
+          lv_obj_t *font_montserrat = id(clock_montserrat_label);
+          if (show_segments) {
+            lv_obj_add_flag(font_roboto, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(font_montserrat, LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_obj_t *visible = font_choice == "Roboto" ? font_roboto : font_montserrat;
+            lv_obj_remove_flag(visible, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(visible == font_roboto ? font_montserrat : font_roboto, LV_OBJ_FLAG_HIDDEN);
+            char clock_text[8];
+            snprintf(clock_text, sizeof(clock_text), "%02d:%02d", shown_hour, shown_minute);
+            set_label_if_changed(visible, clock_valid ? clock_text : "--:--");
+            lv_obj_set_style_text_color(visible, lv_color_hex(clock_color), LV_PART_MAIN);
+          }
+          static int previous_scale = -1;
+          if (previous_scale != scale_pct) {
+            previous_scale = scale_pct;
+            // Redimensionner les 30 éléments autour du centre de l'horloge.
+            for (int i = 0; i < 30; ++i) {
+              lv_obj_t *o = segments[i];
+              static lv_coord_t orig_x[30],orig_y[30],orig_w[30],orig_h[30];
+              static bool initialized = false;
+              if (!initialized) {
+                for (int k = 0; k < 30; ++k) {
+                  orig_x[k] = lv_obj_get_x(segments[k]);
+                  orig_y[k] = lv_obj_get_y(segments[k]);
+                  orig_w[k] = lv_obj_get_width(segments[k]);
+                  orig_h[k] = lv_obj_get_height(segments[k]);
+                }
+                initialized = true;
+              }
+              lv_obj_set_pos(o, 640 + (orig_x[i] - 640) * scale_pct / 100,
+                              275 + (orig_y[i] - 275) * scale_pct / 100);
+              lv_obj_set_size(o, orig_w[i] * scale_pct / 100, orig_h[i] * scale_pct / 100);
+            }
+          }
+          for (lv_obj_t *o : segments) {
+            if (show_segments) lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_add_flag(o, LV_OBJ_FLAG_HIDDEN);
+          }
+          static uint32_t last_clock_color = 0;
+          const bool color_changed = last_clock_color != clock_color;
+          last_clock_color = clock_color;
           static int last_drawn_minute = -1;
+          if (color_changed) last_drawn_minute = -1;
           const int current_drawn_minute = clock_valid ? shown_hour * 60 + shown_minute : -1;
           if (clock_valid && current_drawn_minute != last_drawn_minute) {
             last_drawn_minute = current_drawn_minute;
@@ -3635,34 +3697,34 @@ interval:
             int digits[4] = {shown_hour / 10, shown_hour % 10, shown_minute / 10, shown_minute % 10};
             // Masquer la dizaine des heures entre 00:00 et 09:59.
             const uint8_t first_hour_segments = shown_hour < 10 ? 0 : map[digits[0]];
-            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((first_hour_segments & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((first_hour_segments & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((first_hour_segments & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((first_hour_segments & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((first_hour_segments & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((first_hour_segments & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((first_hour_segments & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
-            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? 0xB5E8F4 : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_0), lv_color_hex((first_hour_segments & (1 << 0)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_1), lv_color_hex((first_hour_segments & (1 << 1)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_2), lv_color_hex((first_hour_segments & (1 << 2)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_3), lv_color_hex((first_hour_segments & (1 << 3)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_4), lv_color_hex((first_hour_segments & (1 << 4)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_5), lv_color_hex((first_hour_segments & (1 << 5)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_0_6), lv_color_hex((first_hour_segments & (1 << 6)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_0), lv_color_hex((map[digits[1]] & (1 << 0)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_1), lv_color_hex((map[digits[1]] & (1 << 1)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_2), lv_color_hex((map[digits[1]] & (1 << 2)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_3), lv_color_hex((map[digits[1]] & (1 << 3)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_4), lv_color_hex((map[digits[1]] & (1 << 4)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_5), lv_color_hex((map[digits[1]] & (1 << 5)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_1_6), lv_color_hex((map[digits[1]] & (1 << 6)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_0), lv_color_hex((map[digits[2]] & (1 << 0)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_1), lv_color_hex((map[digits[2]] & (1 << 1)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_2), lv_color_hex((map[digits[2]] & (1 << 2)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_3), lv_color_hex((map[digits[2]] & (1 << 3)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_4), lv_color_hex((map[digits[2]] & (1 << 4)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_5), lv_color_hex((map[digits[2]] & (1 << 5)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_2_6), lv_color_hex((map[digits[2]] & (1 << 6)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_0), lv_color_hex((map[digits[3]] & (1 << 0)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_1), lv_color_hex((map[digits[3]] & (1 << 1)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_2), lv_color_hex((map[digits[3]] & (1 << 2)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_3), lv_color_hex((map[digits[3]] & (1 << 3)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_4), lv_color_hex((map[digits[3]] & (1 << 4)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_5), lv_color_hex((map[digits[3]] & (1 << 5)) ? clock_color : 0x000000), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(digit_3_6), lv_color_hex((map[digits[3]] & (1 << 6)) ? clock_color : 0x000000), LV_PART_MAIN);
           }
           static int last_drawn_day = -1;
           if (id(manual_clock)) {
