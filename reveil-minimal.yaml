@@ -4286,6 +4286,8 @@ interval:
             id(digit_3_0),id(digit_3_1),id(digit_3_2),id(digit_3_3),id(digit_3_4),id(digit_3_5),id(digit_3_6),
             id(clock_colon_top),id(clock_colon_bottom)
           };
+          // Sécurité d'affichage : conserver les segments d'origine tant que
+          // le rendu d'une police alternative n'a pas été effectivement activé.
           const bool show_segments = font_choice == "Segments";
           // Toujours rendre l’horloge principale, y compris au premier démarrage.
           lv_obj_t *font_labels[] = {id(clock_roboto_label),id(clock_montserrat_label),id(clock_oswald_label),id(clock_orbitron_label),id(clock_rajdhani_label)};
@@ -4324,6 +4326,8 @@ interval:
               lv_obj_set_size(o, orig_w[i] * scale_pct / 100, orig_h[i] * scale_pct / 100);
             }
           }
+          // La première seconde doit afficher l'horloge, sans attendre SNTP.
+          // Les segments sont visibles par défaut dès la création de la page.
           for (lv_obj_t *o : segments) {
             if (show_segments) lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
             else lv_obj_add_flag(o, LV_OBJ_FLAG_HIDDEN);
