@@ -73,7 +73,7 @@ script:
             {{ stations.content if stations.status == 200 and stations.content is sequence and stations.content is not string else [] }}
       - variables:
           valides: >-
-            {{ candidats | selectattr('url_resolved', 'defined') | selectattr('url_resolved', 'match', '^https?://') | list }}
+            {{ candidats | selectattr('url_resolved', 'defined') | selectattr('url_resolved', 'search', '^https?://') | list }}
       - condition: template
         value_template: "{{ valides | count > 0 }}"
       - variables:
@@ -92,3 +92,28 @@ script:
           entity_id: "{{ entite_url }}"
         data:
           value: "{{ station.url_resolved[:255] }}"
+
+  reveil_tab5_radio_browser_initialiser:
+    alias: "Réveil Tab5 — remplir les 12 stations depuis Radio Browser"
+    description: "Recherche les 12 noms de stations par défaut et les synchronise avec les favoris du Tab5. À lancer depuis HA une fois l'ESPHome connecté."
+    mode: single
+    sequence:
+      - repeat:
+          for_each:
+            - "Chérie FM"
+            - "Chérie FM 90"
+            - "Chérie FM Acoustic"
+            - "Rire et Chansons"
+            - "France Inter"
+            - "France Info"
+            - "RTL"
+            - "Europe 1"
+            - "RFM"
+            - "Nostalgie"
+            - "NRJ"
+            - "Fun Radio"
+          sequence:
+            - action: script.reveil_tab5_radio_browser_favori
+              data:
+                emplacement: "{{ repeat.index }}"
+                nom: "{{ repeat.item }}"
