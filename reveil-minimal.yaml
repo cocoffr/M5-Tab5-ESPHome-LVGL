@@ -4056,6 +4056,25 @@ interval:
           set_label_if_changed(id(radio_station_label_10), radio_names[9].c_str());
           set_label_if_changed(id(radio_station_label_11), radio_names[10].c_str());
           set_label_if_changed(id(radio_station_label_12), radio_names[11].c_str());
+          // Sur la page Stations radio, la station sélectionnée apparaît en vert.
+          // Actualisation aussi après un changement par MQTT ou par les commandes radio.
+          lv_obj_t *station_buttons[] = {
+            id(radio_station_button_1), id(radio_station_button_2),
+            id(radio_station_button_3), id(radio_station_button_4),
+            id(radio_station_button_5), id(radio_station_button_6),
+            id(radio_station_button_7), id(radio_station_button_8),
+            id(radio_station_button_9), id(radio_station_button_10),
+            id(radio_station_button_11), id(radio_station_button_12)
+          };
+          static int last_highlighted_radio = -1;
+          const int highlighted_radio = id(radio_slot);
+          if (highlighted_radio != last_highlighted_radio) {
+            last_highlighted_radio = highlighted_radio;
+            for (int i = 0; i < 12; ++i) {
+              lv_obj_set_style_bg_color(station_buttons[i],
+                lv_color_hex(i == highlighted_radio ? 0x008F36 : 0x304458), LV_PART_MAIN);
+            }
+          }
           set_label_if_changed(id(radio_button_label), id(radio_manual) ? "Radio ON" : "Radio");
           const std::string station_texte = std::string("Station : ") + id(reveil_station_radio).current_option();
           set_label_if_changed(id(reveil_station_label), station_texte.c_str());
