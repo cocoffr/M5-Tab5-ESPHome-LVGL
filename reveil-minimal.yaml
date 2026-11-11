@@ -2461,54 +2461,54 @@ lvgl:
         - label:
             text: "Paramètres"
             align: TOP_MID
-            y: 35
+            y: 28
             text_font: alarm_font
             text_color: 0xB5E8F4
         - button:
             x: 90
-            y: 180
-            width: 340
-            height: 115
+            y: 135
+            width: 535
+            height: 125
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: clock_settings_page
             widgets:
               - label: { text: "Heure", align: CENTER, text_font: control_font }
         - button:
-            x: 470
-            y: 180
-            width: 340
-            height: 115
+            x: 655
+            y: 135
+            width: 535
+            height: 125
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_batterie_page
             widgets:
               - label: { text: "Batterie", align: CENTER, text_font: control_font }
         - button:
-            x: 850
-            y: 180
-            width: 340
-            height: 115
+            x: 90
+            y: 285
+            width: 535
+            height: 125
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_systeme_page
             widgets:
               - label: { text: "Système", align: CENTER, text_font: control_font }
         - button:
-            x: 90
-            y: 315
-            width: 340
-            height: 115
+            x: 655
+            y: 285
+            width: 535
+            height: 125
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_apparence_page
             widgets:
               - label: { text: "Apparence", align: CENTER, text_font: control_font }
         - button:
-            x: 300
-            y: 465
-            width: 680
-            height: 110
+            x: 90
+            y: 445
+            width: 1100
+            height: 95
             radius: 18
             bg_color: 0x304458
             on_click:
@@ -2521,9 +2521,9 @@ lvgl:
                   text_font: label_font
                   text_color: 0xFFFFFF
         - button:
-            x: 460
-            y: 605
-            width: 360
+            x: 420
+            y: 575
+            width: 440
             height: 95
             bg_color: 0x075BA8
             on_click:
@@ -3474,12 +3474,12 @@ lvgl:
         - keyboard:
             id: mqtt_keyboard
             x: 35
-            y: 255
+            y: 250
             width: 1200
-            height: 345
+            height: 295
         - button:
             x: 170
-            y: 615
+            y: 575
             width: 370
             height: 82
             bg_color: 0x304458
@@ -3489,7 +3489,7 @@ lvgl:
               - label: { text: "Annuler", align: CENTER, text_font: label_font }
         - button:
             x: 680
-            y: 615
+            y: 575
             width: 420
             height: 82
             bg_color: 0x075BA8
@@ -3516,10 +3516,10 @@ lvgl:
             text_font: alarm_font
             text_color: 0xB5E8F4
         - button:
-            x: 1040
+            x: 1050
             y: 20
             width: 190
-            height: 64
+            height: 76
             radius: 12
             bg_color: 0x304458
             on_click:
@@ -3527,10 +3527,10 @@ lvgl:
             widgets:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
         - button:
-            x: 805
+            x: 675
             y: 20
-            width: 215
-            height: 64
+            width: 350
+            height: 76
             radius: 12
             bg_color: 0x075BA8
             on_click:
