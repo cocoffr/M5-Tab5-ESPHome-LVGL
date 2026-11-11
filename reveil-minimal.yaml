@@ -1467,209 +1467,198 @@ lvgl:
               - lvgl.page.show: reveil_settings_page
             widgets:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
+        # Console synthétique inspirée du projet HMI : état et mesures en haut,
+        # paramètres en dessous. Aucun contrôle de charge matériel n'est activé.
         - obj:
             x: 24
-            y: 125
-            width: 600
-            height: 555
-            radius: 18
-            bg_color: 0x15232E
-            border_width: 2
-            border_color: 0x375365
-        - obj:
-            x: 644
-            y: 125
-            width: 612
-            height: 555
+            y: 115
+            width: 1232
+            height: 195
             radius: 18
             bg_color: 0x15232E
             border_width: 2
             border_color: 0x375365
         - label:
-            text: "BATTERIE"
-            x: 55
-            y: 145
+            text: "ÉTAT BATTERIE"
+            x: 48
+            y: 128
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            id: reveil_batt_etat
+            text: "Non installée"
+            x: 50
+            y: 195
+            width: 500
+            text_font: label_font
+            text_color: 0xFFFFFF
+        - label:
+            text: "Niveau"
+            x: 600
+            y: 170
+            text_font: label_font
+        - label:
+            id: reveil_batt_niveau
+            text: "--"
+            x: 600
+            y: 225
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Tension"
+            x: 830
+            y: 170
+            text_font: label_font
+        - label:
+            id: reveil_batt_tension
+            text: "--"
+            x: 830
+            y: 225
+            text_font: control_font
+            text_color: 0xB5E8F4
+        - label:
+            text: "Puissance"
+            x: 1060
+            y: 170
+            text_font: label_font
+        - label:
+            id: reveil_batt_conso
+            text: "--"
+            x: 1060
+            y: 225
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - obj:
+            x: 24
+            y: 325
+            width: 1232
+            height: 355
+            radius: 18
+            bg_color: 0x15232E
+            border_width: 2
+            border_color: 0x375365
+        - label:
+            text: "RÉGLAGES"
+            x: 48
+            y: 339
             text_font: control_font
             text_color: 0xB5E8F4
         - label:
             text: "Charge matérielle désactivée"
-            x: 675
-            y: 185
+            x: 665
+            y: 349
             text_font: label_font
             text_color: 0xFFB86B
         - label:
-            text: "ÉTAT"
-            x: 675
-            y: 145
-            text_font: control_font
-            text_color: 0xB5E8F4
-        - label:
             text: "Limite de charge"
-            x: 55
-            y: 225
+            x: 48
+            y: 410
             text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Mode de charge"
-            x: 355
-            y: 225
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Économie d'énergie"
-            x: 55
-            y: 345
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Wi-Fi éco"
-            x: 55
-            y: 465
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Batterie montée"
-            x: 55
-            y: 585
-            text_font: label_font
-            text_color: 0xD7E7EB
         - label:
             id: reveil_charge_limit_label
             text: "80 % (inactif)"
-            x: 55
-            y: 275
+            x: 48
+            y: 460
             text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_charge_mode_label
-            text: "Classique (inactif)"
-            x: 355
-            y: 275
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_power_save_label
-            text: "Jamais"
-            x: 55
-            y: 395
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_wifi_save_label
-            text: "Jamais"
-            x: 55
-            y: 515
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_battery_installed_label
-            text: "Non"
-            x: 55
-            y: 630
-            text_font: label_font
-            text_color: 0xD7E7EB
+            text_color: 0xB5E8F4
         - button:
-            x: 55
-            y: 305
-            width: 245
-            height: 43
+            x: 320
+            y: 442
+            width: 220
+            height: 58
             bg_color: 0x304458
             on_click:
               - select.next: reveil_charge_limit
             widgets:
               - label: { text: "80 / 100 %", align: CENTER, text_font: label_font }
+        - label:
+            text: "Mode de charge"
+            x: 665
+            y: 410
+            text_font: label_font
+        - label:
+            id: reveil_charge_mode_label
+            text: "Classique (inactif)"
+            x: 665
+            y: 460
+            text_font: label_font
+            text_color: 0xB5E8F4
         - button:
-            x: 355
-            y: 305
-            width: 235
-            height: 43
+            x: 1010
+            y: 442
+            width: 215
+            height: 58
             bg_color: 0x304458
             on_click:
               - select.next: reveil_charge_mode
             widgets:
               - label: { text: "Changer", align: CENTER, text_font: label_font }
+        - label:
+            text: "Économie énergie"
+            x: 48
+            y: 525
+            text_font: label_font
+        - label:
+            id: reveil_power_save_label
+            text: "Jamais"
+            x: 48
+            y: 575
+            text_font: label_font
+            text_color: 0xB5E8F4
         - button:
-            x: 310
-            y: 370
-            width: 250
-            height: 65
+            x: 320
+            y: 562
+            width: 220
+            height: 58
             bg_color: 0x304458
             on_click:
               - select.next: reveil_power_save
             widgets:
               - label: { text: "Changer", align: CENTER, text_font: label_font }
+        - label:
+            text: "Wi-Fi éco"
+            x: 665
+            y: 525
+            text_font: label_font
+        - label:
+            id: reveil_wifi_save_label
+            text: "Jamais"
+            x: 665
+            y: 575
+            text_font: label_font
+            text_color: 0xB5E8F4
         - button:
-            x: 310
-            y: 485
-            width: 250
-            height: 65
+            x: 1010
+            y: 562
+            width: 215
+            height: 58
             bg_color: 0x304458
             on_click:
               - select.next: reveil_wifi_save
             widgets:
               - label: { text: "Changer", align: CENTER, text_font: label_font }
+        - label:
+            text: "Batterie installée"
+            x: 48
+            y: 630
+            text_font: label_font
+        - label:
+            id: reveil_battery_installed_label
+            text: "Non"
+            x: 340
+            y: 630
+            text_font: label_font
+            text_color: 0xB5E8F4
         - button:
-            x: 310
-            y: 595
-            width: 250
-            height: 65
+            x: 465
+            y: 622
+            width: 180
+            height: 55
             bg_color: 0x304458
             on_click:
               - switch.toggle: reveil_battery_installed
             widgets:
               - label: { text: "Oui / Non", align: CENTER, text_font: label_font }
-        - label:
-            text: "État"
-            x: 675
-            y: 225
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_batt_etat
-            text: "Non mesuré"
-            x: 705
-            y: 275
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Niveau"
-            x: 675
-            y: 345
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_batt_niveau
-            text: "--"
-            x: 705
-            y: 395
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Tension"
-            x: 675
-            y: 465
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_batt_tension
-            text: "--"
-            x: 705
-            y: 515
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            text: "Consommation"
-            x: 675
-            y: 585
-            text_font: label_font
-            text_color: 0xD7E7EB
-        - label:
-            id: reveil_batt_conso
-            text: "--"
-            x: 705
-            y: 630
-            text_font: label_font
-            text_color: 0xD7E7EB
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
