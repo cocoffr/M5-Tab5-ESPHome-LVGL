@@ -1,6 +1,6 @@
 # Firmware autonome expérimental ST7121 — sans l'application domotique.
 # Point d'entrée séparé : ne modifie pas tab5-ha-hmi.yaml.
-# Validation compilation : restauration des segments LVGL et de leur opacité explicite.
+# Validation compilation : AP de secours et configuration MQTT tactile.
 substitutions:
   device_name: reveil-tab5
 esphome:
