@@ -1275,11 +1275,11 @@ font:
   - file: "gfonts://Roboto"
     id: label_font
     size: 36
-    glyphs: "0123456789: /+-°ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.'éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-°ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.'éèêëàâùûôîïçÉÈÊÀÇ%(),"
   - file: "gfonts://Roboto"
     id: alarm_font
     size: 52
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%(),"
   - file: "Tab5/fonts/materialdesignicons-webfont.ttf"
     id: battery_mdi_font
     size: 32
@@ -1320,11 +1320,11 @@ font:
   - file: "gfonts://Roboto"
     id: appearance_option_font
     size: 24
-    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-éèêàùûôîïçÉÈÊÀÇ"
+    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-éèêàùûôîïçÉÈÊÀÇ,"
   - file: "gfonts://Roboto"
     id: control_font
     size: 43
-    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
+    glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%(),"
 lvgl:
   displays:
     - screen
@@ -2495,9 +2495,9 @@ lvgl:
         - label:
             id: appearance_preview
             text: "23:59"
-            x: 985
-            y: 255
-            width: 275
+            x: 995
+            y: 250
+            width: 260
             text_font: appearance_option_font
             text_color: 0xB5E8F4
         - button:
