@@ -407,7 +407,7 @@ select:
     name: "Réveil apparence couleur"
     optimistic: true
     restore_value: true
-    options: ["Bleu clair", "Bleu foncé", "Blanc"]
+    options: ["Bleu clair", "Bleu foncé", "Blanc", "Bleu ciel", "Bleu roi", "Bleu nuit", "Bleu glacier", "Cyan", "Turquoise", "Vert menthe", "Vert", "Vert foncé", "Vert citron", "Jaune", "Or", "Orange", "Corail", "Rouge", "Bordeaux", "Rose", "Fuchsia", "Violet", "Mauve", "Lavande", "Gris perle", "Gris clair", "Gris moyen", "Gris ardoise", "Gris foncé", "Beige"]
     initial_option: "Bleu clair"
   # Routage explicite du codec ES8388 vers les sorties analogiques.
   # Sans sélection, le DAC peut fonctionner sans alimenter le haut-parleur.
@@ -2450,7 +2450,7 @@ lvgl:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
         - label: { text: "Police de l'heure", x: 55, y: 135, text_font: control_font }
         - label: { text: "Taille de l'heure", x: 55, y: 325, text_font: control_font }
-        - label: { text: "Couleur de l'heure", x: 55, y: 515, text_font: control_font }
+        - label: { text: "Couleur de l'heure", x: 55, y: 457, text_font: control_font }
         - button:
             id: appearance_font_btn_0
             x: 55
@@ -2525,40 +2525,364 @@ lvgl:
               - label: { text: "Grand", align: CENTER, text_font: label_font }
         - button:
             id: appearance_color_btn_0
-            x: 55
-            y: 585
-            width: 355
-            height: 76
-            bg_color: 0x304458
-            radius: 14
+            x: 28
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0xB5E8F4
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
             on_click:
               - select.set: { id: appearance_color, option: "Bleu clair" }
-            widgets:
-              - label: { text: "Bleu clair", align: CENTER, text_font: label_font }
         - button:
             id: appearance_color_btn_1
-            x: 455
-            y: 585
-            width: 355
-            height: 76
-            bg_color: 0x304458
-            radius: 14
+            x: 152
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x287BB9
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
             on_click:
               - select.set: { id: appearance_color, option: "Bleu foncé" }
-            widgets:
-              - label: { text: "Bleu foncé", align: CENTER, text_font: label_font }
         - button:
             id: appearance_color_btn_2
-            x: 855
-            y: 585
-            width: 355
-            height: 76
-            bg_color: 0x304458
-            radius: 14
+            x: 276
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0xFFFFFF
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
             on_click:
               - select.set: { id: appearance_color, option: "Blanc" }
-            widgets:
-              - label: { text: "Blanc", align: CENTER, text_font: label_font }
+        - button:
+            id: appearance_color_btn_3
+            x: 400
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x55BDF5
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu ciel" }
+        - button:
+            id: appearance_color_btn_4
+            x: 524
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x2266EE
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu roi" }
+        - button:
+            id: appearance_color_btn_5
+            x: 648
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x233D8B
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu nuit" }
+        - button:
+            id: appearance_color_btn_6
+            x: 772
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x92D6FF
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Bleu glacier" }
+        - button:
+            id: appearance_color_btn_7
+            x: 896
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x00D8EF
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Cyan" }
+        - button:
+            id: appearance_color_btn_8
+            x: 1020
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x00C6B4
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Turquoise" }
+        - button:
+            id: appearance_color_btn_9
+            x: 1144
+            y: 498
+            width: 116
+            height: 62
+            bg_color: 0x73E7C2
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Vert menthe" }
+        - button:
+            id: appearance_color_btn_10
+            x: 28
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0x31CF60
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Vert" }
+        - button:
+            id: appearance_color_btn_11
+            x: 152
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0x16864A
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Vert foncé" }
+        - button:
+            id: appearance_color_btn_12
+            x: 276
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xB2ED4A
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Vert citron" }
+        - button:
+            id: appearance_color_btn_13
+            x: 400
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xFFE44A
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Jaune" }
+        - button:
+            id: appearance_color_btn_14
+            x: 524
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xEFC044
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Or" }
+        - button:
+            id: appearance_color_btn_15
+            x: 648
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xFF9638
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Orange" }
+        - button:
+            id: appearance_color_btn_16
+            x: 772
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xFF7461
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Corail" }
+        - button:
+            id: appearance_color_btn_17
+            x: 896
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xF34854
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Rouge" }
+        - button:
+            id: appearance_color_btn_18
+            x: 1020
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xA73750
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Bordeaux" }
+        - button:
+            id: appearance_color_btn_19
+            x: 1144
+            y: 567
+            width: 116
+            height: 62
+            bg_color: 0xFF8BC7
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Rose" }
+        - button:
+            id: appearance_color_btn_20
+            x: 28
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xE34AD8
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Fuchsia" }
+        - button:
+            id: appearance_color_btn_21
+            x: 152
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xB08AFF
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Violet" }
+        - button:
+            id: appearance_color_btn_22
+            x: 276
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0x9270C9
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Mauve" }
+        - button:
+            id: appearance_color_btn_23
+            x: 400
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xC6B4FF
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Lavande" }
+        - button:
+            id: appearance_color_btn_24
+            x: 524
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xD7DFE5
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Gris perle" }
+        - button:
+            id: appearance_color_btn_25
+            x: 648
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xB4BDC7
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Gris clair" }
+        - button:
+            id: appearance_color_btn_26
+            x: 772
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0x88939F
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Gris moyen" }
+        - button:
+            id: appearance_color_btn_27
+            x: 896
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0x647587
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Gris ardoise" }
+        - button:
+            id: appearance_color_btn_28
+            x: 1020
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0x4C5866
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Gris foncé" }
+        - button:
+            id: appearance_color_btn_29
+            x: 1144
+            y: 636
+            width: 116
+            height: 62
+            bg_color: 0xE9D3B0
+            radius: 10
+            border_width: 2
+            border_color: 0x36495B
+            on_click:
+              - select.set: { id: appearance_color, option: "Beige" }
     - id: reveil_batterie_page
       bg_color: 0x0B1520
       widgets:
@@ -3643,8 +3967,28 @@ interval:
           const std::string font_choice = id(appearance_font).current_option();
           const std::string size_choice = id(appearance_size).current_option();
           const std::string color_choice = id(appearance_color).current_option();
-          const uint32_t clock_color = color_choice == "Bleu foncé" ? 0x287BB9 :
-            (color_choice == "Blanc" ? 0xFFFFFF : 0xB5E8F4);
+          const char *color_names[] = {"Bleu clair","Bleu foncé","Blanc","Bleu ciel","Bleu roi","Bleu nuit","Bleu glacier","Cyan","Turquoise","Vert menthe","Vert","Vert foncé","Vert citron","Jaune","Or","Orange","Corail","Rouge","Bordeaux","Rose","Fuchsia","Violet","Mauve","Lavande","Gris perle","Gris clair","Gris moyen","Gris ardoise","Gris foncé","Beige"};
+          const uint32_t color_values[] = {0xB5E8F4,0x287BB9,0xFFFFFF,0x55BDF5,0x2266EE,0x233D8B,0x92D6FF,0x00D8EF,0x00C6B4,0x73E7C2,0x31CF60,0x16864A,0xB2ED4A,0xFFE44A,0xEFC044,0xFF9638,0xFF7461,0xF34854,0xA73750,0xFF8BC7,0xE34AD8,0xB08AFF,0x9270C9,0xC6B4FF,0xD7DFE5,0xB4BDC7,0x88939F,0x647587,0x4C5866,0xE9D3B0};
+          uint32_t clock_color = 0xB5E8F4;
+          int selected_color = 0;
+          for (int ci = 0; ci < 30; ++ci) {
+            if (color_choice == color_names[ci]) {
+              clock_color = color_values[ci];
+              selected_color = ci;
+              break;
+            }
+          }
+          lv_obj_t *color_buttons[] = {id(appearance_color_btn_0),id(appearance_color_btn_1),id(appearance_color_btn_2),id(appearance_color_btn_3),id(appearance_color_btn_4),id(appearance_color_btn_5),id(appearance_color_btn_6),id(appearance_color_btn_7),id(appearance_color_btn_8),id(appearance_color_btn_9),id(appearance_color_btn_10),id(appearance_color_btn_11),id(appearance_color_btn_12),id(appearance_color_btn_13),id(appearance_color_btn_14),id(appearance_color_btn_15),id(appearance_color_btn_16),id(appearance_color_btn_17),id(appearance_color_btn_18),id(appearance_color_btn_19),id(appearance_color_btn_20),id(appearance_color_btn_21),id(appearance_color_btn_22),id(appearance_color_btn_23),id(appearance_color_btn_24),id(appearance_color_btn_25),id(appearance_color_btn_26),id(appearance_color_btn_27),id(appearance_color_btn_28),id(appearance_color_btn_29)};
+          static int previous_selected_color = -1;
+          if (previous_selected_color != selected_color) {
+            previous_selected_color = selected_color;
+            for (int ci = 0; ci < 30; ++ci) {
+              lv_obj_set_style_border_color(color_buttons[ci],
+                lv_color_hex(ci == selected_color ? 0x007BFF : 0x36495B), LV_PART_MAIN);
+              lv_obj_set_style_border_width(color_buttons[ci],
+                ci == selected_color ? 5 : 2, LV_PART_MAIN);
+            }
+          }
           const int scale_pct = size_choice == "Petit" ? 80 :
             (size_choice == "Grand" ? 100 : 90);
           lv_obj_t *segments[] = {
