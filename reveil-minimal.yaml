@@ -3519,15 +3519,10 @@ interval:
             if (rapide) id(reveil_charge_fast).turn_on();
             else id(reveil_charge_fast).turn_off();
           }
-          // Garder la machine d'états synchronisée avec la sortie physique.
-          // Avant, annuler controle_charge.reveil à chaque seconde empêchait
-          // toute tentative de réveil après une tension initiale basse.
-          // L'interverrouillage de maintenance reste coupé par défaut.
-          if (!activer && controle_charge.allume && !controle_charge.sonde) {
-            chargeur_commander(controle_charge, false, millis());
-            // Ne pas effacer le réveil demandé : chargeur_tick() doit
-            // gérer lui-même sa durée et la sonde de confirmation.
-          }
+          // Le cycle de réveil/sonde reste piloté exclusivement par
+          // chargeur_tick(). Ne pas remettre change_ms à zéro chaque seconde :
+          // cela empêchait l'expiration du réveil de 30 secondes.
+          // La sortie réelle reste conditionnée par l'interverrouillage ci-dessus.
           const bool batt_present = id(reveil_battery_installed).state &&
             mesures_fraiches && controle_charge.presence == PresenceBatterie::PRESENTE &&
             id(reveil_batt_voltage).has_state() &&
