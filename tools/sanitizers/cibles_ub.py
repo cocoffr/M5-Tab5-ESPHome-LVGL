@@ -39,7 +39,7 @@ from capturer import Rendu  # noqa: E402
 from demo_pusher import _donner_une_cle, _lire_cle_demo, _pousser_scene  # noqa: E402
 import demo_pusher  # noqa: E402
 from ecrans import ECRANS  # noqa: E402
-from rapports import Journal, distincts  # noqa: E402
+from rapports import Journal, distincts, connu  # noqa: E402
 from scenarios import SCENES, build_zones_absentes  # noqa: E402
 
 logger = logging.getLogger("cibles")
@@ -153,7 +153,7 @@ def resume(s: dict) -> str:
 
 def en_echec(s: dict) -> bool:
     return len(s["cas"]) < len(CAS) or any(
-        c["rapports"] or not c["vivante"] or (c["ecran"] and c["ouvert"] != "oui") for c in s["cas"])
+        any(connu(rapport) is None for rapport in c["rapports"]) or not c["vivante"] or (c["ecran"] and c["ouvert"] != "oui") for c in s["cas"])
 
 
 def main() -> int:
