@@ -7,7 +7,16 @@ esphome:
   name: ${device_name}
   friendly_name: Reveil Tab5
   on_boot:
-    priority: -100
+    - priority: 700
+      then:
+        - lambda: |-
+            if (!id(mqtt_saved_host).empty()) {
+              id(mqtt_client).set_broker_address(id(mqtt_saved_host));
+              id(mqtt_client).set_broker_port(id(mqtt_saved_port));
+              id(mqtt_client).set_username(id(mqtt_saved_user));
+              id(mqtt_client).set_password(id(mqtt_saved_password));
+            }
+    - priority: -100
     then:
       - select.set:
           id: reveil_dac_output
@@ -151,6 +160,10 @@ esp32_hosted:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  ap:
+    ssid: "Reveil-Tab5"
+    ap_timeout: 60s
+captive_portal:
 binary_sensor:
   # CHG_STAT (expandeur 0x44, P6) : même entrée et anti-rebond
   # 30 s que le firmware Tab5 d'origine.
@@ -773,6 +786,25 @@ text:
     max_length: 255
     initial_value: ""
 globals:
+  - id: mqtt_saved_host
+    type: std::string
+    restore_value: yes
+    max_restore_data_length: 64
+    initial_value: '""'
+  - id: mqtt_saved_port
+    type: uint16_t
+    restore_value: yes
+    initial_value: '1883'
+  - id: mqtt_saved_user
+    type: std::string
+    restore_value: yes
+    max_restore_data_length: 64
+    initial_value: '""'
+  - id: mqtt_saved_password
+    type: std::string
+    restore_value: yes
+    max_restore_data_length: 96
+    initial_value: '""'
   - id: reveil_ha_connected
     type: bool
     restore_value: no
@@ -3381,6 +3413,99 @@ lvgl:
             width: 365
             text_font: control_font
             text_color: 0xB5E8F4
+    - id: reveil_mqtt_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            text: "Configuration MQTT"
+            x: 35
+            y: 20
+            text_font: alarm_font
+            text_color: 0xB5E8F4
+        - label: { text: "Serveur", x: 35, y: 104, text_font: label_font }
+        - textarea:
+            id: mqtt_host_input
+            x: 275
+            y: 95
+            width: 480
+            height: 65
+            one_line: true
+            max_length: 63
+            text_font: label_font
+            on_click:
+              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_host_input));'
+        - label: { text: "Port", x: 790, y: 104, text_font: label_font }
+        - textarea:
+            id: mqtt_port_input
+            x: 960
+            y: 95
+            width: 250
+            height: 65
+            one_line: true
+            max_length: 5
+            text_font: label_font
+            on_click:
+              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_port_input));'
+        - label: { text: "Login", x: 35, y: 184, text_font: label_font }
+        - textarea:
+            id: mqtt_user_input
+            x: 275
+            y: 175
+            width: 480
+            height: 65
+            one_line: true
+            max_length: 63
+            text_font: label_font
+            on_click:
+              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_user_input));'
+        - label: { text: "Mot de passe", x: 790, y: 184, text_font: label_font }
+        - textarea:
+            id: mqtt_password_input
+            x: 960
+            y: 175
+            width: 250
+            height: 65
+            one_line: true
+            password_mode: true
+            max_length: 95
+            text_font: label_font
+            on_click:
+              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_password_input));'
+        - keyboard:
+            id: mqtt_keyboard
+            x: 35
+            y: 255
+            width: 1200
+            height: 345
+        - button:
+            x: 170
+            y: 615
+            width: 370
+            height: 82
+            bg_color: 0x304458
+            on_click:
+              - lvgl.page.show: reveil_systeme_page
+            widgets:
+              - label: { text: "Annuler", align: CENTER, text_font: label_font }
+        - button:
+            x: 680
+            y: 615
+            width: 420
+            height: 82
+            bg_color: 0x075BA8
+            on_click:
+              - lambda: |-
+                  std::string host = lv_textarea_get_text(id(mqtt_host_input));
+                  int port = atoi(lv_textarea_get_text(id(mqtt_port_input)));
+                  if (host.empty() || port < 1 || port > 65535) return;
+                  id(mqtt_saved_host) = host;
+                  id(mqtt_saved_port) = (uint16_t) port;
+                  id(mqtt_saved_user) = lv_textarea_get_text(id(mqtt_user_input));
+                  id(mqtt_saved_password) = lv_textarea_get_text(id(mqtt_password_input));
+              - delay: 1s
+              - button.press: reveil_restart
+            widgets:
+              - label: { text: "Enregistrer", align: CENTER, text_font: label_font }
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
@@ -3401,6 +3526,24 @@ lvgl:
               - lvgl.page.show: reveil_settings_page
             widgets:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
+        - button:
+            x: 805
+            y: 20
+            width: 215
+            height: 64
+            radius: 12
+            bg_color: 0x075BA8
+            on_click:
+              - lambda: |-
+                  lv_textarea_set_text(id(mqtt_host_input), id(mqtt_saved_host).empty() ? "192.168.0.44" : id(mqtt_saved_host).c_str());
+                  char port[8];
+                  snprintf(port, sizeof(port), "%u", (unsigned) (id(mqtt_saved_host).empty() ? 1883 : id(mqtt_saved_port)));
+                  lv_textarea_set_text(id(mqtt_port_input), port);
+                  lv_textarea_set_text(id(mqtt_user_input), id(mqtt_saved_user).empty() ? "mqtt" : id(mqtt_saved_user).c_str());
+                  lv_textarea_set_text(id(mqtt_password_input), id(mqtt_saved_password).c_str());
+              - lvgl.page.show: reveil_mqtt_page
+            widgets:
+              - label: { text: "Home Assistant", align: CENTER, text_font: label_font }
         - obj:
             x: 24
             y: 125
