@@ -1,0 +1,62 @@
+# Home Assistant package: Tab5 radio favorites and Radio Browser lookup.
+# Install under config/packages/reveil_radio.yaml and enable homeassistant: packages: !include_dir_named packages
+# Radio Browser public API: searches stations by name; choose a station from the results
+# using HA Developer Tools > Actions or a dashboard. No API token required.
+input_number:
+  reveil_radio_slot:
+    name: Réveil - favori à modifier
+    min: 1
+    max: 12
+    step: 1
+    mode: box
+input_text:
+  reveil_radio_nom:
+    name: Réveil - nom station
+    max: 48
+  reveil_radio_url:
+    name: Réveil - URL flux
+    max: 255
+  reveil_radio_recherche:
+    name: Réveil - rechercher dans Radio Browser
+    max: 100
+rest_command:
+  reveil_radio_browser_search:
+    url: 'https://de1.api.radio-browser.info/json/stations/search?name={{ name | urlencode }}&limit=20&hidebroken=true'
+    method: GET
+    headers:
+      User-Agent: 'HomeAssistant-ReveilTab5/1.0'
+    timeout: 20
+script:
+  reveil_radio_enregistrer_favori:
+    alias: Réveil - enregistrer un favori sur Tab5
+    sequence:
+      - variables:
+          station_slot: '{{ states("input_number.reveil_radio_slot") | int(1) }}'
+          station_name: '{{ states("input_text.reveil_radio_nom") }}'
+          station_url: '{{ states("input_text.reveil_radio_url") }}'
+      - condition: template
+        value_template: '{{ station_name | length > 0 and (station_url.startswith("https://") or station_url.startswith("http://")) }}'
+      - action: mqtt.publish
+        data:
+          topic: reveil-tab5/radio/favori/set
+          payload: '{{ dict(slot=station_slot, name=station_name, url=station_url) | to_json }}'
+          qos: 1
+  reveil_radio_rechercher:
+    alias: Réveil - rechercher dans Radio Browser
+    sequence:
+      - action: rest_command.reveil_radio_browser_search
+        data:
+          name: '{{ states("input_text.reveil_radio_recherche") }}'
+        response_variable: stations
+      - variables:
+          candidats: '{{ (stations.content if stations.status == 200 else []) }}'
+      - action: persistent_notification.create
+        data:
+          title: 'Radio Browser - résultats'
+          message: >-
+            {% for station in candidats[:20] %}
+            {{ loop.index }}. {{ station.name }} — {{ station.url_resolved }}
+            {% endfor %}
+# Paste the chosen station name and resolved stream URL into the two input_text
+# entities, set the favorite slot, then execute script.reveil_radio_enregistrer_favori.
+# Tab5 publishes retained state on reveil-tab5/radio/favori/1 through /12.
