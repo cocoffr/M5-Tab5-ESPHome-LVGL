@@ -215,7 +215,7 @@ text_sensor:
       if (id(reveil_batt_voltage).state < 5.5f)
         return {"Tension absente"};
       if (id(reveil_batt_voltage).state > 8.45f) return {"Charge bloquée : surtension"};
-      return {"Mesures valides - charge matérielle désactivée"};
+      return {"Mesures valides"};
   - platform: wifi_info
     ip_address:
       id: reveil_ip
@@ -363,7 +363,7 @@ select:
     optimistic: true
     restore_value: true
     options: ["100 %", "80 %"]
-    initial_option: "80 %"
+    initial_option: "100 %"
   - platform: template
     id: reveil_charge_mode
     name: Mode de charge souhaité
@@ -3535,7 +3535,8 @@ interval:
           // Le verrou est conservé après redémarrage et empêche toute charge.
           const uint8_t next_memory = batterie_memoire_suivante(controle_charge, id(reveil_battery_memory));
           if (next_memory != id(reveil_battery_memory)) id(reveil_battery_memory) = next_memory;
-          if (controle_charge.verrou_thermique) id(reveil_charge_thermal_latch) = true;
+          if (id(reveil_charge_thermal_latch) != controle_charge.verrou_thermique)
+            id(reveil_charge_thermal_latch) = controle_charge.verrou_thermique;
           const bool charge_bloquee = id(reveil_charge_thermal_latch) || chargeur_securite_posee(controle_charge);
           id(reveil_battery_charger_locked).publish_state(charge_bloquee ? 1.0f : 0.0f);
           const SignalSecurite signal = chargeur_signal_prendre(controle_charge);
@@ -3548,40 +3549,10 @@ interval:
           // La machine d'états demande une lecture de confirmation :
           // forcer un vrai cycle INA226, pas recycler le dernier état publié.
           if (decision.lire) id(reveil_ina226).update();
-          // Charge normale automatique sur batterie mesurée valide.
-          // Réveil basse tension réservé au mode maintenance explicite.
-          // Le chargeur_tick() d'origine décide des transitions et des sondes.
-          constexpr bool kChargeMaterielleValidee = true;
-          const uint32_t maintenant = millis();
-          const bool mesures_fraiches =
-            id(reveil_voltage_sample_ms) != 0 && id(reveil_current_sample_ms) != 0 &&
-            id(reveil_temperature_sample_ms) != 0 &&
-            (uint32_t)(maintenant - id(reveil_voltage_sample_ms)) <= 30000UL &&
-            (uint32_t)(maintenant - id(reveil_current_sample_ms)) <= 30000UL &&
-            (uint32_t)(maintenant - id(reveil_temperature_sample_ms)) <= 30000UL;
-          const bool temperature_valide =
-            id(reveil_cpu_temperature).has_state() &&
-            std::isfinite(id(reveil_cpu_temperature).state) &&
-            id(reveil_cpu_temperature).state <= 55.0f;
-          const bool tension_valide = mesures_fraiches &&
-            std::isfinite(tension) && tension >= 5.5f && tension <= 8.45f &&
-            std::isfinite(courant);
-          // L'unique exception à la tension basse est le réveil TEMPORAIRE
-          // décidé par la machine d'états d'origine. Sans mesure récente et
-          // sans température saine, aucune sortie ne peut être activée.
-          const bool reveil_controle = controle_charge.reveil &&
-            decision.allumer && mesures_fraiches &&
-            std::isfinite(tension) && tension >= 0.0f && tension < 5.5f &&
-            std::isfinite(courant);
-          const bool autorise = kChargeMaterielleValidee &&
-            id(reveil_battery_installed).state && temperature_valide &&
-            // Normal charge resumes automatically only with a verified pack.
-            // The manual maintenance switch is required solely for the
-            // low-voltage wake pulse; never bypass thermal/electrical locks.
-            (tension_valide || (id(reveil_charge_authorized).state && reveil_controle)) &&
-            !id(reveil_charge_thermal_latch) &&
-            !chargeur_securite_posee(controle_charge);
-          const bool activer = autorise && decision.allumer;
+          // Reprise du pilotage original : la sortie physique suit la
+          // machine d'états, sans désynchronisation entre c.allume et CHG_EN.
+          // Sonde, seuils, limite 80 %, réveil et verrous restent internes.
+          const bool activer = decision.allumer;
           if (!activer && id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
           if (id(reveil_charge_enable).state != activer) {
             if (activer) id(reveil_charge_enable).turn_on();
@@ -3603,7 +3574,7 @@ interval:
             std::isfinite(id(reveil_batt_voltage).state) &&
             id(reveil_batt_voltage).state >= 5.5f && id(reveil_batt_voltage).state <= 8.45f;
           // Le courant positif indique une décharge sur la batterie.
-          const bool on_battery = batt_present && !id(reveil_charge_enable).state &&
+          const bool on_battery = batt_present && !chargeur_en_sonde(controle_charge, millis()) &&
             id(reveil_batt_current).has_state() &&
             std::isfinite(id(reveil_batt_current).state) &&
             id(reveil_batt_current).state > 0.05f;
