@@ -672,6 +672,18 @@ text:
     max_length: 255
     initial_value: ""
 globals:
+  - id: reveil_charge_thermal_latch
+    type: bool
+    restore_value: yes
+    initial_value: 'false'
+  - id: reveil_battery_memory
+    type: uint8_t
+    restore_value: yes
+    initial_value: '0'
+  - id: reveil_battery_alert_level
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: radio_slot
     type: int
     restore_value: yes
@@ -3331,8 +3343,8 @@ interval:
           static EtatChargeur controle_charge;
           static bool controle_initialise = false;
           if (!controle_initialise) {
-            chargeur_demarrer(controle_charge, static_cast<uint8_t>(MemoireBatterie::INCONNUE),
-              id(reveil_battery_installed).state, true, false, millis());
+            chargeur_demarrer(controle_charge, id(reveil_battery_memory),
+              id(reveil_battery_installed).state, true, id(reveil_charge_thermal_latch), millis());
             controle_initialise = true;
           }
           // Les valeurs INA226 sont publiées toutes les 15 s : ne pas traiter
@@ -3363,6 +3375,11 @@ interval:
           const uint8_t limite = id(reveil_charge_limit).current_option() == "80 %" ? 1 : 0;
           const ActionChargeur decision = chargeur_tick(controle_charge, limite,
             id(reveil_battery_installed).state, millis());
+          // Persistance du souvenir de batterie et du verrou thermique.
+          // Le verrou est conservé après redémarrage et empêche toute charge.
+          const uint8_t next_memory = batterie_memoire_suivante(controle_charge, id(reveil_battery_memory));
+          if (next_memory != id(reveil_battery_memory)) id(reveil_battery_memory) = next_memory;
+          if (controle_charge.verrou_thermique) id(reveil_charge_thermal_latch) = true;
           // La machine d'états demande une lecture de confirmation :
           // forcer un vrai cycle INA226, pas recycler le dernier état publié.
           if (decision.lire) id(reveil_ina226).update();
@@ -3384,6 +3401,7 @@ interval:
           const bool autorise = kChargeMaterielleValidee &&
             id(reveil_charge_authorized).state &&
             id(reveil_battery_installed).state && mesures_valides &&
+            !id(reveil_charge_thermal_latch) &&
             !chargeur_securite_posee(controle_charge);
           const bool activer = autorise && decision.allumer;
           if (!activer && id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
@@ -3515,6 +3533,15 @@ interval:
             id(reveil_batterie_pourcentage).publish_state(pct);
             if (on_battery && std::isfinite(courant)) id(reveil_batterie_puissance).publish_state(std::max(0.0f, tension * courant));
             else id(reveil_batterie_puissance).publish_state(NAN);
+            // Alertes une seule fois par seuil lors d'une décharge, réarmées à 30 %.
+            if (!on_battery || pct >= 30.0f) id(reveil_battery_alert_level) = 0;
+            if (on_battery && pct <= 10.0f && id(reveil_battery_alert_level) < 2) {
+              id(reveil_battery_alert_level) = 2;
+              id(mqtt_client).publish("reveil-tab5/batterie/alerte", "critique_10", 0, false);
+            } else if (on_battery && pct <= 20.0f && id(reveil_battery_alert_level) < 1) {
+              id(reveil_battery_alert_level) = 1;
+              id(mqtt_client).publish("reveil-tab5/batterie/alerte", "faible_20", 0, false);
+            }
             snprintf(diag, sizeof(diag), "~%.0f %%", pct);
             set_label_if_changed(id(reveil_batt_niveau), diag);
           } else {
