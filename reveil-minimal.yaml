@@ -2535,8 +2535,10 @@ lvgl:
             border_color: 0x547084
         - label: { text: "BATTERIE", x: 46, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "ÉTAT", x: 672, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "Limite de charge", x: 48, y: 166, text_font: label_font }
-        - label: { text: "Mode de charge", x: 348, y: 166, text_font: label_font }
+        - label: { text: "◆", x: 41, y: 166, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Limite de charge", x: 81, y: 166, text_font: label_font, text_color: 0x9BAFBD }
+        - label: { text: "⚡", x: 324, y: 166, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Mode de charge", x: 364, y: 166, text_font: label_font, text_color: 0x9BAFBD }
         - button:
             id: batt_limit_100
             x: 41
@@ -2585,7 +2587,8 @@ lvgl:
               - select.set: { id: reveil_charge_mode, option: "Rapide" }
             widgets:
               - label: { text: "Rapide", align: CENTER, text_font: label_font }
-        - label: { text: "Économie d'énergie", x: 48, y: 307, text_font: label_font }
+        - label: { text: "☀", x: 41, y: 307, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Économie d'énergie", x: 81, y: 307, text_font: label_font, text_color: 0x9BAFBD }
         - button:
             id: batt_eco_0
             x: 41
@@ -2622,7 +2625,8 @@ lvgl:
               - select.set: { id: reveil_power_save, option: "Toujours" }
             widgets:
               - label: { text: "Toujours", align: CENTER, text_font: label_font }
-        - label: { text: "Wi-Fi éco", x: 48, y: 448, text_font: label_font }
+        - label: { text: "◉", x: 41, y: 448, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Wi-Fi éco", x: 81, y: 448, text_font: label_font, text_color: 0x9BAFBD }
         - button:
             id: batt_wifi_0
             x: 41
@@ -2659,7 +2663,8 @@ lvgl:
               - select.set: { id: reveil_wifi_save, option: "Toujours" }
             widgets:
               - label: { text: "Toujours", align: CENTER, text_font: label_font }
-        - label: { text: "Batterie montée", x: 48, y: 589, text_font: label_font }
+        - label: { text: "▣", x: 41, y: 589, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Batterie montée", x: 81, y: 589, text_font: label_font, text_color: 0x9BAFBD }
         - button:
             id: batt_fitted_yes
             x: 41
@@ -2684,7 +2689,8 @@ lvgl:
               - switch.turn_off: reveil_battery_installed
             widgets:
               - label: { text: "Non", align: CENTER, text_font: label_font }
-        - label: { text: "État", x: 675, y: 166, text_font: label_font }
+        - label: { text: "◆", x: 667, y: 166, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "État", x: 707, y: 166, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_etat
             text: "Mesure indisponible"
@@ -2693,7 +2699,8 @@ lvgl:
             width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "Niveau", x: 675, y: 307, text_font: label_font }
+        - label: { text: "◉", x: 667, y: 307, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Niveau", x: 707, y: 307, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_niveau
             text: "--"
@@ -2702,7 +2709,8 @@ lvgl:
             width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "Tension", x: 675, y: 448, text_font: label_font }
+        - label: { text: "⚡", x: 667, y: 448, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Tension", x: 707, y: 448, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_tension
             text: "--"
@@ -2711,7 +2719,8 @@ lvgl:
             width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label: { text: "Consommation", x: 675, y: 589, text_font: label_font }
+        - label: { text: "▣", x: 667, y: 589, text_font: battery_icon_font, text_color: 0x9BAFBD }
+        - label: { text: "Consommation", x: 707, y: 589, text_font: label_font, text_color: 0x9BAFBD }
         - label:
             id: reveil_batt_conso
             text: "--"
