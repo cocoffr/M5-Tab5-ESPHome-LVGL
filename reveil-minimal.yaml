@@ -3418,9 +3418,7 @@ interval:
           battery_choice(id(batt_fitted_yes), id(reveil_battery_installed).state);
           battery_choice(id(batt_fitted_no), !id(reveil_battery_installed).state);
           // La présence déclarée seule ne suffit pas : chargeur coupé au démarrage.
-          // Contrôleur original importé en lecture seule pour diagnostic.
-          // L'interverrouillage de sécurité interdit toute activation de CHG_EN
-          // tant que le portage complet des transitions/sondes n'est pas validé.
+          // Contrôleur d'origine : sonde initiale et protections conservées.
           static EtatChargeur controle_charge;
           static bool controle_initialise = false;
           if (!controle_initialise) {
@@ -3473,12 +3471,9 @@ interval:
           // La machine d'états demande une lecture de confirmation :
           // forcer un vrai cycle INA226, pas recycler le dernier état publié.
           if (decision.lire) id(reveil_ina226).update();
-          // Mode simulation sûr : le contrôleur calcule les ordres, mais
-          // aucun ordre d'activation ne peut atteindre le matériel.
-          // L'INA226 en mode simulation voit donc toujours CHG_EN coupé.
-          // Portage contrôlé : activation matérielle uniquement sur autorisation
-          // explicite de maintenance. Le réveil bref est géré et temporisé par
-          // chargeur_tick() du firmware d'origine, jamais par un forçage direct.
+          // Charge normale automatique sur batterie mesurée valide.
+          // Réveil basse tension réservé au mode maintenance explicite.
+          // Le chargeur_tick() d'origine décide des transitions et des sondes.
           constexpr bool kChargeMaterielleValidee = true;
           const uint32_t maintenant = millis();
           const bool mesures_fraiches =
@@ -3502,9 +3497,11 @@ interval:
             std::isfinite(tension) && tension >= 0.0f && tension < 5.5f &&
             std::isfinite(courant);
           const bool autorise = kChargeMaterielleValidee &&
-            id(reveil_charge_authorized).state &&
             id(reveil_battery_installed).state && temperature_valide &&
-            (tension_valide || reveil_controle) &&
+            // Normal charge resumes automatically only with a verified pack.
+            // The manual maintenance switch is required solely for the
+            // low-voltage wake pulse; never bypass thermal/electrical locks.
+            (tension_valide || (id(reveil_charge_authorized).state && reveil_controle)) &&
             !id(reveil_charge_thermal_latch) &&
             !chargeur_securite_posee(controle_charge);
           const bool activer = autorise && decision.allumer;
@@ -3528,7 +3525,7 @@ interval:
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
             id(reveil_batt_voltage).state >= 5.5f && id(reveil_batt_voltage).state <= 8.45f;
-          // Indication de décharge seulement, pas une mesure directe du secteur USB.
+          // Le courant positif indique une décharge sur la batterie.
           const bool on_battery = batt_present && !id(reveil_charge_enable).state &&
             id(reveil_batt_current).has_state() &&
             std::isfinite(id(reveil_batt_current).state) &&
@@ -3604,7 +3601,8 @@ interval:
             snprintf(diag, sizeof(diag), "%.2f V", id(reveil_batt_voltage).state);
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
-            set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" : "Détectée");
+            set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" :
+              (activer && std::isfinite(courant) && courant < -0.02f ? "En charge" : "Sur USB"));
             if (on_battery && id(reveil_batt_current).state >= 0.020f) {
               snprintf(diag, sizeof(diag), "%.2f W", id(reveil_batt_voltage).state * id(reveil_batt_current).state);
               set_label_if_changed(id(reveil_batt_conso), diag);
