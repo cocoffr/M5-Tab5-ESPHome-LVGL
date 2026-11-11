@@ -70,6 +70,23 @@ mqtt:
               lambda: 'return id(radio_manual) && !id(alarm_ringing);'
             then:
               - script.execute: toggle_radio
+  on_json_message:
+    - topic: reveil-tab5/radio/favori/set
+      then:
+        - lambda: |-
+            if (!x.containsKey("slot") || !x.containsKey("name") || !x.containsKey("url")) return;
+            const int slot = x["slot"].as<int>();
+            const std::string name = x["name"].as<std::string>();
+            const std::string url = x["url"].as<std::string>();
+            if (slot < 1 || slot > 12 || name.empty() || name.size() > 48 || url.size() > 255 ||
+                (url.rfind("https://", 0) != 0 && url.rfind("http://", 0) != 0)) return;
+            esphome::text::Text *names[] = {&id(radio_name_1),&id(radio_name_2),&id(radio_name_3),&id(radio_name_4),&id(radio_name_5),&id(radio_name_6),&id(radio_name_7),&id(radio_name_8),&id(radio_name_9),&id(radio_name_10),&id(radio_name_11),&id(radio_name_12)};
+            esphome::text::Text *urls[] = {&id(radio_url_1),&id(radio_url_2),&id(radio_url_3),&id(radio_url_4),&id(radio_url_5),&id(radio_url_6),&id(radio_url_7),&id(radio_url_8),&id(radio_url_9),&id(radio_url_10),&id(radio_url_11),&id(radio_url_12)};
+            auto n = names[slot-1]->make_call(); n.set_value(name); n.perform();
+            auto u = urls[slot-1]->make_call(); u.set_value(url); u.perform();
+            char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",slot);
+            std::string payload = std::string("{\\\"slot\\\":") + std::to_string(slot) + ",\\\"name\\\":\\\"" + name + "\\",\\\"url\\\":\\\"" + url + "\\"}";
+            id(mqtt_client).publish(topic,payload,0,true);
 api:
 button:
   - platform: restart
