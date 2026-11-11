@@ -420,21 +420,15 @@ speaker:
     sample_rate: 48000
     bits_per_sample: 16bit
     buffer_duration: 2000ms
-  - platform: mixer
-    id: reveil_mixer
-    output_speaker: alarm_speaker
-    source_speakers:
-      - id: reveil_announcement_speaker
-      - id: reveil_media_speaker
 media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
     announcement_pipeline:
-      speaker: reveil_announcement_speaker
+      speaker: alarm_speaker
       format: MP3
     media_pipeline:
-      speaker: reveil_media_speaker
+      speaker: alarm_speaker
       format: MP3
     volume_min: 0.05
     volume_max: 1.0
@@ -737,9 +731,9 @@ script:
 
 rtttl:
   id: alarm_buzzer
-  # Le mixer détient la sortie I2S physique : RTTTL doit entrer
-  # par une de ses sources, comme le lecteur radio.
-  speaker: reveil_announcement_speaker
+  # Comme dans tab5-alarm.yaml d'origine, RTTTL pilote directement
+  # le haut-parleur I2S/ES8388, sans mixer interposé.
+  speaker: alarm_speaker
   gain: 100%
 font:
   - file: "gfonts://Noto Sans Symbols"
