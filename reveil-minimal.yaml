@@ -72,6 +72,25 @@ mqtt:
               lambda: 'return id(radio_manual) && !id(alarm_ringing);'
             then:
               - script.execute: toggle_radio
+    - topic: reveil-tab5/radio/test/slot
+      then:
+        - lambda: |-
+            // Commande de test : publier un entier 1..12 sur ce topic.
+            // Elle lance réellement la station sur le haut-parleur du Tab5.
+            const int slot = atoi(x.c_str());
+            if (slot >= 1 && slot <= 12) {
+              id(radio_slot) = slot - 1;
+              id(radio_manual) = true;
+              id(radio_test_requested) = true;
+            }
+        - if:
+            condition:
+              lambda: 'return id(radio_test_requested);'
+            then:
+              - lambda: 'id(radio_test_requested) = false;'
+              - media_player.stop: radio_player
+              - delay: 200ms
+              - script.execute: play_selected_radio
   on_json_message:
     - topic: reveil-tab5/radio/favori/set
       then:
@@ -774,6 +793,10 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  - id: radio_test_requested
+    type: bool
+    restore_value: no
+    initial_value: 'false'
   - id: radio_slot
     type: int
     restore_value: yes
@@ -955,6 +978,17 @@ script:
           id(last_alarm_minute) = -1;
   - id: play_selected_radio
     then:
+      - mqtt.publish:
+          topic: reveil-tab5/radio/test/diagnostic
+          payload: !lambda |-
+            const std::string urls[] = {id(radio_url_1).state,id(radio_url_2).state,id(radio_url_3).state,id(radio_url_4).state,id(radio_url_5).state,id(radio_url_6).state,id(radio_url_7).state,id(radio_url_8).state,id(radio_url_9).state,id(radio_url_10).state,id(radio_url_11).state,id(radio_url_12).state};
+            const int slot = id(radio_slot);
+            if (slot < 0 || slot >= 12) return std::string("Emplacement invalide");
+            const std::string &url = urls[slot];
+            char prefix[64];
+            snprintf(prefix,sizeof(prefix),"Station %d : ",slot+1);
+            return std::string(prefix) + ((url.rfind("http://",0)==0 || url.rfind("https://",0)==0) ? "lecture demandée " : "URL absente/invalide ") + url;
+          retain: false
       - if:
           condition:
             lambda: |-
