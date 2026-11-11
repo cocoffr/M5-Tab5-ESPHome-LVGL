@@ -695,7 +695,7 @@ globals:
   - id: preset_selected
     type: int
     restore_value: no
-    initial_value: '0'
+    initial_value: '-1'
   - id: alarm_test_active
     type: bool
     restore_value: no
@@ -1009,11 +1009,10 @@ script:
       slot: int
     then:
       - lambda: |-
-          id(preset_selected) = slot;
           if (slot < 0 || slot >= 6) return;
-          // En mode édition, choisir le préréglage sans l'écraser.
-          // L'utilisateur ajuste ensuite l'heure et confirme avec Enregistrer.
-          if (id(preset_edit)) return;
+          id(preset_selected) = slot;
+          // Charger l'horaire existant, sans modifier la valeur mémorisée.
+          // L'enregistrement est exclusivement effectué par save_preset.
           int *p[] = {&id(preset_1), &id(preset_2), &id(preset_3), &id(preset_4), &id(preset_5), &id(preset_6)};
           const int minutes = *p[slot];
           auto &h = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
@@ -1031,11 +1030,11 @@ script:
           id(preset_edit) = false;
   - id: open_alarm_one
     then:
-      - lambda: 'id(selected_alarm) = 1; id(preset_edit) = false;'
+      - lambda: 'id(selected_alarm) = 1; id(preset_edit) = false; id(preset_selected) = -1;'
       - lvgl.page.show: alarm_settings_page
   - id: open_alarm_two
     then:
-      - lambda: 'id(selected_alarm) = 2; id(preset_edit) = false;'
+      - lambda: 'id(selected_alarm) = 2; id(preset_edit) = false; id(preset_selected) = -1;'
       - lvgl.page.show: alarm_settings_page
   - id: adjust_alarm_hour
     parameters:
@@ -3097,6 +3096,7 @@ lvgl:
                   text_font: alarm_font
                   text_color: 0xFFFFFF
         - button:
+            id: preset_save_button
             x: 675
             y: 665
             width: 550
@@ -3116,7 +3116,7 @@ lvgl:
             height: 85
             bg_color: 0x304458
             on_click:
-              - lambda: 'id(preset_edit) = !id(preset_edit);'
+              - lambda: 'id(preset_edit) = !id(preset_edit); id(preset_selected) = -1;'
             widgets:
               - label:
                   id: preset_edit_label
@@ -3475,6 +3475,8 @@ interval:
           lv_obj_set_style_bg_color(id(alarm_buzzer_button), lv_color_hex(!radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           set_label_if_changed(id(alarm_test_label), id(alarm_test_active) ? "Arrêter le test" : "Tester");
           set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "Annuler la modification" : "Modifier les préréglages");
+          if (id(preset_edit) && id(preset_selected) >= 0) lv_obj_clear_flag(id(preset_save_button), LV_OBJ_FLAG_HIDDEN);
+          else lv_obj_add_flag(id(preset_save_button), LV_OBJ_FLAG_HIDDEN);
           lv_obj_set_style_bg_color(id(preset_button_1), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(preset_button_2), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(preset_button_3), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
