@@ -5,6 +5,12 @@ substitutions:
 esphome:
   name: ${device_name}
   friendly_name: Reveil Tab5
+  on_boot:
+    priority: -100
+    then:
+      - select.set:
+          id: reveil_dac_output
+          option: BOTH
   includes:
     - Tab5/ecran/tab5_lien_c6.h
     - Tab5/ecran/tab5_lien_c6.cpp
@@ -277,6 +283,12 @@ switch:
 # Préférences de batterie : la commande matérielle du chargeur reste
 # volontairement désactivée jusqu'au portage des protections d'origine.
 select:
+  # Routage explicite du codec ES8388 vers les sorties analogiques.
+  # Sans sélection, le DAC peut fonctionner sans alimenter le haut-parleur.
+  - platform: es8388
+    dac_output:
+      id: reveil_dac_output
+      internal: true
   - platform: template
     id: reveil_charge_limit
     name: Limite de charge souhaitée
