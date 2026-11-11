@@ -76,7 +76,7 @@ mqtt:
     - topic: reveil-tab5/radio/favori/set
       then:
         - lambda: |-
-            if (!x.containsKey("slot") || !x.containsKey("name") || !x.containsKey("url")) return;
+            if (!x["slot"].is<int>() || !x["name"].is<const char *>() || !x["url"].is<const char *>()) return;
             const int slot = x["slot"].as<int>();
             const std::string name = x["name"].as<std::string>();
             const std::string url = x["url"].as<std::string>();
@@ -991,7 +991,7 @@ script:
           const int slot = id(radio_edit_slot);
           const std::string name = lv_textarea_get_text(id(radio_name_input));
           const std::string url = lv_textarea_get_text(id(radio_url_input));
-          if (name.empty() || url.rfind("https://",0) != 0 && url.rfind("http://",0) != 0) return;
+          if (name.empty() || (url.rfind("https://",0) != 0 && url.rfind("http://",0) != 0)) return;
           if (slot == 0) { auto n = id(radio_name_1).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_1).make_call(); u.set_value(url); u.perform(); }
           if (slot == 1) { auto n = id(radio_name_2).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_2).make_call(); u.set_value(url); u.perform(); }
           if (slot == 2) { auto n = id(radio_name_3).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_3).make_call(); u.set_value(url); u.perform(); }
@@ -3559,7 +3559,7 @@ interval:
             char message[96];
             snprintf(message, sizeof(message), "cause=%d;mesure=%.2f;verrou=%d",
               (int)signal.cause, signal.mesure, signal.verrouille ? 1 : 0);
-            id(mqtt_client).publish("reveil-tab5/batterie/securite", message, 0, true);
+            id(mqtt_client).publish(std::string("reveil-tab5/batterie/securite"), std::string(message), 0, true);
           }
           // La machine d'états demande une lecture de confirmation :
           // forcer un vrai cycle INA226, pas recycler le dernier état publié.
@@ -3694,10 +3694,10 @@ interval:
             if (!on_battery || pct >= 30.0f) id(reveil_battery_alert_level) = 0;
             if (on_battery && pct <= 10.0f && id(reveil_battery_alert_level) < 2) {
               id(reveil_battery_alert_level) = 2;
-              id(mqtt_client).publish("reveil-tab5/batterie/alerte", "critique_10", 0, false);
+              id(mqtt_client).publish(std::string("reveil-tab5/batterie/alerte"), std::string("critique_10"), 0, false);
             } else if (on_battery && pct <= 20.0f && id(reveil_battery_alert_level) < 1) {
               id(reveil_battery_alert_level) = 1;
-              id(mqtt_client).publish("reveil-tab5/batterie/alerte", "faible_20", 0, false);
+              id(mqtt_client).publish(std::string("reveil-tab5/batterie/alerte"), std::string("faible_20"), 0, false);
             }
             snprintf(diag, sizeof(diag), "~%.0f %%", pct);
             set_label_if_changed(id(reveil_batt_niveau), diag);
