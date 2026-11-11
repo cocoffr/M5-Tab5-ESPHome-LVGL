@@ -3456,11 +3456,13 @@ interval:
           set_label_if_changed(id(settings_minute), value);
           snprintf(value, sizeof(value), "%d/10", id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume));
           set_label_if_changed(id(settings_volume), value);
+          // Toujours rendre le volume visible lors de l'ouverture des deux alarmes.
+          lv_obj_clear_flag(id(settings_volume), LV_OBJ_FLAG_HIDDEN);
           bool radio_choisie = id(selected_alarm) == 1 ? id(alarm_one_radio) : id(alarm_two_radio);
           lv_obj_set_style_bg_color(id(alarm_radio_button), lv_color_hex(radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(alarm_buzzer_button), lv_color_hex(!radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           set_label_if_changed(id(alarm_test_label), id(alarm_test_active) ? "Arrêter le test" : "Tester");
-          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "ANNULER - Touchez un horaire pour enregistrer" : "Modifier les préréglages");
+          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "Touchez un horaire pour mémoriser (ou annuler)" : "Modifier les préréglages");
           lv_obj_set_style_bg_color(id(preset_button_1), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(preset_button_2), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(preset_button_3), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
