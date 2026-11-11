@@ -1224,10 +1224,14 @@ font:
     id: alarm_font
     size: 52
     glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
+  - file: "gfonts://Noto Sans Symbols 2"
+    id: battery_icon_font
+    size: 32
+    glyphs: "◆⚡☀◉▣"
   - file: "gfonts://Roboto"
     id: date_font
     size: 46
-    glyphs: "0123456789 abcdefghijklmnopqrstuvwxyzéèêûôàùîïç"
+    glyphs: "0123456789 abcdefghijklmnopqrstuvwxyzéèêûôàùîïçS.-"
   - file: "gfonts://Roboto"
     id: clock_roboto_font
     size: 230
@@ -2529,71 +2533,8 @@ lvgl:
             bg_opa: 85%
             border_width: 2
             border_color: 0x547084
-        - obj:
-            x: 41
-            y: 213
-            width: 272
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 324
-            y: 213
-            width: 272
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 41
-            y: 331
-            width: 560
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 41
-            y: 450
-            width: 560
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 41
-            y: 570
-            width: 560
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 667
-            y: 213
-            width: 530
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 667
-            y: 328
-            width: 530
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 667
-            y: 443
-            width: 530
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - obj:
-            x: 667
-            y: 558
-            width: 530
-            height: 2
-            bg_color: 0x3A596A
-            border_width: 0
-        - label: { text: "BATTERIE", x: 48, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
-        - label: { text: "ÉTAT", x: 675, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
+        - label: { text: "BATTERIE", x: 46, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
+        - label: { text: "ÉTAT", x: 672, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "Limite de charge", x: 48, y: 166, text_font: label_font }
         - label: { text: "Mode de charge", x: 348, y: 166, text_font: label_font }
         - button:
@@ -2779,13 +2720,6 @@ lvgl:
             width: 500
             text_font: control_font
             text_color: 0xB5E8F4
-        - label:
-            text: "Charge automatique - protections actives"
-            x: 667
-            y: 704
-            width: 540
-            text_font: label_font
-            text_color: 0xFFB86B
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
