@@ -1744,7 +1744,7 @@ lvgl:
             max_length: 48
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard), id(radio_name_input));'
+              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_name_input));'
         - label:
             text: "URL"
             x: 35
@@ -1760,7 +1760,7 @@ lvgl:
             max_length: 255
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard), id(radio_url_input));'
+              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));'
         - keyboard:
             id: radio_keyboard
             x: 35
