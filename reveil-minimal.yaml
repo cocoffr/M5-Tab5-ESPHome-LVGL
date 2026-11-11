@@ -10,7 +10,7 @@ esphome:
     then:
       - select.set:
           id: reveil_dac_output
-          option: BOTH
+          option: LINE1
   includes:
     - Tab5/ecran/tab5_lien_c6.h
     - Tab5/ecran/tab5_lien_c6.cpp
@@ -235,6 +235,15 @@ datetime:
     initial_value: "08:30:00"
     restore_value: true
 switch:
+  # Ampli du haut-parleur interne : absent de la première version autonome.
+  # GPIO 1 de l'expandeur 0x43, conformément au BSP officiel Tab5.
+  - platform: gpio
+    id: reveil_speaker_enable
+    internal: true
+    pin:
+      pi4ioe5v6408: ioexp
+      number: 1
+    restore_mode: ALWAYS_ON
   # Alimentation matérielle ESP32-C6, indispensable au Wi-Fi du Tab5.
   - platform: gpio
     id: wifi_power
