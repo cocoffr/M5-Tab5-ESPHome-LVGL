@@ -53,6 +53,7 @@ mqtt:
             (int) id(alarm_two_hour).state, (int) id(alarm_two_minute).state);
           return std::string(buffer);
         retain: true
+    - script.execute: publish_radio_favorites
   on_message:
     - topic: reveil-tab5/radio/commande
       payload: "ON"
@@ -85,7 +86,8 @@ mqtt:
             auto n = names[slot-1]->make_call(); n.set_value(name); n.perform();
             auto u = urls[slot-1]->make_call(); u.set_value(url); u.perform();
             char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",slot);
-            std::string payload = std::string("{\"slot\":") + std::to_string(slot) + ",\"name\":\"" + name + "\",\"url\":\"" + url + "\"}";
+            std::string payload;
+            json::build_json([&](JsonObject root) { root["slot"]=slot; root["name"]=name; root["url"]=url; }, &payload);
             id(mqtt_client).publish(topic,payload,0,true);
 api:
 button:
@@ -947,6 +949,17 @@ script:
           lv_textarea_set_text(id(radio_name_input), names[slot].c_str());
           lv_textarea_set_text(id(radio_url_input), urls[slot].c_str());
       - lvgl.page.show: reveil_radio_edit_page
+  - id: publish_radio_favorites
+    then:
+      - lambda: |-
+          const std::string names[] = {id(radio_name_1).state,id(radio_name_2).state,id(radio_name_3).state,id(radio_name_4).state,id(radio_name_5).state,id(radio_name_6).state,id(radio_name_7).state,id(radio_name_8).state,id(radio_name_9).state,id(radio_name_10).state,id(radio_name_11).state,id(radio_name_12).state};
+          const std::string urls[] = {id(radio_url_1).state,id(radio_url_2).state,id(radio_url_3).state,id(radio_url_4).state,id(radio_url_5).state,id(radio_url_6).state,id(radio_url_7).state,id(radio_url_8).state,id(radio_url_9).state,id(radio_url_10).state,id(radio_url_11).state,id(radio_url_12).state};
+          for (int i=0;i<12;i++) {
+            char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",i+1);
+            std::string payload;
+            json::build_json([&](JsonObject root) { root["slot"]=i+1; root["name"]=names[i]; root["url"]=urls[i]; }, &payload);
+            id(mqtt_client).publish(topic,payload,0,true);
+          }
   - id: save_radio_slot
     then:
       - lambda: |-
@@ -966,6 +979,7 @@ script:
           if (slot == 9) { auto n = id(radio_name_10).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_10).make_call(); u.set_value(url); u.perform(); }
           if (slot == 10) { auto n = id(radio_name_11).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_11).make_call(); u.set_value(url); u.perform(); }
           if (slot == 11) { auto n = id(radio_name_12).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_12).make_call(); u.set_value(url); u.perform(); }
+      - script.execute: publish_radio_favorites
       - lvgl.page.show: reveil_radio_page
       - lambda: 'id(radio_long_press_handled) = false;'
   - id: toggle_radio
