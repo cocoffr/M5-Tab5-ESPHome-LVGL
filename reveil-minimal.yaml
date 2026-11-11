@@ -438,7 +438,232 @@ media_player:
       format: MP3
     volume_min: 0.05
     volume_max: 1.0
+text:
+  - platform: template
+    id: radio_name_1
+    name: "Radio 1 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Chérie FM"
+  - platform: template
+    id: radio_url_1
+    name: "Radio 1 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: "https://streaming.nrjaudio.fm/ouuku85n3nje"
+  - platform: template
+    id: radio_name_2
+    name: "Radio 2 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Chérie FM 90"
+  - platform: template
+    id: radio_url_2
+    name: "Radio 2 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: "https://streaming.nrjaudio.fm/ou6p4cxp336f"
+  - platform: template
+    id: radio_name_3
+    name: "Radio 3 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Chérie FM Acoustic"
+  - platform: template
+    id: radio_url_3
+    name: "Radio 3 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: "https://streaming.nrjaudio.fm/ouw8wysk6j4d"
+  - platform: template
+    id: radio_name_4
+    name: "Radio 4 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Rire et Chansons"
+  - platform: template
+    id: radio_url_4
+    name: "Radio 4 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: "https://streaming.nrjaudio.fm/oug7girb92oc"
+  - platform: template
+    id: radio_name_5
+    name: "Radio 5 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "France Inter"
+  - platform: template
+    id: radio_url_5
+    name: "Radio 5 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_6
+    name: "Radio 6 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "France Info"
+  - platform: template
+    id: radio_url_6
+    name: "Radio 6 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_7
+    name: "Radio 7 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "RTL"
+  - platform: template
+    id: radio_url_7
+    name: "Radio 7 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_8
+    name: "Radio 8 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Europe 1"
+  - platform: template
+    id: radio_url_8
+    name: "Radio 8 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_9
+    name: "Radio 9 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "RFM"
+  - platform: template
+    id: radio_url_9
+    name: "Radio 9 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_10
+    name: "Radio 10 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Nostalgie"
+  - platform: template
+    id: radio_url_10
+    name: "Radio 10 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_11
+    name: "Radio 11 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "NRJ"
+  - platform: template
+    id: radio_url_11
+    name: "Radio 11 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
+  - platform: template
+    id: radio_name_12
+    name: "Radio 12 nom"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 48
+    initial_value: "Fun Radio"
+  - platform: template
+    id: radio_url_12
+    name: "Radio 12 URL"
+    optimistic: true
+    restore_value: true
+    mode: text
+    min_length: 0
+    max_length: 255
+    initial_value: ""
 globals:
+  - id: radio_slot
+    type: int
+    restore_value: yes
+    initial_value: '0'
+  - id: radio_edit_slot
+    type: int
+    restore_value: no
+    initial_value: '0'
   - id: preset_1
     type: int
     restore_value: yes
@@ -600,31 +825,29 @@ script:
           id(last_alarm_minute) = -1;
   - id: play_selected_radio
     then:
-      - media_player.play_media:
-          id: radio_player
-          media_url: !lambda |-
-            const auto station = id(reveil_station_radio).current_option();
-            if (station == "Chérie FM 90")
-              return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
-            if (station == "Chérie FM Acoustic")
-              return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
-            if (station == "Rire et Chansons")
-              return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
-            return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
-          announcement: false
+      - if:
+          condition:
+            lambda: |-
+              const std::string urls[] = {id(radio_url_1).state, id(radio_url_2).state, id(radio_url_3).state, id(radio_url_4).state, id(radio_url_5).state, id(radio_url_6).state, id(radio_url_7).state, id(radio_url_8).state, id(radio_url_9).state, id(radio_url_10).state, id(radio_url_11).state, id(radio_url_12).state};
+              return id(radio_slot) >= 0 && id(radio_slot) < 12 && !urls[id(radio_slot)].empty();
+          then:
+            - media_player.play_media:
+                id: radio_player
+                media_url: !lambda |-
+                const std::string urls[] = {id(radio_url_1).state, id(radio_url_2).state, id(radio_url_3).state, id(radio_url_4).state, id(radio_url_5).state, id(radio_url_6).state, id(radio_url_7).state, id(radio_url_8).state, id(radio_url_9).state, id(radio_url_10).state, id(radio_url_11).state, id(radio_url_12).state};
+                int slot = id(radio_slot);
+                return slot >= 0 && slot < 12 ? urls[slot] : std::string("");
+                announcement: false
   - id: select_radio_slot
     parameters:
       slot: int
     then:
-      - lambda: |-
-          const char *stations[] = {"Chérie FM","Chérie FM 90","Chérie FM Acoustic","Rire et Chansons",
-            "France Inter","France Info","RTL","Europe 1","RFM","Nostalgie","NRJ","Fun Radio"};
-          auto call = id(reveil_station_radio).make_call();
-          call.set_option(stations[slot]);
-          call.perform();
+      - lambda: 'id(radio_slot) = slot;'
       - mqtt.publish:
           topic: reveil-tab5/radio/station
-          payload: !lambda 'return id(reveil_station_radio).current_option();'
+          payload: !lambda |-
+            const std::string names[] = {id(radio_name_1).state, id(radio_name_2).state, id(radio_name_3).state, id(radio_name_4).state, id(radio_name_5).state, id(radio_name_6).state, id(radio_name_7).state, id(radio_name_8).state, id(radio_name_9).state, id(radio_name_10).state, id(radio_name_11).state, id(radio_name_12).state};
+            return names[id(radio_slot)];
           retain: true
       - media_player.stop: radio_player
       - delay: 200ms
@@ -636,40 +859,45 @@ script:
       - lvgl.page.show: reveil_page
   - id: next_radio_station
     then:
-      - lambda: |-
-          static const char *stations[] = {
-            "Chérie FM", "Chérie FM 90", "Chérie FM Acoustic", "Rire et Chansons"
-          };
-          const auto selected = id(reveil_station_radio).current_option();
-          int index = 0;
-          for (int i = 0; i < 4; ++i) {
-            if (selected == stations[i]) { index = i; break; }
-          }
-          auto call = id(reveil_station_radio).make_call();
-          call.set_option(stations[(index + 1) % 4]);
-          call.perform();
-      - mqtt.publish:
-          topic: reveil-tab5/radio/station
-          payload: !lambda 'return id(reveil_station_radio).current_option();'
-          retain: true
+      - lambda: 'id(radio_slot) = (id(radio_slot) + 1) % 12;'
       - if:
           condition:
             lambda: 'return id(radio_manual) && !id(alarm_ringing);'
           then:
             - media_player.stop: radio_player
             - delay: 200ms
-            - media_player.play_media:
-                id: radio_player
-                media_url: !lambda |-
-                  const auto station = id(reveil_station_radio).current_option();
-                  if (station == "Chérie FM 90")
-                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
-                  if (station == "Chérie FM Acoustic")
-                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
-                  if (station == "Rire et Chansons")
-                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
-                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
-                announcement: false
+            - script.execute: play_selected_radio
+  - id: edit_radio_slot
+    parameters:
+      slot: int
+    then:
+      - lambda: |-
+          id(radio_edit_slot) = slot;
+          const std::string names[] = {id(radio_name_1).state, id(radio_name_2).state, id(radio_name_3).state, id(radio_name_4).state, id(radio_name_5).state, id(radio_name_6).state, id(radio_name_7).state, id(radio_name_8).state, id(radio_name_9).state, id(radio_name_10).state, id(radio_name_11).state, id(radio_name_12).state};
+          const std::string urls[] = {id(radio_url_1).state, id(radio_url_2).state, id(radio_url_3).state, id(radio_url_4).state, id(radio_url_5).state, id(radio_url_6).state, id(radio_url_7).state, id(radio_url_8).state, id(radio_url_9).state, id(radio_url_10).state, id(radio_url_11).state, id(radio_url_12).state};
+          lv_textarea_set_text(id(radio_name_input), names[slot].c_str());
+          lv_textarea_set_text(id(radio_url_input), urls[slot].c_str());
+      - lvgl.page.show: reveil_radio_edit_page
+  - id: save_radio_slot
+    then:
+      - lambda: |-
+          const int slot = id(radio_edit_slot);
+          const std::string name = lv_textarea_get_text(id(radio_name_input));
+          const std::string url = lv_textarea_get_text(id(radio_url_input));
+          if (name.empty() || url.rfind("https://",0) != 0 && url.rfind("http://",0) != 0) return;
+          if (slot == 0) { auto n = id(radio_name_1).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_1).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 1) { auto n = id(radio_name_2).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_2).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 2) { auto n = id(radio_name_3).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_3).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 3) { auto n = id(radio_name_4).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_4).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 4) { auto n = id(radio_name_5).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_5).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 5) { auto n = id(radio_name_6).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_6).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 6) { auto n = id(radio_name_7).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_7).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 7) { auto n = id(radio_name_8).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_8).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 8) { auto n = id(radio_name_9).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_9).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 9) { auto n = id(radio_name_10).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_10).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 10) { auto n = id(radio_name_11).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_11).make_call(); u.set_value(url); u.perform(); }
+          if (slot == 11) { auto n = id(radio_name_12).make_call(); n.set_value(name); n.perform(); auto u = id(radio_url_12).make_call(); u.set_value(url); u.perform(); }
+      - lvgl.page.show: reveil_radio_page
   - id: toggle_radio
     then:
       - if:
@@ -695,18 +923,7 @@ script:
             - media_player.volume_set:
                 id: radio_player
                 volume: !lambda 'return id(volume_level).state / 10.0f;'
-            - media_player.play_media:
-                id: radio_player
-                media_url: !lambda |-
-                  const auto station = id(reveil_station_radio).current_option();
-                  if (station == "Chérie FM 90")
-                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
-                  if (station == "Chérie FM Acoustic")
-                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
-                  if (station == "Rire et Chansons")
-                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
-                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
-                announcement: false
+            - script.execute: play_selected_radio
   - id: start_alarm
     then:
       - lambda: 'id(alarm_ringing) = true; id(radio_manual) = false;'
@@ -718,18 +935,7 @@ script:
             - media_player.volume_set:
                 id: radio_player
                 volume: !lambda 'return (id(selected_alarm) == 1 ? id(alarm_one_volume) : id(alarm_two_volume)) / 10.0f;'
-            - media_player.play_media:
-                id: radio_player
-                media_url: !lambda |-
-                  const auto station = id(reveil_station_radio).current_option();
-                  if (station == "Chérie FM 90")
-                    return std::string("https://streaming.nrjaudio.fm/ou6p4cxp336f?origine=fluxradios&aw_0_1st.station=CHERIE-90-S");
-                  if (station == "Chérie FM Acoustic")
-                    return std::string("https://streaming.nrjaudio.fm/ouw8wysk6j4d?origine=fluxradios&aw_0_1st.station=CHERIE-ACOUSTIC");
-                  if (station == "Rire et Chansons")
-                    return std::string("https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxradios");
-                  return std::string("https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxradios");
-                announcement: false
+            - script.execute: play_selected_radio
           else:
             - lambda: |-
                 id(alarm_buzzer).set_gain((id(selected_alarm) == 1
