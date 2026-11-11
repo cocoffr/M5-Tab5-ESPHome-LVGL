@@ -139,6 +139,16 @@ sensor:
         then:
           - lambda: |-
               id(reveil_voltage_sample_ms) = millis();
+    shunt_voltage:
+      id: reveil_batt_shunt_voltage
+      name: Réveil tension shunt batterie
+      accuracy_decimals: 4
+      entity_category: diagnostic
+    power:
+      id: reveil_batt_raw_power
+      name: Réveil puissance brute INA226
+      accuracy_decimals: 3
+      entity_category: diagnostic
     current:
       id: reveil_batt_current
       name: Réveil courant batterie
@@ -2316,6 +2326,12 @@ lvgl:
             border_width: 2
             border_color: 0x375365
         - label:
+            text: "DIAGNOSTIC ET ALIMENTATION"
+            x: 48
+            y: 90
+            text_font: label_font
+            text_color: 0xFFB86B
+        - label:
             text: "ÉTAT BATTERIE"
             x: 48
             y: 128
@@ -2323,7 +2339,7 @@ lvgl:
             text_color: 0xB5E8F4
         - label:
             id: reveil_batt_etat
-            text: "Non installée"
+            text: "Mesure indisponible"
             x: 50
             y: 195
             width: 500
@@ -2381,7 +2397,7 @@ lvgl:
             text_font: control_font
             text_color: 0xB5E8F4
         - label:
-            text: "Charge matérielle désactivée"
+            text: "Charge coupée - sécurité"
             x: 665
             y: 349
             text_font: label_font
