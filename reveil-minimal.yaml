@@ -99,6 +99,7 @@ mqtt:
             payload = json::build_json([&](JsonObject root) { root["slot"]=slot; root["name"]=name; root["url"]=url; });
             id(mqtt_client).publish(topic,payload,0,true);
 api:
+  id: reveil_api
 button:
   - platform: restart
     id: reveil_restart
@@ -1256,7 +1257,7 @@ lvgl:
             text: "Synchronisation..."
             align: TOP_MID
             y: 8
-            text_font: label_font
+            text_font: control_font
             text_color: 0xE5E7EB
         - obj:
             id: digit_0_0
@@ -2758,6 +2759,19 @@ lvgl:
             text_font: label_font
             text_color: 0xB5E8F4
         - label:
+            text: "Home Assistant"
+            x: 670
+            y: 372
+            text_font: label_font
+            text_color: 0xD7E7EB
+        - label:
+            id: sys_ha
+            text: "Non connecté"
+            x: 965
+            y: 372
+            text_font: label_font
+            text_color: 0xB5E8F4
+        - label:
             text: "Temps actif"
             x: 50
             y: 485
@@ -3626,6 +3640,8 @@ interval:
           // Diagnostics locaux, sans dépendance aux entités domotiques du projet HMI.
           set_label_if_changed(id(sys_ssid), id(reveil_ssid).has_state() ? id(reveil_ssid).state.c_str() : "--");
           set_label_if_changed(id(sys_ip), id(reveil_ip).has_state() ? id(reveil_ip).state.c_str() : "--");
+          // Connexion à un client de l'API native (HA ou autre client ESPHome).
+          set_label_if_changed(id(sys_ha), id(reveil_api).is_connected() ? "API connectée" : "Non connecté");
           char diag[48];
           if (id(reveil_wifi_signal).has_state() && std::isfinite(id(reveil_wifi_signal).state)) {
             snprintf(diag, sizeof(diag), "%.0f dBm", id(reveil_wifi_signal).state);
