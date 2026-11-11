@@ -3397,13 +3397,6 @@ interval:
             set_label_if_changed(id(date_label), date_text);
           }
           // Contrôleur de charge : calcul des décisions, sorties verrouillées en attente des essais matériels.
-          char pref[48];
-          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_limit).current_option().c_str());
-          set_label_if_changed(id(reveil_charge_limit_label), pref);
-          snprintf(pref, sizeof(pref), "%s (inactif)", id(reveil_charge_mode).current_option().c_str());
-          set_label_if_changed(id(reveil_charge_mode_label), pref);
-          set_label_if_changed(id(reveil_power_save_label), id(reveil_power_save).current_option().c_str());
-          set_label_if_changed(id(reveil_wifi_save_label), id(reveil_wifi_save).current_option().c_str());
           // Boutons de sélection : vert = option active, bleu = autres choix.
           auto battery_choice = [&](lv_obj_t *button, bool active) {
             lv_obj_set_style_bg_color(button, lv_color_hex(active ? 0x00AD22 : 0x075BA8), LV_PART_MAIN);
