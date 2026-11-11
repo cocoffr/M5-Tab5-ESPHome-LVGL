@@ -2771,13 +2771,7 @@ lvgl:
             height: 85
             bg_color: 0x304458
             on_click:
-              - if:
-                  condition:
-                    lambda: 'return id(preset_edit);'
-                  then:
-                    - script.execute: save_preset
-                  else:
-                    - lambda: 'id(preset_edit) = true;'
+              - lambda: 'id(preset_edit) = !id(preset_edit);'
             widgets:
               - label:
                   id: preset_edit_label
@@ -3120,7 +3114,13 @@ interval:
           lv_obj_set_style_bg_color(id(alarm_radio_button), lv_color_hex(radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(alarm_buzzer_button), lv_color_hex(!radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           set_label_if_changed(id(alarm_test_label), id(alarm_test_active) ? "Arrêter le test" : "Tester");
-          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "Touchez un preset pour mémoriser l’heure" : "Modifier les préréglages");
+          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "ANNULER - Touchez un horaire pour enregistrer" : "Modifier les préréglages");
+          lv_obj_set_style_bg_color(id(preset_button_1), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(preset_button_2), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(preset_button_3), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(preset_button_4), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(preset_button_5), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          lv_obj_set_style_bg_color(id(preset_button_6), lv_color_hex(id(preset_edit) ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           const int preset_minutes[] = {id(preset_1),id(preset_2),id(preset_3),id(preset_4),id(preset_5),id(preset_6)};
           lv_obj_t *preset_labels[] = {id(preset_label_1),id(preset_label_2),id(preset_label_3),id(preset_label_4),id(preset_label_5),id(preset_label_6)};
           for (int i = 0; i < 6; ++i) {
