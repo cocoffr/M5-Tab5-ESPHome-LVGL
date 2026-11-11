@@ -3499,8 +3499,15 @@ interval:
           static EtatChargeur controle_charge;
           static bool controle_initialise = false;
           if (!controle_initialise) {
+            // Comme le journal de démarrage original : ne pas réveiller une
+            // batterie après watchdog, panique ou chute de tension.
+            const esp_reset_reason_t cause = esp_reset_reason();
+            const bool demarrage_anormal =
+              cause != ESP_RST_POWERON && cause != ESP_RST_SW &&
+              cause != ESP_RST_DEEPSLEEP;
             chargeur_demarrer(controle_charge, id(reveil_battery_memory),
-              id(reveil_battery_installed).state, true, id(reveil_charge_thermal_latch), millis());
+              id(reveil_battery_installed).state, demarrage_anormal,
+              id(reveil_charge_thermal_latch), millis());
             controle_initialise = true;
           }
           // Les valeurs INA226 sont publiées toutes les 15 s : ne pas traiter
