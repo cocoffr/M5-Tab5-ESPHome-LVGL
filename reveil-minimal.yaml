@@ -327,12 +327,6 @@ switch:
       number: 5
       inverted: true
     restore_mode: ALWAYS_OFF
-  # Interverrouillage explicite : aucun chargeur actif par défaut.
-  - platform: template
-    id: reveil_charge_authorized
-    name: Autoriser charge batterie (maintenance)
-    optimistic: true
-    restore_mode: ALWAYS_OFF
   - platform: template
     id: reveil_battery_installed
     name: Batterie montée (déclaration)
@@ -348,8 +342,7 @@ switch:
     name: Alarme 2
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
-# Préférences de batterie : la commande matérielle du chargeur reste
-# volontairement désactivée jusqu'au portage des protections d'origine.
+# Préférences de batterie : la machine d'états d'origine commande le chargeur.
 select:
   # Routage explicite du codec ES8388 vers les sorties analogiques.
   # Sans sélection, le DAC peut fonctionner sans alimenter le haut-parleur.
@@ -3562,6 +3555,9 @@ interval:
           const bool activer = decision.allumer;
           if (!activer && id(reveil_charge_fast).state) id(reveil_charge_fast).turn_off();
           if (id(reveil_charge_enable).state != activer) {
+            ESP_LOGI("reveil.batterie", "Chargeur %s, presence=%d, sonde=%d, reveil=%d",
+              activer ? "ON" : "OFF", (int)controle_charge.presence,
+              controle_charge.sonde ? 1 : 0, controle_charge.reveil ? 1 : 0);
             if (activer) id(reveil_charge_enable).turn_on();
             else id(reveil_charge_enable).turn_off();
           }
@@ -3571,23 +3567,24 @@ interval:
             if (rapide) id(reveil_charge_fast).turn_on();
             else id(reveil_charge_fast).turn_off();
           }
-          // Le cycle de réveil/sonde reste piloté exclusivement par
-          // chargeur_tick(). Ne pas remettre change_ms à zéro chaque seconde :
-          // cela empêchait l'expiration du réveil de 30 secondes.
-          // La sortie réelle reste conditionnée par l'interverrouillage ci-dessus.
+          // Le cycle de réveil/sonde est piloté exclusivement par chargeur_tick().
           const bool batt_present = id(reveil_battery_installed).state &&
             mesures_fraiches && controle_charge.presence == PresenceBatterie::PRESENTE &&
             id(reveil_batt_voltage).has_state() &&
             std::isfinite(id(reveil_batt_voltage).state) &&
             id(reveil_batt_voltage).state >= 5.5f && id(reveil_batt_voltage).state <= 8.45f;
           // Le courant positif indique une décharge sur la batterie.
-          const bool on_battery = batt_present && !chargeur_en_sonde(controle_charge, millis()) &&
-            id(reveil_batt_current).has_state() &&
-            std::isfinite(id(reveil_batt_current).state) &&
-            id(reveil_batt_current).state > 0.05f;
+          // Hystérésis identique à tab5_economie.h (entrée 50 mA,
+          // sortie 20 mA) ; conserver le dernier état pendant les sondes.
+          static bool on_battery = false;
+          if (!batt_present) on_battery = false;
+          else if (!chargeur_en_sonde(controle_charge, millis()) &&
+                   id(reveil_batt_current).has_state() && std::isfinite(courant)) {
+            if (courant >= 0.050f) on_battery = true;
+            else if (courant <= 0.020f) on_battery = false;
+          }
           // Indicateur de présence : ne pas confondre batterie déclarée et détectée.
-          // Le statut de l'alimentation secteur est indisponible dans cette version :
-          // le courant batterie ne suffit pas à identifier avec certitude l'USB.
+          // L'état « Sur USB » est inféré, pas mesuré par une entrée USB dédiée.
           const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
@@ -3664,29 +3661,8 @@ interval:
             } else {
               set_label_if_changed(id(reveil_batt_conso), "--");
             }
-            // Courbe 2S à 25 points du contrôleur batterie du projet d'origine.
-            // Indication seulement, sans commande de charge et sans compensation
-            // de la tension sous courant : précision limitée.
-            static const uint16_t curve_mv[] = {
-              3300,3350,3500,3550,3625,3675,3700,3725,3750,3775,
-              3800,3825,3850,3875,3900,3925,3950,3975,4000,4025,
-              4050,4075,4100,4125,4175
-            };
-            static const uint8_t curve_pct[] = {
-              0,1,2,3,4,5,7,11,13,15,18,22,30,41,47,51,53,57,
-              62,81,90,95,97,98,100
-            };
-            const float cell_mv = id(reveil_batt_voltage).state * 500.0f;
-            float pct = 100.0f;
-            if (cell_mv <= curve_mv[0]) pct = 0.0f;
-            else for (size_t i = 1; i < 25; ++i) {
-              if (cell_mv <= curve_mv[i]) {
-                pct = curve_pct[i-1] + (cell_mv - curve_mv[i-1]) *
-                  (curve_pct[i] - curve_pct[i-1]) /
-                  float(curve_mv[i] - curve_mv[i-1]);
-                break;
-              }
-            }
+            // Même fonction de conversion que le firmware 3.9.1.
+            const float pct = batterie_niveau_pct(tension);
             id(reveil_batterie_pourcentage).publish_state(pct);
             if (on_battery && std::isfinite(courant)) id(reveil_batterie_puissance).publish_state(std::max(0.0f, tension * courant));
             else id(reveil_batterie_puissance).publish_state(NAN);
