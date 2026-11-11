@@ -24,6 +24,29 @@ rest_command:
     timeout: 20
 
 script:
+  reveil_tab5_radio_tester:
+    alias: "Réveil Tab5 — tester une station"
+    description: "Demande au Tab5 de lire l'un des 12 favoris et publie un diagnostic MQTT. Nécessite le firmware mis à jour."
+    mode: queued
+    fields:
+      emplacement:
+        required: true
+        selector:
+          number:
+            min: 1
+            max: 12
+            step: 1
+            mode: box
+    sequence:
+      - condition: template
+        value_template: "{{ 1 <= emplacement | int(0) <= 12 }}"
+      - action: mqtt.publish
+        data:
+          topic: reveil-tab5/radio/test/slot
+          payload: "{{ emplacement | int }}"
+          qos: 1
+          retain: false
+
   reveil_tab5_radio_browser_chercher:
     alias: "Réveil Tab5 — rechercher une station Radio Browser"
     mode: queued
