@@ -3476,7 +3476,10 @@ interval:
           // Mode simulation sûr : le contrôleur calcule les ordres, mais
           // aucun ordre d'activation ne peut atteindre le matériel.
           // L'INA226 en mode simulation voit donc toujours CHG_EN coupé.
-          constexpr bool kChargeMaterielleValidee = false;
+          // Portage contrôlé : activation matérielle uniquement sur autorisation
+          // explicite de maintenance. Le réveil bref est géré et temporisé par
+          // chargeur_tick() du firmware d'origine, jamais par un forçage direct.
+          constexpr bool kChargeMaterielleValidee = true;
           const uint32_t maintenant = millis();
           const bool mesures_fraiches =
             id(reveil_voltage_sample_ms) != 0 && id(reveil_current_sample_ms) != 0 &&
@@ -3484,14 +3487,24 @@ interval:
             (uint32_t)(maintenant - id(reveil_voltage_sample_ms)) <= 30000UL &&
             (uint32_t)(maintenant - id(reveil_current_sample_ms)) <= 30000UL &&
             (uint32_t)(maintenant - id(reveil_temperature_sample_ms)) <= 30000UL;
-          const bool mesures_valides = mesures_fraiches &&
-            std::isfinite(tension) && tension >= 5.5f && tension <= 8.45f &&
-            std::isfinite(courant) &&
+          const bool temperature_valide =
             id(reveil_cpu_temperature).has_state() &&
-            std::isfinite(id(reveil_cpu_temperature).state);
+            std::isfinite(id(reveil_cpu_temperature).state) &&
+            id(reveil_cpu_temperature).state <= 55.0f;
+          const bool tension_valide = mesures_fraiches &&
+            std::isfinite(tension) && tension >= 5.5f && tension <= 8.45f &&
+            std::isfinite(courant);
+          // L'unique exception à la tension basse est le réveil TEMPORAIRE
+          // décidé par la machine d'états d'origine. Sans mesure récente et
+          // sans température saine, aucune sortie ne peut être activée.
+          const bool reveil_controle = controle_charge.reveil &&
+            decision.allumer && mesures_fraiches &&
+            std::isfinite(tension) && tension >= 0.0f && tension < 5.5f &&
+            std::isfinite(courant);
           const bool autorise = kChargeMaterielleValidee &&
             id(reveil_charge_authorized).state &&
-            id(reveil_battery_installed).state && mesures_valides &&
+            id(reveil_battery_installed).state && temperature_valide &&
+            (tension_valide || reveil_controle) &&
             !id(reveil_charge_thermal_latch) &&
             !chargeur_securite_posee(controle_charge);
           const bool activer = autorise && decision.allumer;
