@@ -17,7 +17,7 @@ esphome:
               id(mqtt_client).set_password(id(mqtt_saved_password));
             }
     - priority: -100
-    then:
+      then:
       - select.set:
           id: reveil_dac_output
           option: LINE1
