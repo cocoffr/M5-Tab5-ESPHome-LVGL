@@ -81,13 +81,21 @@ mqtt:
             const std::string url = x["url"].as<std::string>();
             if (slot < 1 || slot > 12 || name.empty() || name.size() > 48 || url.size() > 255 ||
                 (url.rfind("https://", 0) != 0 && url.rfind("http://", 0) != 0)) return;
-            esphome::text::Text *names[] = {&id(radio_name_1),&id(radio_name_2),&id(radio_name_3),&id(radio_name_4),&id(radio_name_5),&id(radio_name_6),&id(radio_name_7),&id(radio_name_8),&id(radio_name_9),&id(radio_name_10),&id(radio_name_11),&id(radio_name_12)};
-            esphome::text::Text *urls[] = {&id(radio_url_1),&id(radio_url_2),&id(radio_url_3),&id(radio_url_4),&id(radio_url_5),&id(radio_url_6),&id(radio_url_7),&id(radio_url_8),&id(radio_url_9),&id(radio_url_10),&id(radio_url_11),&id(radio_url_12)};
-            auto n = names[slot-1]->make_call(); n.set_value(name); n.perform();
-            auto u = urls[slot-1]->make_call(); u.set_value(url); u.perform();
+            if (slot == 1) { auto n=id(radio_name_1).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_1).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 2) { auto n=id(radio_name_2).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_2).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 3) { auto n=id(radio_name_3).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_3).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 4) { auto n=id(radio_name_4).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_4).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 5) { auto n=id(radio_name_5).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_5).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 6) { auto n=id(radio_name_6).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_6).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 7) { auto n=id(radio_name_7).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_7).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 8) { auto n=id(radio_name_8).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_8).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 9) { auto n=id(radio_name_9).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_9).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 10) { auto n=id(radio_name_10).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_10).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 11) { auto n=id(radio_name_11).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_11).make_call(); u.set_value(url); u.perform(); }
+            if (slot == 12) { auto n=id(radio_name_12).make_call(); n.set_value(name); n.perform(); auto u=id(radio_url_12).make_call(); u.set_value(url); u.perform(); }
             char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",slot);
             std::string payload;
-            json::build_json([&](JsonObject root) { root["slot"]=slot; root["name"]=name; root["url"]=url; }, &payload);
+            payload = json::build_json([&](JsonObject root) { root["slot"]=slot; root["name"]=name; root["url"]=url; });
             id(mqtt_client).publish(topic,payload,0,true);
 api:
 button:
@@ -957,7 +965,7 @@ script:
           for (int i=0;i<12;i++) {
             char topic[64]; snprintf(topic,sizeof(topic),"reveil-tab5/radio/favori/%d",i+1);
             std::string payload;
-            json::build_json([&](JsonObject root) { root["slot"]=i+1; root["name"]=names[i]; root["url"]=urls[i]; }, &payload);
+            payload = json::build_json([&](JsonObject root) { root["slot"]=i+1; root["name"]=names[i]; root["url"]=urls[i]; });
             id(mqtt_client).publish(topic,payload,0,true);
           }
   - id: save_radio_slot
