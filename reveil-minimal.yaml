@@ -34,6 +34,23 @@ mqtt:
   will_message:
     topic: reveil-tab5/disponibilite
     payload: hors_ligne
+  on_message:
+    - topic: reveil-tab5/radio/commande
+      payload: "ON"
+      then:
+        - if:
+            condition:
+              lambda: 'return !id(radio_manual) && !id(alarm_ringing);'
+            then:
+              - script.execute: toggle_radio
+    - topic: reveil-tab5/radio/commande
+      payload: "OFF"
+      then:
+        - if:
+            condition:
+              lambda: 'return id(radio_manual) && !id(alarm_ringing);'
+            then:
+              - script.execute: toggle_radio
 api:
 button:
   - platform: restart
@@ -502,6 +519,10 @@ script:
           auto call = id(reveil_station_radio).make_call();
           call.set_option(stations[(index + 1) % 4]);
           call.perform();
+      - mqtt.publish:
+          topic: reveil-tab5/radio/station
+          payload: !lambda 'return id(reveil_station_radio).current_option();'
+          retain: true
       - if:
           condition:
             lambda: 'return id(radio_manual) && !id(alarm_ringing);'
@@ -528,8 +549,20 @@ script:
           then:
             - lambda: 'id(radio_manual) = false;'
             - media_player.stop: radio_player
+            - mqtt.publish:
+                topic: reveil-tab5/radio/etat
+                payload: "OFF"
+                retain: true
           else:
             - lambda: 'id(radio_manual) = true;'
+            - mqtt.publish:
+                topic: reveil-tab5/radio/etat
+                payload: "ON"
+                retain: true
+            - mqtt.publish:
+                topic: reveil-tab5/radio/station
+                payload: !lambda 'return id(reveil_station_radio).current_option();'
+                retain: true
             - media_player.volume_set:
                 id: radio_player
                 volume: !lambda 'return id(volume_level).state / 10.0f;'
