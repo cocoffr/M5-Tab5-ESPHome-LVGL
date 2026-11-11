@@ -1318,6 +1318,10 @@ font:
     size: 230
     glyphs: "0123456789:"
   - file: "gfonts://Roboto"
+    id: appearance_option_font
+    size: 24
+    glyphs: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-"
+  - file: "gfonts://Roboto"
     id: control_font
     size: 43
     glyphs: "0123456789: /+-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'éèêëàâùûôîïçÉÈÊÀÇ%()"
@@ -2483,7 +2487,7 @@ lvgl:
             on_click:
               - lvgl.page.show: reveil_settings_page
             widgets:
-              - label: { text: "Retour", align: CENTER, text_font: label_font }
+              - label: { text: "Retour", align: CENTER, text_font: appearance_option_font }
         - label: { text: "Police", x: 30, y: 123, text_font: control_font, text_color: 0xFFFFFF }
         - label: { text: "Taille", x: 30, y: 258, text_font: control_font, text_color: 0xFFFFFF }
         - label: { text: "Couleur", x: 30, y: 402, text_font: control_font, text_color: 0xFFFFFF }
@@ -2494,7 +2498,7 @@ lvgl:
             x: 985
             y: 255
             width: 275
-            text_font: label_font
+            text_font: appearance_option_font
             text_color: 0xB5E8F4
         - button:
             x: 20
@@ -2507,7 +2511,7 @@ lvgl:
               - select.set: { id: appearance_size, option: "10" }
               - select.set: { id: appearance_color, option: "Bleu clair" }
             widgets:
-              - label: { text: "Valeurs par défaut", align: CENTER, text_font: label_font }
+              - label: { text: "Valeurs par défaut", align: CENTER, text_font: appearance_option_font }
         - button:
             x: 350
             y: 645
@@ -2517,7 +2521,7 @@ lvgl:
             on_click:
               - lvgl.page.show: reveil_page
             widgets:
-              - label: { text: "Appliquer", align: CENTER, text_font: label_font }
+              - label: { text: "Appliquer", align: CENTER, text_font: appearance_option_font }
         - button:
             x: 670
             y: 645
@@ -2527,7 +2531,7 @@ lvgl:
             on_click:
               - lvgl.page.show: reveil_settings_page
             widgets:
-              - label: { text: "Enregistrer", align: CENTER, text_font: label_font }
+              - label: { text: "Enregistrer", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_0
             x: 230
@@ -2539,7 +2543,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Segments" }
             widgets:
-              - label: { text: "Segments", align: CENTER, text_font: label_font }
+              - label: { text: "Segments", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_1
             x: 349
@@ -2551,7 +2555,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Roboto" }
             widgets:
-              - label: { text: "Roboto", align: CENTER, text_font: label_font }
+              - label: { text: "Roboto", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_2
             x: 468
@@ -2563,7 +2567,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Montserrat" }
             widgets:
-              - label: { text: "Montserrat", align: CENTER, text_font: label_font }
+              - label: { text: "Montserrat", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_3
             x: 587
@@ -2575,7 +2579,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Oswald" }
             widgets:
-              - label: { text: "Oswald", align: CENTER, text_font: label_font }
+              - label: { text: "Oswald", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_4
             x: 706
@@ -2587,7 +2591,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Orbitron" }
             widgets:
-              - label: { text: "Orbitron", align: CENTER, text_font: label_font }
+              - label: { text: "Orbitron", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_font_btn_5
             x: 825
@@ -2599,7 +2603,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_font, option: "Rajdhani" }
             widgets:
-              - label: { text: "Rajdhani", align: CENTER, text_font: label_font }
+              - label: { text: "Rajdhani", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_0
             x: 230
@@ -2611,7 +2615,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "1" }
             widgets:
-              - label: { text: "1", align: CENTER, text_font: label_font }
+              - label: { text: "1", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_1
             x: 302
@@ -2623,7 +2627,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "2" }
             widgets:
-              - label: { text: "2", align: CENTER, text_font: label_font }
+              - label: { text: "2", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_2
             x: 374
@@ -2635,7 +2639,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "3" }
             widgets:
-              - label: { text: "3", align: CENTER, text_font: label_font }
+              - label: { text: "3", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_3
             x: 446
@@ -2647,7 +2651,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "4" }
             widgets:
-              - label: { text: "4", align: CENTER, text_font: label_font }
+              - label: { text: "4", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_4
             x: 518
@@ -2659,7 +2663,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "5" }
             widgets:
-              - label: { text: "5", align: CENTER, text_font: label_font }
+              - label: { text: "5", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_5
             x: 590
@@ -2671,7 +2675,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "6" }
             widgets:
-              - label: { text: "6", align: CENTER, text_font: label_font }
+              - label: { text: "6", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_6
             x: 662
@@ -2683,7 +2687,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "7" }
             widgets:
-              - label: { text: "7", align: CENTER, text_font: label_font }
+              - label: { text: "7", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_7
             x: 734
@@ -2695,7 +2699,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "8" }
             widgets:
-              - label: { text: "8", align: CENTER, text_font: label_font }
+              - label: { text: "8", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_8
             x: 806
@@ -2707,7 +2711,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "9" }
             widgets:
-              - label: { text: "9", align: CENTER, text_font: label_font }
+              - label: { text: "9", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_size_btn_9
             x: 878
@@ -2719,7 +2723,7 @@ lvgl:
             on_click:
               - select.set: { id: appearance_size, option: "10" }
             widgets:
-              - label: { text: "10", align: CENTER, text_font: label_font }
+              - label: { text: "10", align: CENTER, text_font: appearance_option_font }
         - button:
             id: appearance_color_btn_0
             x: 230
@@ -4199,6 +4203,9 @@ interval:
           for (int i=0; i<10; ++i)
             lv_obj_set_style_bg_color(size_buttons[i], lv_color_hex(size_level == i+1 ? 0x075BA8 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(appearance_preview), lv_color_hex(clock_color), LV_PART_MAIN);
+          char appearance_preview_time[8];
+          snprintf(appearance_preview_time, sizeof(appearance_preview_time), "%02d:%02d", shown_hour, shown_minute);
+          set_label_if_changed(id(appearance_preview), appearance_preview_time);
           lv_obj_t *segments[] = {
             id(digit_0_0),id(digit_0_1),id(digit_0_2),id(digit_0_3),id(digit_0_4),id(digit_0_5),id(digit_0_6),
             id(digit_1_0),id(digit_1_1),id(digit_1_2),id(digit_1_3),id(digit_1_4),id(digit_1_5),id(digit_1_6),
