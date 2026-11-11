@@ -802,6 +802,14 @@ script:
     then:
       - lambda: |-
           id(preset_selected) = slot;
+          if (id(preset_edit)) {
+            const int minutes = (int)(id(selected_alarm) == 1 ? id(alarm_one_hour).state : id(alarm_two_hour).state) * 60
+              + (int)(id(selected_alarm) == 1 ? id(alarm_one_minute).state : id(alarm_two_minute).state);
+            int *p[] = {&id(preset_1), &id(preset_2), &id(preset_3), &id(preset_4), &id(preset_5), &id(preset_6)};
+            *p[slot] = minutes;
+            id(preset_edit) = false;
+            return;
+          }
           int *p[] = {&id(preset_1), &id(preset_2), &id(preset_3), &id(preset_4), &id(preset_5), &id(preset_6)};
           const int minutes = *p[slot];
           auto &h = id(selected_alarm) == 1 ? id(alarm_one_hour) : id(alarm_two_hour);
@@ -2587,6 +2595,7 @@ lvgl:
             text: "Volume"
             x: 45
             y: 535
+            text_color: 0xFFFFFF
             text_font: label_font
         - button:
             x: 235
@@ -2607,6 +2616,7 @@ lvgl:
             y: 535
             width: 130
             text_align: CENTER
+            text_color: 0xB5E8F4
             text_font: label_font
         - button:
             x: 465
@@ -3110,7 +3120,7 @@ interval:
           lv_obj_set_style_bg_color(id(alarm_radio_button), lv_color_hex(radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           lv_obj_set_style_bg_color(id(alarm_buzzer_button), lv_color_hex(!radio_choisie ? 0x00AD22 : 0x304458), LV_PART_MAIN);
           set_label_if_changed(id(alarm_test_label), id(alarm_test_active) ? "Arrêter le test" : "Tester");
-          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "Enregistrer ce préréglage" : "Modifier les préréglages");
+          set_label_if_changed(id(preset_edit_label), id(preset_edit) ? "Touchez un preset pour mémoriser l’heure" : "Modifier les préréglages");
           const int preset_minutes[] = {id(preset_1),id(preset_2),id(preset_3),id(preset_4),id(preset_5),id(preset_6)};
           lv_obj_t *preset_labels[] = {id(preset_label_1),id(preset_label_2),id(preset_label_3),id(preset_label_4),id(preset_label_5),id(preset_label_6)};
           for (int i = 0; i < 6; ++i) {
