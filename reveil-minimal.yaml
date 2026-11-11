@@ -1,6 +1,6 @@
 # Firmware autonome expérimental ST7121 — sans l'application domotique.
 # Point d'entrée séparé : ne modifie pas tab5-ha-hmi.yaml.
-# Compilation de validation : page Apparence validée, corrections Batterie/Système et radio.
+# Validation compilation : corrections affichage horloge, aperçu, glyphes, batterie et système.
 substitutions:
   device_name: reveil-tab5
 esphome:
