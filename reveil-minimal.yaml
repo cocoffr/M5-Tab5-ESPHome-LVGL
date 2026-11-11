@@ -1321,6 +1321,30 @@ font:
     id: appearance_option_font
     size: 24
     glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-éèêàùûôîïçÉÈÊÀÇ,"
+  - file: "Tab5/fonts/jersey_10_400.ttf"
+    id: preview_segments_font
+    size: 80
+    glyphs: "0123456789:"
+  - file: "gfonts://Roboto"
+    id: preview_roboto_font
+    size: 80
+    glyphs: "0123456789:"
+  - file: "gfonts://Montserrat"
+    id: preview_montserrat_font
+    size: 80
+    glyphs: "0123456789:"
+  - file: "gfonts://Oswald"
+    id: preview_oswald_font
+    size: 80
+    glyphs: "0123456789:"
+  - file: "gfonts://Orbitron"
+    id: preview_orbitron_font
+    size: 80
+    glyphs: "0123456789:"
+  - file: "gfonts://Rajdhani"
+    id: preview_rajdhani_font
+    size: 80
+    glyphs: "0123456789:"
   - file: "gfonts://Roboto"
     id: control_font
     size: 43
@@ -2493,13 +2517,59 @@ lvgl:
         - label: { text: "Couleur", x: 30, y: 402, text_font: control_font, text_color: 0xFFFFFF }
         - label: { text: "Aperçu", x: 1015, y: 120, text_font: control_font, text_color: 0xFFFFFF }
         - label:
-            id: appearance_preview
+            id: appearance_preview_segments
             text: "23:59"
-            x: 995
-            y: 250
-            width: 260
-            text_font: appearance_option_font
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_segments_font
             text_color: 0xB5E8F4
+            hidden: false
+        - label:
+            id: appearance_preview_roboto
+            text: "23:59"
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_roboto_font
+            text_color: 0xB5E8F4
+            hidden: true
+        - label:
+            id: appearance_preview_montserrat
+            text: "23:59"
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_montserrat_font
+            text_color: 0xB5E8F4
+            hidden: true
+        - label:
+            id: appearance_preview_oswald
+            text: "23:59"
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_oswald_font
+            text_color: 0xB5E8F4
+            hidden: true
+        - label:
+            id: appearance_preview_orbitron
+            text: "23:59"
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_orbitron_font
+            text_color: 0xB5E8F4
+            hidden: true
+        - label:
+            id: appearance_preview_rajdhani
+            text: "23:59"
+            x: 975
+            y: 275
+            width: 280
+            text_font: preview_rajdhani_font
+            text_color: 0xB5E8F4
+            hidden: true
         - button:
             x: 20
             y: 645
@@ -4194,14 +4264,21 @@ interval:
           lv_obj_t *size_buttons[] = {id(appearance_size_btn_0),id(appearance_size_btn_1),id(appearance_size_btn_2),id(appearance_size_btn_3),id(appearance_size_btn_4),id(appearance_size_btn_5),id(appearance_size_btn_6),id(appearance_size_btn_7),id(appearance_size_btn_8),id(appearance_size_btn_9)};
           for (int i=0; i<10; ++i)
             lv_obj_set_style_bg_color(size_buttons[i], lv_color_hex(size_level == i+1 ? 0x075BA8 : 0x304458), LV_PART_MAIN);
-          lv_obj_set_style_text_color(id(appearance_preview), lv_color_hex(clock_color), LV_PART_MAIN);
-          // La sélection de police est reflétée immédiatement dans l'aperçu.
-          // La taille de l'aperçu utilise une échelle indépendante de l'heure principale.
-          const int preview_zoom = 70 + size_level * 6;
-          lv_obj_set_style_transform_zoom(id(appearance_preview), preview_zoom, LV_PART_MAIN);
+          // Aperçu instantané : une vraie police par choix et taille graduée.
+          lv_obj_t *previews[] = {id(appearance_preview_segments),id(appearance_preview_roboto),id(appearance_preview_montserrat),id(appearance_preview_oswald),id(appearance_preview_orbitron),id(appearance_preview_rajdhani)};
+          const char *preview_names[] = {"Segments","Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
           char appearance_preview_time[8];
           snprintf(appearance_preview_time, sizeof(appearance_preview_time), "%02d:%02d", shown_hour, shown_minute);
-          set_label_if_changed(id(appearance_preview), appearance_preview_time);
+          for (int pi=0; pi<6; ++pi) {
+            const bool active = font_choice == preview_names[pi];
+            if (active) lv_obj_remove_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
+            else lv_obj_add_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
+            if (active) {
+              set_label_if_changed(previews[pi], appearance_preview_time);
+              lv_obj_set_style_text_color(previews[pi], lv_color_hex(clock_color), LV_PART_MAIN);
+              lv_obj_set_style_transform_zoom(previews[pi], 100 + size_level * 15, LV_PART_MAIN);
+            }
+          }
           lv_obj_t *segments[] = {
             id(digit_0_0),id(digit_0_1),id(digit_0_2),id(digit_0_3),id(digit_0_4),id(digit_0_5),id(digit_0_6),
             id(digit_1_0),id(digit_1_1),id(digit_1_2),id(digit_1_3),id(digit_1_4),id(digit_1_5),id(digit_1_6),
