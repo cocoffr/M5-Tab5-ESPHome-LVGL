@@ -2295,7 +2295,7 @@ lvgl:
             widgets:
               - label: { text: "Retour au réveil", align: CENTER, text_font: label_font }
     - id: reveil_batterie_page
-      bg_color: 0x000000
+      bg_color: 0x0B1520
       widgets:
         - label:
             text: "Batterie"
@@ -2310,30 +2310,95 @@ lvgl:
             height: 64
             radius: 12
             bg_color: 0x304458
+            radius: 12
             on_click:
               - lvgl.page.show: reveil_settings_page
             widgets:
               - label: { text: "Retour", align: CENTER, text_font: label_font }
-        # Disposition d'origine : deux cartes côte à côte, réglages à gauche, état à droite.
-        # Les options de charge sont mémorisées mais ne commandent pas le chargeur.
+        # Reprise des deux cartes et des rangées du panneau Batterie d'origine.
         - obj:
             x: 24
             y: 106
             width: 605
             height: 586
-            radius: 18
-            bg_color: 0x15232E
+            radius: 22
+            bg_color: 0x1A2935
+            bg_opa: 85%
             border_width: 2
-            border_color: 0x375365
+            border_color: 0x547084
         - obj:
             x: 650
             y: 106
             width: 605
             height: 586
-            radius: 18
-            bg_color: 0x15232E
+            radius: 22
+            bg_color: 0x1A2935
+            bg_opa: 85%
             border_width: 2
-            border_color: 0x375365
+            border_color: 0x547084
+        - obj:
+            x: 48
+            y: 213
+            width: 272
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 348
+            y: 213
+            width: 272
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 48
+            y: 331
+            width: 560
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 48
+            y: 450
+            width: 560
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 48
+            y: 570
+            width: 560
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 675
+            y: 213
+            width: 530
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 675
+            y: 328
+            width: 530
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 675
+            y: 443
+            width: 530
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
+        - obj:
+            x: 675
+            y: 558
+            width: 530
+            height: 2
+            bg_color: 0x3A596A
+            border_width: 0
         - label: { text: "BATTERIE", x: 48, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "ÉTAT", x: 675, y: 120, text_font: control_font, text_color: 0xB5E8F4 }
         - label: { text: "Limite de charge", x: 48, y: 179, text_font: label_font }
@@ -2345,6 +2410,7 @@ lvgl:
             width: 128
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_charge_limit, option: "100 %" }
             widgets:
@@ -2356,6 +2422,7 @@ lvgl:
             width: 128
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_charge_limit, option: "80 %" }
             widgets:
@@ -2367,6 +2434,7 @@ lvgl:
             width: 128
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_charge_mode, option: "Classique" }
             widgets:
@@ -2378,6 +2446,7 @@ lvgl:
             width: 128
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_charge_mode, option: "Rapide" }
             widgets:
@@ -2390,6 +2459,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_power_save, option: "Jamais" }
             widgets:
@@ -2401,6 +2471,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_power_save, option: "Sur batterie" }
             widgets:
@@ -2412,6 +2483,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_power_save, option: "Toujours" }
             widgets:
@@ -2424,6 +2496,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_wifi_save, option: "Jamais" }
             widgets:
@@ -2435,6 +2508,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_wifi_save, option: "Sur batterie" }
             widgets:
@@ -2446,6 +2520,7 @@ lvgl:
             width: 180
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - select.set: { id: reveil_wifi_save, option: "Toujours" }
             widgets:
@@ -2458,6 +2533,7 @@ lvgl:
             width: 270
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - switch.turn_on: reveil_battery_installed
             widgets:
@@ -2469,6 +2545,7 @@ lvgl:
             width: 270
             height: 52
             bg_color: 0x304458
+            radius: 12
             on_click:
               - switch.turn_off: reveil_battery_installed
             widgets:
