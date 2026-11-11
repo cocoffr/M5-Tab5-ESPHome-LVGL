@@ -432,6 +432,14 @@ globals:
     type: int
     restore_value: yes
     initial_value: '5'
+  - id: alarm_one_last_epoch_minute
+    type: int64_t
+    restore_value: no
+    initial_value: '-1'
+  - id: alarm_two_last_epoch_minute
+    type: int64_t
+    restore_value: no
+    initial_value: '-1'
   - id: alarm_two_queued
     type: bool
     restore_value: no
@@ -2500,11 +2508,17 @@ interval:
               ? (shown_hour * 60 + shown_minute) : (int)(t.timestamp / 60);
             const bool match_one = id(alarm_one_enabled).state &&
               shown_hour == (int) id(alarm_one_hour).state &&
-              shown_minute == (int) id(alarm_one_minute).state;
+              shown_minute == (int) id(alarm_one_minute).state &&
+              (id(manual_clock) || (int64_t)(t.timestamp / 60) != id(alarm_one_last_epoch_minute));
             const bool match_two = id(alarm_two_enabled).state &&
               shown_hour == (int) id(alarm_two_hour).state &&
-              shown_minute == (int) id(alarm_two_minute).state;
+              shown_minute == (int) id(alarm_two_minute).state &&
+              (id(manual_clock) || (int64_t)(t.timestamp / 60) != id(alarm_two_last_epoch_minute));
             if (minute_key != id(last_alarm_minute) && (match_one || match_two)) {
+              if (!id(manual_clock)) {
+                if (match_one) id(alarm_one_last_epoch_minute) = (int64_t)(t.timestamp / 60);
+                if (match_two) id(alarm_two_last_epoch_minute) = (int64_t)(t.timestamp / 60);
+              }
               id(last_alarm_minute) = minute_key;
               // Deux alarmes à la même minute : Réveil 1 sonne en premier,
               // Réveil 2 attend l'arrêt explicite de la première sonnerie.
