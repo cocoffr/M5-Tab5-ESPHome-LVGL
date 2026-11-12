@@ -2099,7 +2099,7 @@ lvgl:
             y: 250
             width: 1200
             height: 340
-            text_font: control_font
+            text_font: montserrat_28
         - button:
             x: 180
             y: 610
@@ -3500,7 +3500,7 @@ lvgl:
             y: 250
             width: 1200
             height: 340
-            text_font: control_font
+            text_font: montserrat_28
         - button:
             x: 170
             y: 610
