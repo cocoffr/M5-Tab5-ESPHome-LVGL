@@ -1352,7 +1352,7 @@ font:
   - file: "gfonts://Roboto"
     id: appearance_option_font
     size: 24
-    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-\'éèêàùûôîïçÉÈÊÀÇ,"
+    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-'éèêàùûôîïçÉÈÊÀÇ,"
   - file: "Tab5/fonts/jersey_10_400.ttf"
     id: preview_segments_font
     size: 80
