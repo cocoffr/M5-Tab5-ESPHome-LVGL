@@ -1448,7 +1448,7 @@ lvgl:
             id: clock_roboto_label
             text: "12:34"
             align: TOP_MID
-            y: 70
+            y: 58
             text_font: clock_roboto_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1456,7 +1456,7 @@ lvgl:
             id: clock_montserrat_label
             text: "12:34"
             align: TOP_MID
-            y: 70
+            y: 48
             text_font: clock_montserrat_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1464,7 +1464,7 @@ lvgl:
             id: clock_oswald_label
             text: "12:34"
             align: TOP_MID
-            y: 70
+            y: 32
             text_font: clock_oswald_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1472,7 +1472,7 @@ lvgl:
             id: clock_orbitron_label
             text: "12:34"
             align: TOP_MID
-            y: 70
+            y: 55
             text_font: clock_orbitron_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1480,7 +1480,7 @@ lvgl:
             id: clock_rajdhani_label
             text: "12:34"
             align: TOP_MID
-            y: 70
+            y: 38
             text_font: clock_rajdhani_font
             text_color: 0xB5E8F4
             hidden: true
