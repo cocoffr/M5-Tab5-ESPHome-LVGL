@@ -2068,7 +2068,10 @@ lvgl:
             max_length: 48
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_name_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_name_input));
+                  lv_obj_scroll_to_y(id(reveil_radio_edit_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(radio_keyboard)->obj, 35, 250);
         - label:
             text: "URL"
             x: 35
@@ -2084,16 +2087,20 @@ lvgl:
             max_length: 255
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));
+                  lv_obj_scroll_to_y(id(reveil_radio_edit_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(radio_keyboard)->obj, 35, 250);
         - keyboard:
             id: radio_keyboard
             x: 35
-            y: 245
+            y: 250
             width: 1200
-            height: 235
+            height: 340
+            text_font: control_font
         - button:
             x: 180
-            y: 505
+            y: 610
             width: 360
             height: 85
             bg_color: 0x304458
@@ -2104,7 +2111,7 @@ lvgl:
               - label: { text: "Annuler", align: CENTER, text_font: control_font }
         - button:
             x: 700
-            y: 505
+            y: 610
             width: 360
             height: 85
             bg_color: 0x075BA8
@@ -3433,7 +3440,10 @@ lvgl:
             max_length: 63
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_host_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_host_input));
+                  lv_obj_scroll_to_y(id(reveil_mqtt_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Port", x: 850, y: 104, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_port_input
@@ -3445,7 +3455,10 @@ lvgl:
             max_length: 5
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_port_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_port_input));
+                  lv_obj_scroll_to_y(id(reveil_mqtt_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Login", x: 35, y: 184, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_user_input
@@ -3457,7 +3470,10 @@ lvgl:
             max_length: 63
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_user_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_user_input));
+                  lv_obj_scroll_to_y(id(reveil_mqtt_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Mot de passe", x: 775, y: 184, width: 260, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_password_input
@@ -3470,16 +3486,20 @@ lvgl:
             max_length: 95
             text_font: label_font
             on_click:
-              - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_password_input));'
+              - lambda: |-
+                  lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_password_input));
+                  lv_obj_scroll_to_y(id(reveil_mqtt_page), 0, LV_ANIM_OFF);
+                  lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - keyboard:
             id: mqtt_keyboard
             x: 35
-            y: 245
+            y: 250
             width: 1200
-            height: 235
+            height: 340
+            text_font: control_font
         - button:
             x: 170
-            y: 505
+            y: 610
             width: 370
             height: 82
             bg_color: 0x304458
@@ -3489,7 +3509,7 @@ lvgl:
               - label: { text: "Annuler", align: CENTER, text_font: control_font, text_color: 0xFFFFFF }
         - button:
             x: 680
-            y: 505
+            y: 610
             width: 420
             height: 82
             bg_color: 0x075BA8
