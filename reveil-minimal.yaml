@@ -1769,6 +1769,9 @@ lvgl:
               - lambda: 'lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));'
         - keyboard:
             id: radio_keyboard
+            # Police LVGL intégrée avec les symboles des touches spéciales.
+            # Ne change ni la position ni la taille du clavier.
+            text_font: montserrat_28
             x: 35
             y: 245
             width: 1200
