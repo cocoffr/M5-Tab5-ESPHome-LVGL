@@ -1448,7 +1448,7 @@ lvgl:
             id: clock_roboto_label
             text: "12:34"
             align: TOP_MID
-            y: 160
+            y: 70
             text_font: clock_roboto_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1456,7 +1456,7 @@ lvgl:
             id: clock_montserrat_label
             text: "12:34"
             align: TOP_MID
-            y: 160
+            y: 70
             text_font: clock_montserrat_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1464,7 +1464,7 @@ lvgl:
             id: clock_oswald_label
             text: "12:34"
             align: TOP_MID
-            y: 160
+            y: 70
             text_font: clock_oswald_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1472,7 +1472,7 @@ lvgl:
             id: clock_orbitron_label
             text: "12:34"
             align: TOP_MID
-            y: 160
+            y: 70
             text_font: clock_orbitron_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1480,7 +1480,7 @@ lvgl:
             id: clock_rajdhani_label
             text: "12:34"
             align: TOP_MID
-            y: 160
+            y: 70
             text_font: clock_rajdhani_font
             text_color: 0xB5E8F4
             hidden: true
@@ -3485,7 +3485,7 @@ lvgl:
             width: 175
             height: 65
             one_line: true
-            password_mode: true
+            password_mode: false
             max_length: 95
             text_font: label_font
             on_click:
@@ -4481,6 +4481,8 @@ interval:
               const int zoom = 90 + (full_zoom - 90) * size_level / 10;
               lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
               lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
+               // Garder le haut des chiffres à la même hauteur malgré le zoom.
+               lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
             }
           }
           // Géométrie d'origine figée : ne jamais relire les coordonnées LVGL
