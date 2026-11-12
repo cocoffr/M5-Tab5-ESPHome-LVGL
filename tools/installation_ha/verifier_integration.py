@@ -1,51 +1,9 @@
 # -*- coding: utf-8 -*-
-"""tools/installation_ha/verifier_integration.py — L'intégration « Tab5 » (HACS) dans un vrai Home
-Assistant neuf : installation, mises à jour, retour en arrière (ADR-0035).
+"""Vérifie l'intégration Tab5 dans un Home Assistant neuf : installation, mise à jour et retour arrière.
 
-[AI-CONTEXT]
-@role Job « ha » de .github/workflows/integration-hacs.yml. Fait ce que fait un utilisateur
-      avec HACS, sans HACS : HACS ne fait que télécharger l'asset tab5_hacs.zip de la
-      release, le décompresser dans custom_components/tab5/ (dossier remplacé) et demander
-      un redémarrage ; ici le zip est construit par tools/publication/archive_hacs.py et
-      décompressé de la même façon. Scénario, sur UN Home Assistant neuf en conteneur :
-        1. config/ d'une installation neuve + la ligne `packages:` du guide, zip 9.9.1,
-           un blueprint du Tab5 copié à la main (ancien, différent), compte (onboarding),
-           intégration ajoutée par son formulaire → fichiers posés sans redémarrage :
-           capteur « Tab5 · HA files version » à 9.9.1, rest_command chargé à chaud
-           (absent d'un HA neuf), le blueprint remplacé et dit (réparation persistante
-           « fichiers_remplaces », copie dans la sauvegarde), validée comme l'interface ;
-           l'assistant de configuration proposé (réparation « configurer_pieces ») ;
-        1 bis. l'assistant (ADR-0052, ADR-0053) : deux pièces créées (entités de modèle et
-           un thermostat, une lumière cachée), une température « extérieure » sans pièce, un
-           agenda local « Travail CI » ; la réparation suivie comme l'interface, valeurs
-           proposées acceptées → pièces, maison (seulement ce qui n'a qu'une réponse) et
-           liste « Tab5 · work calendar » proposée ; automatisation du blueprint écrite
-           dans automations.yaml, chargée, liste réglée, réparation retirée ; relancé depuis
-           les options sans cocher « mettre à jour » → automations.yaml à l'octet près, le
-           choix de la liste gardé ; puis en la cochant, un nom changé et « dehors » décoché
-           → seules les pièces et la maison changent, une sauvegarde dans
-           tab5_sauvegardes/automatisations/ ;
-        2. mise à jour 9.9.2 comme HACS (dossier remplacé, redémarrage), avec un package
-           modifié à la main et un package que la release ne livre plus → capteur 9.9.2,
-           sauvegarde des deux, le retiré absent, la notification nomme le modifié ;
-        3. mise à jour 9.9.3 dont un package casse la configuration → fichiers 9.9.2
-           remis à l'octet près, capteur toujours 9.9.2, réparation
-           « configuration_invalide » ; redémarrage avec la même 9.9.3 → pas de nouvel
-           essai (réparation recréée, aucune sauvegarde de plus) ; « Réinstaller » des
-           options → nouvel essai, refusé, sans sauvegarde identique de plus ;
-        4. retour au zip 9.9.2 (réparation retirée), ligne `packages:` enlevée puis
-           « Réinstaller » des options → réparation « packages_absents » ; ligne remise,
-           redémarrage → capteur 9.9.2, réparation retirée ;
-      et le journal de HA : aucune erreur de l'intégration hors celle, attendue, de l'étape 3.
-      Le firmware n'est pas testé (pas de tablette ici) : seulement rapporté.
-@contraintes Les fichiers de config/ écrits par HA appartiennent à root : toute écriture
-      dessus passe par le conteneur (docker exec python3). Le mot de passe est tiré au
-      hasard et jamais affiché.
-@ai_instruction Un échec doit dire QUOI et OÙ regarder (journal de HA : artefact du job).
-
-Usage (voir le workflow) :
-    python tools/installation_ha/verifier_integration.py --dossier "$RUNNER_TEMP/ha" \\
-        --image ghcr.io/home-assistant/home-assistant:2026.9.4 --journal captures/home-assistant.log
+Le scénario construit des archives de test à partir de l'archive Home Assistant officielle
+et du composant personnalisé du dépôt. Il vérifie le fonctionnement de l'intégration sans
+dépendre d'un gestionnaire de dépôts ou d'une méthode de distribution particulière.
 """
 from __future__ import annotations
 
@@ -69,10 +27,9 @@ sys.path.insert(0, str(RACINE / "tools" / "publication"))
 sys.path.insert(0, str(ICI))
 
 import archive_ha  # noqa: E402
-import archive_hacs  # noqa: E402
 from verifier_installation import HA, URL_HA, Echec, Rapport  # noqa: E402
 
-logger = logging.getLogger("integration_hacs")
+logger = logging.getLogger("integration_tab5")
 
 CONTENEUR = "ha-integration-tab5"
 CAPTEUR = "sensor.tab5_version_des_fichiers_ha"
@@ -221,8 +178,34 @@ ESSAIS_CASSES = {
 
 # ─── Archives et conteneur ───────────────────────────────────────────────────
 
+def archive_integration(version: str, sortie: Path, base: Path) -> Path:
+    """Construit une archive temporaire du composant et de ses fichiers embarqués pour le test."""
+    destination = sortie / f"tab5-{version}"
+    shutil.copytree(RACINE / "custom_components" / "tab5", destination)
+    manifeste = destination / "manifest.json"
+    donnees_manifest = json.loads(manifeste.read_text(encoding="utf-8"))
+    donnees_manifest["version"] = version
+    manifeste.write_text(json.dumps(donnees_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    embarques = archive_ha.entrees(version, base)
+    fichiers = destination / "fichiers"
+    fichiers.mkdir()
+    (fichiers / "MANIFESTE.json").write_text(
+        json.dumps({"version": version, "fichiers": [chemin for chemin, _ in embarques]},
+                   ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    for chemin, contenu in embarques:
+        cible = fichiers / chemin
+        cible.parent.mkdir(parents=True, exist_ok=True)
+        cible.write_bytes(contenu)
+    archive = sortie / f"tab5-integration-{version}.zip"
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        for fichier in sorted(destination.rglob("*")):
+            if fichier.is_file() and "__pycache__" not in fichier.parts:
+                z.write(fichier, fichier.relative_to(destination).as_posix())
+    return archive
+
+
 def archives(travail: Path) -> dict[str, Path]:
-    """Les trois zips du scénario (comme ceux d'une release, archive_hacs.py)."""
+    """Les trois versions temporaires du composant pour le scénario de mise à jour."""
     v2 = travail / "ha-9.9.2"
     shutil.copytree(archive_ha.HA_DIR, v2)
     (v2 / RETIRE).unlink()
@@ -230,11 +213,10 @@ def archives(travail: Path) -> dict[str, Path]:
     shutil.copytree(v2, v3)
     (v3 / CASSE).write_text(CONTENU_CASSE, encoding="utf-8")
     return {
-        "9.9.1": archive_hacs.construire("9.9.1", travail / "9.9.1"),
-        "9.9.2": archive_hacs.construire("9.9.2", travail / "9.9.2", base=v2),
-        "9.9.3": archive_hacs.construire("9.9.3", travail / "9.9.3", base=v3),
+        "9.9.1": archive_integration("9.9.1", travail, archive_ha.HA_DIR),
+        "9.9.2": archive_integration("9.9.2", travail, v2),
+        "9.9.3": archive_integration("9.9.3", travail, v3),
     }
-
 
 def attendus(zip_: Path) -> dict[str, bytes]:
     """Fichiers que l'intégration doit poser (hors optionnels), relatifs à config/."""
@@ -255,7 +237,7 @@ def dans_conteneur(code: str) -> None:
 
 
 def remplacer_integration(dossier: Path, zip_: Path) -> None:
-    """Ce que fait HACS : le dossier de l'intégration remplacé par le contenu du zip."""
+    """Simule le remplacement manuel du dossier du composant avant redémarrage de HA."""
     shutil.copyfile(zip_, dossier / "tab5_maj.zip")
     dans_conteneur(
         "import shutil, zipfile, os\n"
@@ -749,7 +731,7 @@ def main() -> int:
     finally:
         journal(rapport, args.journal)
         docker("rm", "-f", CONTENEUR, verifier=False)
-    resume = rapport.resume().replace("Installation dans un Home Assistant neuf", "Intégration Tab5 (HACS)")
+    resume = rapport.resume().replace("Installation dans un Home Assistant neuf", "Intégration Tab5")
     print(resume)
     if sommaire := os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(sommaire, "a", encoding="utf-8") as f:

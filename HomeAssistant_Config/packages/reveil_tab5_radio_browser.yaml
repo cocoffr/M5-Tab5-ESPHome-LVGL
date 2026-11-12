@@ -1,0 +1,119 @@
+# Radio Browser -> 12 favoris du réveil Tab5.
+# Installer comme package Home Assistant (homeassistant.packages: !include_dir_named packages).
+# Les entités text.* sont créées par l'API ESPHome de reveil-minimal.yaml.
+# Si HA leur attribue un suffixe différent, adapter le préfixe ci-dessous.
+rest_command:
+  reveil_tab5_radio_browser_search:
+    url: "https://de1.api.radio-browser.info/json/stations/search"
+    method: POST
+    content_type: "application/json"
+    headers:
+      User-Agent: "HomeAssistant-ReveilTab5/1.0"
+    payload: >-
+      {{ {'name': nom, 'hidebroken': 'true', 'limit': 25, 'order': 'votes', 'reverse': 'true'} | to_json }}
+    timeout: 20
+
+script:
+  reveil_tab5_radio_browser_chercher:
+    alias: "Réveil Tab5 — rechercher une radio sur Radio Browser"
+    description: "Recherche une station et retourne les résultats dans la trace du script. Utiliser le script d'enregistrement pour mémoriser un favori."
+    mode: queued
+    fields:
+      nom:
+        required: true
+        selector:
+          text: {}
+    sequence:
+      - action: rest_command.reveil_tab5_radio_browser_search
+        data:
+          nom: "{{ nom }}"
+        response_variable: stations
+      - variables:
+          resultats: "{{ stations.content if stations.status == 200 else [] }}"
+      - action: persistent_notification.create
+        data:
+          title: "Radio Browser — {{ nom }}"
+          message: >-
+            {% if resultats is sequence and resultats is not string and resultats | count > 0 %}
+              {% for s in resultats[:10] %}
+                {{ loop.index }}. {{ s.name }} — {{ s.url_resolved | default(s.url, true) }}
+              {% endfor %}
+            {% else %}
+              Aucune station trouvée (ou service indisponible).
+            {% endif %}
+
+  reveil_tab5_radio_browser_favori:
+    alias: "Réveil Tab5 — enregistrer une station Radio Browser"
+    description: "Recherche par nom, puis écrit la première station exploitable dans un des 12 favoris ESPHome."
+    mode: queued
+    fields:
+      emplacement:
+        required: true
+        selector:
+          number:
+            min: 1
+            max: 12
+            step: 1
+            mode: box
+      nom:
+        required: true
+        selector:
+          text: {}
+    sequence:
+      - variables:
+          slot: "{{ emplacement | int(0) }}"
+      - condition: template
+        value_template: "{{ 1 <= slot <= 12 and nom | trim | length > 0 }}"
+      - action: rest_command.reveil_tab5_radio_browser_search
+        data:
+          nom: "{{ nom }}"
+        response_variable: stations
+      - variables:
+          candidats: >-
+            {{ stations.content if stations.status == 200 and stations.content is sequence and stations.content is not string else [] }}
+      - variables:
+          valides: >-
+            {{ candidats | selectattr('url_resolved', 'defined') | selectattr('url_resolved', 'search', '^https?://') | list }}
+      - condition: template
+        value_template: "{{ valides | count > 0 }}"
+      - variables:
+          station: "{{ valides[0] }}"
+          entite_nom: "{{ 'text.reveil_tab5_radio_' ~ slot ~ '_nom' }}"
+          entite_url: "{{ 'text.reveil_tab5_radio_' ~ slot ~ '_url' }}"
+      - condition: template
+        value_template: "{{ has_value(entite_nom) and has_value(entite_url) }}"
+      - action: text.set_value
+        target:
+          entity_id: "{{ entite_nom }}"
+        data:
+          value: "{{ station.name[:48] }}"
+      - action: text.set_value
+        target:
+          entity_id: "{{ entite_url }}"
+        data:
+          value: "{{ station.url_resolved[:255] }}"
+
+  reveil_tab5_radio_browser_initialiser:
+    alias: "Réveil Tab5 — remplir les 12 stations depuis Radio Browser"
+    description: "Recherche les 12 noms de stations par défaut et les synchronise avec les favoris du Tab5. À lancer depuis HA une fois l'ESPHome connecté."
+    mode: single
+    sequence:
+      - repeat:
+          for_each:
+            - "Chérie FM"
+            - "Chérie FM 90"
+            - "Chérie FM Acoustic"
+            - "Rire et Chansons"
+            - "France Inter"
+            - "France Info"
+            - "RTL"
+            - "Europe 1"
+            - "RFM"
+            - "Nostalgie"
+            - "NRJ"
+            - "Fun Radio"
+          sequence:
+            - action: script.reveil_tab5_radio_browser_favori
+              data:
+                emplacement: "{{ repeat.index }}"
+                nom: "{{ repeat.item }}"

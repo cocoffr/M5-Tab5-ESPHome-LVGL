@@ -1,23 +1,8 @@
-name: Intégration HACS
+name: Intégration Home Assistant
 
-# L'intégration « Tab5 » (custom_components/tab5/, hacs.json, ADR-0035) qui installe et met
-# à jour les fichiers Home Assistant en un clic. Trois jobs, non requis :
-#   - hassfest : le validateur des intégrations de Home Assistant (manifest, traductions,
-#     formulaires), image officielle ghcr.io/home-assistant/hassfest (ce que lance
-#     l'action home-assistant/actions/hassfest) ;
-#   - hacs : la validation de HACS sur la branche de la PR (image de hacs/action), comme
-#     HACS le fera pour un utilisateur qui ajoute le dépôt ; « brands » ignoré (pas d'entrée
-#     dans home-assistant/brands pour une intégration personnalisée) ;
-#   - ha : tools/installation_ha/verifier_integration.py dans un Home Assistant NEUF en
-#     conteneur : première installation sans redémarrage, mise à jour comme HACS, retour en
-#     arrière sur une configuration cassée, ligne `packages:` absente, et l'assistant de
-#     configuration (ADR-0052 : pièces → automatisation du blueprint, sans rien écraser) ;
-#   - banc : tests/test_integration_ha_registre.py avec le banc de test des intégrations
-#     (pytest-homeassistant-custom-component, qui installe Home Assistant) : la migration des
-#     noms anglais (renommage.py) contre les vrais registres de HA. Linux seulement (une roue
-#     de HA ne se compile pas sous Windows sans compilateur C) : sauté sur le PC.
-# Les images ghcr.io de hassfest et de HACS suivent leur dernière version exprès (comme
-# ESPHome `latest`, ADR-0016) : elles annoncent ce que HA et HACS refuseront demain.
+# Vérifications de l'intégration Home Assistant « Tab5 » : validation hassfest,
+# banc de test des registres HA et installation/mise à jour dans un HA neuf.
+# Ces contrôles restent indépendants de toute distribution via HACS.
 
 on:
   workflow_dispatch:
@@ -25,23 +10,19 @@ on:
     branches: [main]
     # Même liste que pull_request, plus bas.
     paths:
-      - '.github/workflows/integration-hacs.yml'
+      - '.github/workflows/integration-home-assistant.yml'
       - 'custom_components/**'
-      - 'hacs.json'
       - 'HomeAssistant_Config/**'
       - 'tools/publication/archive_ha.py'
-      - 'tools/publication/archive_hacs.py'
       - 'tools/installation_ha/verifier_integration.py'
       - 'tools/installation_ha/verifier_installation.py'
       - '!**/*.md'
   pull_request:
     paths:
-      - '.github/workflows/integration-hacs.yml'
+      - '.github/workflows/integration-home-assistant.yml'
       - 'custom_components/**'
-      - 'hacs.json'
       - 'HomeAssistant_Config/**'
       - 'tools/publication/archive_ha.py'
-      - 'tools/publication/archive_hacs.py'
       - 'tools/installation_ha/verifier_integration.py'
       - 'tools/installation_ha/verifier_installation.py'
       - '!**/*.md'
@@ -62,19 +43,6 @@ jobs:
       - name: hassfest (validateur des intégrations de Home Assistant)
         run: docker run --rm -v "$GITHUB_WORKSPACE:/github/workspace" ghcr.io/home-assistant/hassfest
 
-  hacs:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Validation HACS (branche de la PR, lue par l'API de GitHub)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          docker run --rm \
-            -e INPUT_GITHUB_TOKEN="$GH_TOKEN" -e INPUT_CATEGORY=integration -e INPUT_IGNORE=brands \
-            -e INPUT_COMMENT=false -e GITHUB_REPOSITORY -e GITHUB_EVENT_PATH=/github/evenement.json \
-            -v "$GITHUB_EVENT_PATH:/github/evenement.json:ro" \
-            ghcr.io/hacs/action:main
 
   banc:
     runs-on: ubuntu-latest
@@ -93,7 +61,7 @@ jobs:
 
   ha:
     # Versions de Home Assistant du test, relevées à la main (même logique que ESPHOME_PUBLICATION
-    # dans publication.yml) : la dernière, et le plancher annoncé (hacs.json, docs). 2026.8.3 = dernier
+    # dans publication.yml) : la dernière, et le plancher annoncé dans la documentation. 2026.8.3 = dernier
     # tag 2026.8.x publié le 09/10/2026.
     strategy:
       fail-fast: false
@@ -123,7 +91,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: integration-hacs-${{ matrix.ha }}
+          name: integration-home-assistant-${{ matrix.ha }}
           path: captures/
           if-no-files-found: warn
           retention-days: 14

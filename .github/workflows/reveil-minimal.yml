@@ -1,0 +1,83 @@
+name: Reveil minimal ST7121
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - reveil-minimal.yaml
+      - .github/workflows/reveil-minimal.yml
+      - tools/test_reveil_batterie.cpp
+      - Tab5/socle/tab5_batterie.h
+      - Tab5/socle/tab5_core.h
+  pull_request:
+    paths:
+      - reveil-minimal.yaml
+      - .github/workflows/reveil-minimal.yml
+permissions:
+  contents: read
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Tester les protections batterie sans matériel
+        run: |
+          g++ -std=c++17 -O1 -Wall -Wextra -I. tools/test_reveil_batterie.cpp -o /tmp/test_reveil_batterie
+          /tmp/test_reveil_batterie
+      - name: Restore ESP-IDF toolchain cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
+        with:
+          path: ~/.cache/esphome
+          key: reveil-espidf-${{ runner.os }}-v5.5.6-${{ hashFiles('reveil-minimal.yaml') }}
+          restore-keys: |
+            reveil-espidf-${{ runner.os }}-v5.5.6-
+      - name: Install ESPHome
+        run: bash tools/ci/pip_reessai.sh esphome
+      - name: Prepare Wi-Fi credentials securely
+        env:
+          WIFI_SSID: ${{ secrets.REVEIL_WIFI_SSID }}
+          WIFI_PASSWORD: ${{ secrets.REVEIL_WIFI_PASSWORD }}
+          MQTT_BROKER: ${{ secrets.REVEIL_MQTT_BROKER }}
+          MQTT_USERNAME: ${{ secrets.REVEIL_MQTT_USERNAME }}
+          MQTT_PASSWORD: ${{ secrets.REVEIL_MQTT_PASSWORD }}
+        run: |
+          if [ -z "$WIFI_SSID" ] || [ -z "$WIFI_PASSWORD" ]; then
+            echo "::error::Configure REVEIL_WIFI_SSID and REVEIL_WIFI_PASSWORD in GitHub Actions secrets before building a flashable firmware."
+            exit 1
+          fi
+          python - <<'PY'
+          import os, json
+          with open("secrets.yaml", "w", encoding="utf-8") as f:
+              f.write("wifi_ssid: " + json.dumps(os.environ["WIFI_SSID"]) + "\n")
+              f.write("wifi_password: " + json.dumps(os.environ["WIFI_PASSWORD"]) + "\n")
+              # Valeurs factices pour valider la compilation si les secrets MQTT sont absents.
+              # Elles ne donnent pas acces au broker : renseigner les secrets avant le flash.
+              f.write("mqtt_broker: " + json.dumps(os.environ.get("MQTT_BROKER") or "mqtt.local") + "\n")
+              f.write("mqtt_username: " + json.dumps(os.environ.get("MQTT_USERNAME") or "a_configurer") + "\n")
+              f.write("mqtt_password: " + json.dumps(os.environ.get("MQTT_PASSWORD") or "a_configurer") + "\n")
+          PY
+      - name: Compile ST7121 firmware without unsupported manifest generation
+        run: |
+          for attempt in 1 2 3; do
+            echo "Compilation attempt ${attempt}/3"
+            if esphome compile reveil-minimal.yaml; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "::error::ESPHome compilation failed after 3 attempts"
+              exit 1
+            fi
+            sleep $((attempt * 30))
+          done
+      - name: Upload firmware
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: reveil-minimal-st7121
+          path: |
+            .esphome/build/reveil-tab5/build/firmware.factory.bin
+            .esphome/build/reveil-tab5/build/firmware.ota.bin
+          if-no-files-found: error

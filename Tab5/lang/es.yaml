@@ -300,6 +300,8 @@ _statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 # court que « Despertador ». « Ouverture » (mode calé sur le début du travail lu
 # dans le calendrier) = « Turno ».
 "Réveil": "Alarma"
+"Réveil 2 · %s": "Alarma 2 · %s"
+"Réveil 2 · 07:30": "Alarma 2 · 07:30"
 "Réveil actif": "Alarma activa"
 "Réveil éteint": "Alarma apagada"
 "Heure fixe": "Hora fija"
@@ -1618,3 +1620,8 @@ _statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 "Bonbon": "Caramelo"
 "Sorbet": "Sorbete"
 "Ultraviolet": "Ultravioleta"
+
+# Accueil réveil de chevet
+"Alarme 1": "Alarma 1"
+"Alarme 2": "Alarma 2"
+"OFF": "APAGADO"

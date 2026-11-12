@@ -82,6 +82,8 @@ struct AlarmCfg {
   int rdv_lead_min = 15;      // annonce d'un rendez-vous : minutes avant
 };
 extern AlarmCfg g_alarm_cfg;
+// Configuration du second réveil ; même moteur et calendrier, état d'exécution indépendant.
+extern AlarmCfg g_alarm_cfg_2;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Calcul de la prochaine sonnerie
@@ -90,10 +92,12 @@ extern AlarmCfg g_alarm_cfg;
 // À appeler après TOUT changement de réglage, après chaque poussée calendrier
 // (tab5_maj_previsions_jours_bulk) et après chaque sonnerie/snooze/arrêt.
 void alarm_invalidate();
+void alarm_invalidate_for(int alarm_id);
 
 // Epoch de la prochaine sonnerie, 0 si aucune n'est programmée (réveil éteint,
 // ou aucun jour retenu dans les 8 prochains). Recalcule si le cache est sale.
 time_t alarm_next_ring(time_t now);
+time_t alarm_next_ring_for(int alarm_id, time_t now);
 
 // true UNE SEULE FOIS quand l'heure est atteinte. Appelé par le tick d'1 s, et
 // par lui seul : la fonction a des effets de bord (elle consomme le snooze et
@@ -106,6 +110,9 @@ time_t alarm_next_ring(time_t now);
 // ALARM_GRACE_S s'ouvre : un redémarrage ou une OTA à 06:44 ne doit pas avaler
 // le réveil de 06:45. Un réveil vieux de plusieurs heures n'est jamais rattrapé.
 bool alarm_due(time_t now);
+bool alarm_due_for(int alarm_id, time_t now);
+// Vérifie les deux alarmes et retourne l'index de celle qui doit sonner (-1 sinon).
+int alarm_due_any(time_t now);
 constexpr int ALARM_GRACE_S = 120;
 
 // Répète la sonnerie dans `minutes` (au moins 1). Toujours armé : il n'y a pas
@@ -113,16 +120,21 @@ constexpr int ALARM_GRACE_S = 120;
 // rendait toujours true). Le compte est lisible par alarm_snooze_count().
 void alarm_snooze(time_t now, int minutes);
 int alarm_snooze_count();
+void alarm_snooze_for(int alarm_id, time_t now, int minutes);
+int alarm_snooze_count_for(int alarm_id);
 
 // Arrêt définitif : annule un snooze en cours et interdit à la sonnerie du jour
 // de repartir (la recherche suivante démarre après `now`).
 void alarm_dismiss(time_t now);
+void alarm_dismiss_for(int alarm_id, time_t now);
 
 // Plancher de recherche, à sauvegarder dans un global ESPHome `restore_value`
 // pour qu'un redémarrage juste après un arrêt ne refasse pas sonner le réveil
 // pendant la fenêtre de grâce.
 uint32_t alarm_skip_floor();
 void alarm_set_skip_floor(uint32_t v);
+uint32_t alarm_skip_floor_for(int alarm_id);
+void alarm_set_skip_floor_for(int alarm_id, uint32_t v);
 
 // Remet le moteur dans l'état du démarrage (cache, plancher, snooze, dernier
 // tick). Pour les tests hôte (tools/test_alarm_clock.cpp) : le firmware ne
@@ -143,10 +155,12 @@ bool alarm_calendar_ready();
 
 // « Demain 05:15 » / « Aujourd'hui 07:00 » / « Mercredi 05:15 » / « Désactivé »
 std::string alarm_next_label(time_t now);
+std::string alarm_next_label_for(int alarm_id, time_t now);
 // « mercredi 6 août · Travail 06:45 – 15:30 » / « … · repos » / « … · en attente
 // du calendrier ». Les DEUX libellés annoncent la répétition en cours quand il y
 // en a une : c'est elle qui va sonner, pas le réveil du lendemain.
 std::string alarm_next_detail(time_t now);
+std::string alarm_next_detail_for(int alarm_id, time_t now);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Préréglages de jours — le select exposé à HA, les 7 chips sur la dalle

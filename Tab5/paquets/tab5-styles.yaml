@@ -55,6 +55,12 @@ font:
     bpp: 2   # 4 niveaux de lissage au lieu de 16 (essai D8, 26/09/2026) :
              # bitmaps divisés par deux, validé à l'œil par Axel
     glyphs: '0123456789:'
+  # Affichage plein écran du réveil de chevet (ST7121).
+  - file: "Tab5/fonts/roboto_700.ttf"
+    id: reveil_geant_font
+    size: ${ (410 * (carte_police_echelle | float)) | round | int }
+    bpp: 2
+    glyphs: '0123456789:'
   # Heure du réveil, consigne et température du popup clim, score du flipper. Le
   # tiret sert au « -- » de la consigne quand elle est inconnue (au boot, jusqu'au
   # 1er push de HA, ou consigne absente) : sans lui, le label restait vide. La

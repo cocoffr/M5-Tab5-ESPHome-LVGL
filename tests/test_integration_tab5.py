@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Intégration « Tab5 » pour HACS : les fichiers HA installés en un clic (ADR-0035).
+"""Intégration « Tab5 » : installation et mise à jour des fichiers Home Assistant.
 
-- custom_components/tab5/installation.py (pur, sans Home Assistant) : plan, sauvegarde,
-  écriture, retrait, restauration à l'octet près, optionnels, copies du blueprint
-  importées par URL, fichiers de l'utilisateur jamais touchés ;
-- tools/publication/archive_hacs.py : le zip que HACS décompresse dans
-  custom_components/tab5/ (code à la racine, manifest versionné, fichiers/ = les mêmes
-  octets que tab5_home_assistant.zip) ;
-- cohérence : manifest.json, hacs.json, traductions, constantes lues dans les packages.
-Le comportement dans un vrai Home Assistant (rechargement, réparations, notification) est
-vérifié par tools/installation_ha/verifier_integration.py (CI integration-hacs.yml)."""
+Les tests couvrent la logique de sauvegarde, d'installation, de restauration, les traductions,
+le manifeste et le comportement du composant. Le scénario dans un vrai Home Assistant est
+vérifié par tools/installation_ha/verifier_integration.py.
+"""
 import importlib.util
 import json
 import re
 import sys
-import zipfile
 from pathlib import Path
 
 import pytest
@@ -24,7 +18,6 @@ REPO = Path(__file__).resolve().parent.parent
 INTEGRATION = REPO / "custom_components" / "tab5"
 
 import archive_ha  # noqa: E402
-import archive_hacs  # noqa: E402
 
 
 def _module(nom: str):
@@ -66,21 +59,11 @@ def test_manifest_de_l_integration():
     assert cles[:2] == ["domain", "name"] and cles[2:] == sorted(cles[2:]), \
         "hassfest : domain, name, puis les autres clés dans l'ordre alphabétique"
     assert m["domain"] == const.DOMAIN == INTEGRATION.name
-    assert m["version"] == "0.0.0", "la version vient de la release (archive_hacs.py), pas du dépôt"
+    assert m["version"] == "0.0.0", "version de développement de l’intégration dans le dépôt"
     assert m["config_flow"] is True and m["single_config_entry"] is True
     assert m["requirements"] == [] and m["iot_class"] and m["codeowners"]
 
 
-def test_hacs_json():
-    hacs = json.loads((REPO / "hacs.json").read_text(encoding="utf-8"))
-    autorisees = {"name", "content_in_root", "country", "filename", "hacs", "hide_default_branch",
-                  "homeassistant", "persistent_directory", "render_readme", "zip_release"}
-    assert set(hacs) <= autorisees, "clé inconnue : HACS refuse le dépôt (PREVENT_EXTRA)"
-    assert hacs["zip_release"] is True and hacs["filename"] == archive_hacs.NOM
-    assert hacs["hide_default_branch"] is True, "la branche par défaut n'a pas les fichiers HA"
-    blueprint = (REPO / "HomeAssistant_Config" / installation.BLUEPRINT).read_text(encoding="utf-8")
-    plancher = re.search(r"min_version:\s*(\S+)", blueprint).group(1)
-    assert hacs["homeassistant"] == plancher, "même plancher de HA que le blueprint"
 
 
 LANGUES_INTEGRATION = ("fr", "en", "de", "nl", "es", "it", "tr")  # celles de l'écran
@@ -446,40 +429,6 @@ def test_firmware_succes_constate_seulement():
     assert not d.fini and not d.lancer and not d.echecs and d.attente_s is None
     # Aucune tablette trouvée : rien de fini.
     assert not firmware.decider("3.8.0", {}, {}, t0).fini
-
-
-# ─── Archive HACS ────────────────────────────────────────────────────────────
-
-def test_archive_hacs(tmp_path):
-    archive = archive_hacs.construire("9.9.9", tmp_path)
-    ha = archive_ha.construire("9.9.9", tmp_path / "ha")
-    with zipfile.ZipFile(archive) as z, zipfile.ZipFile(ha) as zha:
-        noms = z.namelist()
-        assert "manifest.json" in noms and "__init__.py" in noms, "code à la RACINE du zip (HACS)"
-        assert not any(n.startswith("custom_components/") or "__pycache__" in n for n in noms)
-        assert json.loads(z.read("manifest.json"))["version"] == "9.9.9"
-        manifeste = json.loads(z.read("fichiers/MANIFESTE.json"))
-        attendus = [n for n in zha.namelist() if n != archive_ha.LISEZMOI]
-        assert manifeste == {"version": "9.9.9", "fichiers": attendus}
-        for n in attendus:
-            assert z.read(f"fichiers/{n}") == zha.read(n), f"{n} : mêmes octets que tab5_home_assistant.zip"
-        for f in INTEGRATION.rglob("*"):
-            relatif = f.relative_to(INTEGRATION).as_posix()
-            if f.is_file() and "__pycache__" not in relatif and relatif != "manifest.json":
-                assert z.read(relatif) == f.read_bytes(), relatif
-    # Ce que l'intégration lira, une fois décompressé par HACS.
-    with zipfile.ZipFile(archive) as z:
-        z.extractall(tmp_path / "custom_components" / "tab5")
-    lus = installation.lire_embarques(tmp_path / "custom_components" / "tab5" / "fichiers")
-    assert lus == _embarques("9.9.9")
-    assert archive_hacs.construire("9.9.9", tmp_path / "bis").read_bytes() == archive.read_bytes(), \
-        "archive reproductible"
-
-
-def test_archive_hacs_ancien_tag(tmp_path, monkeypatch):
-    monkeypatch.setattr(sys, "argv", ["archive_hacs.py", "--version", "3.6.0", "--sortie", str(tmp_path),
-                                      "--integration", str(tmp_path / "absent")])
-    assert archive_hacs.main() == 3 and not (tmp_path / archive_hacs.NOM).exists()
 
 
 # ─── Notifications ───────────────────────────────────────────────────────────

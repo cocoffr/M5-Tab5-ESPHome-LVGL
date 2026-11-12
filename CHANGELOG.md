@@ -4,6 +4,10 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Dates 
 
 ## [Unreleased]
 
+**Contrat HA ↔ firmware** : Home Assistant d'abord (depuis v3.10.0-rc.1).
+
+La branche du réveil autonome ne fournit plus les cinq actions `tab5_maj_voiture*` du firmware HMI publié. Mettre à jour les fichiers Home Assistant avant le firmware ; ne pas installer ce firmware autonome à la place du HMI sans vérifier les usages de ces actions.
+
 ### Ajouté
 
 - **Consignes des agents IA par dossier** (doc seule) : `AGENTS.md`, que `CLAUDE.md` importe

@@ -110,6 +110,7 @@ static void reset() {
     alarm_reset_state();
     rdv_clear();
     g_alarm_cfg = AlarmCfg{};
+    g_alarm_cfg_2 = AlarmCfg{};
     for (auto& d : cal_jours_data) d = DayForecastData{};
     cal_jours_anchor_day = -1;
 }
@@ -1318,11 +1319,102 @@ static void test_rouleaux() {
     expect(rouleau_nombre(0, 10, 0, -1) == 11, "pas nul compté comme 1");
 }
 
+
+static void test_deux_reveils_independants() {
+    reset();
+    const time_t t0 = at(2026, 11, 3, 7, 0);
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 7 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    g_alarm_cfg_2.fixed_min = 7 * 60 + 1;
+    alarm_invalidate();
+    now_is(at(2026, 11, 3, 6, 59, 59));
+    expect(!alarm_due_for(0, g_now), "réveil 1 : pas de sonnerie avant l'heure");
+    expect(!alarm_due_for(1, g_now), "réveil 2 : pas de sonnerie avant l'heure");
+    now_is(t0);
+    expect(alarm_due_for(0, g_now), "réveil 1 : déclenchement à 07:00");
+    expect(!alarm_due_for(1, g_now), "réveil 2 : reste indépendant à 07:00");
+    alarm_snooze_for(0, g_now, 5);
+    expect(alarm_snooze_count_for(0) == 1, "réveil 1 : son compteur snooze avance");
+    expect(alarm_snooze_count_for(1) == 0, "réveil 2 : compteur snooze inchangé");
+    alarm_dismiss_for(0, g_now);
+    now_is(at(2026, 11, 3, 7, 1));
+    expect(alarm_due_for(1, g_now), "réveil 2 : déclenchement indépendant à 07:01");
+    expect(alarm_snooze_count_for(0) == 0, "réveil 1 : arrêt indépendant du réveil 2");
+}
+
+
+static void test_due_any_arbitration() {
+    reset();
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 7 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    alarm_invalidate();
+    const time_t due = at(2026, 11, 4, 7, 0);
+    now_is(due - 1);
+    expect(alarm_due_any(g_now) == -1, "arbitrage : aucune sonnerie avant l'heure");
+    now_is(due);
+    expect(alarm_due_any(g_now) == 0, "arbitrage : réveil 1 prioritaire à échéance égale");
+    expect(alarm_next_ring_for(1, due) == due, "arbitrage : échéance du réveil 2 conservée");
+    now_is(due + 1);
+    expect(alarm_due_any(g_now) == 1, "arbitrage : réveil 2 sonne ensuite");
+}
+
+
+static void test_libelle_reveil_2() {
+    reset();
+    g_alarm_cfg.enabled = false;
+    g_alarm_cfg_2.enabled = true;
+    g_alarm_cfg_2.mode = AlarmMode::FIXE;
+    g_alarm_cfg_2.fixed_min = 7 * 60 + 15;
+    g_alarm_cfg_2.days_mask = 0x7F;
+    alarm_invalidate();
+    const time_t now = at(2026, 11, 5, 6, 0);
+    now_is(now);
+    const std::string label = alarm_next_label_for(1, now);
+    expect(label.find("07:15") != std::string::npos,
+           "libellé du réveil 2 : utilise sa propre heure");
+    expect(alarm_next_label_for(0, now).find("Désactivé") != std::string::npos,
+           "libellé du réveil 1 : indépendant du réveil 2");
+}
+
+
+static void test_snooze_reveil_2_independant() {
+    reset();
+    g_alarm_cfg.enabled = true;
+    g_alarm_cfg.mode = AlarmMode::FIXE;
+    g_alarm_cfg.fixed_min = 6 * 60;
+    g_alarm_cfg.days_mask = 0x7F;
+    g_alarm_cfg_2 = g_alarm_cfg;
+    g_alarm_cfg_2.fixed_min = 6 * 60 + 2;
+    alarm_invalidate();
+    const time_t first = at(2026, 11, 6, 6, 0);
+    now_is(first);
+    expect(alarm_due_any(g_now) == 0, "snooze 2 : le réveil 1 sonne d'abord");
+    alarm_snooze_for(0, g_now, 9);
+    now_is(at(2026, 11, 6, 6, 2));
+    expect(alarm_due_any(g_now) == 1, "snooze 2 : le réveil 2 sonne à son heure");
+    alarm_snooze_for(1, g_now, 5);
+    expect(alarm_snooze_count_for(0) == 1, "snooze 2 : compteur du réveil 1 conservé");
+    expect(alarm_snooze_count_for(1) == 1, "snooze 2 : compteur du réveil 2 indépendant");
+    now_is(at(2026, 11, 6, 6, 7));
+    expect(alarm_due_any(g_now) == 1, "snooze 2 : seul le réveil 2 revient de répétition");
+    expect(alarm_snooze_count_for(0) == 1, "snooze 2 : le réveil 1 n'est pas modifié");
+}
+
 int main() {
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);  // Europe/Paris, comme le firmware
     tzset();
     tab5_time_source = fake_time;
 
+    test_snooze_reveil_2_independant();
+    test_libelle_reveil_2();
+    test_due_any_arbitration();
+    test_deux_reveils_independants();
     test_dates();
     test_heure_fixe_jours_coches();
     test_sonne_une_seule_fois_puis_repetition();

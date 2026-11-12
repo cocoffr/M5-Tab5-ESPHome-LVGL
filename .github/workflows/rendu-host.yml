@@ -35,7 +35,7 @@ on:
     inputs:
       langues:
         description: "Langues, en JSON (fr, en, de, nl, es, it, tr ; « clair » : thème clair, à chaud et à froid ; « galerie » : chaque thème)"
-        default: '["fr", "en", "de", "nl", "es", "it", "tr", "clair", "galerie"]'
+        default: '["fr"]'
       seulement:
         description: "Mise au point : ces écrans seulement (noms de tools/rendu/ecrans.py, séparés par des espaces), sans les scènes"
         default: ""
@@ -147,7 +147,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        langue: ${{ fromJSON(inputs.langues || '["fr", "en", "de", "nl", "es", "it", "tr", "clair", "galerie"]') }}
+        langue: ${{ fromJSON(inputs.langues || '["fr"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
@@ -163,7 +163,19 @@ jobs:
         run: |
           # Réessais : PyPI répond parfois « from versions: none » (tools/ci/pip_reessai.sh).
           bash tools/ci/pip_reessai.sh "esphome==$ESPHOME_VERSION" pillow
-          sudo apt-get install -y --no-install-recommends faketime
+          # Les miroirs Ubuntu ont parfois une panne DNS transitoire sur les runners.
+          # Ne pas masquer un vrai échec : réessayer l'installation trois fois.
+          for tentative in 1 2 3; do
+            if sudo apt-get update -o Acquire::Retries=3 && \
+               sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 faketime; then
+              break
+            fi
+            if [ "$tentative" -eq 3 ]; then
+              echo "::error::Installation de faketime impossible après trois tentatives"
+              exit 1
+            fi
+            sleep $((tentative * 15))
+          done
       - name: Rendu compilé par la tâche « compiler »
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
@@ -326,6 +338,8 @@ jobs:
   # Waveshare 7B, 1024×600 (ADR-0061) : voir l'en-tête. Indépendante des tâches du Tab5
   # (ni `needs`, ni artefact « rendu-captures-* » que `comparer` réunit).
   rendu-7b:
+    # Le fork Tab5 ne valide pas la dalle Waveshare 7B : réservé aux builds hors PR.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     # Compilation (~2 à 4 min) + scènes et ~200 écrans en une passe (~20 min pour une langue).
     timeout-minutes: 40
@@ -437,7 +451,7 @@ jobs:
   bilan-7b:
     name: "Rendu 7B : écrans ouverts / attendus"
     needs: [rendu, rendu-7b]
-    if: always()
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

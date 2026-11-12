@@ -8,9 +8,14 @@
 static const uint8_t kI18nLangCount = 7;
 static const char* const kI18nLangNames[] = {"Français", "English", "Deutsch", "Nederlands", "Español", "Italiano", "Türkçe"};
 static const char* const kI18nLangCodes[] = {"fr", "en", "de", "nl", "es", "it", "tr"};
-static const uint16_t kI18nKeyCount = 1307;
+static const uint16_t kI18nKeyCount = 1312;
 
 static const char* const kI18nCtx[] = {
+    "",
+    "",
+    "",
+    "",
+    "",
     "",
     "",
     "",
@@ -1461,6 +1466,8 @@ static const char* const kI18nKeys[] = {
     "Aimant mineur",
     "Air humide",
     "Air sec",
+    "Alarme 1",
+    "Alarme 2",
     "Albums",
     "Alerte Météo Orange en cours ! Restez prudent.",
     "Alerte Météo Rouge en cours ! Restez prudent.",
@@ -2054,6 +2061,7 @@ static const char* const kI18nKeys[] = {
     "Nulle par accord entre les joueurs",
     "Némésis",
     "Néon calme",
+    "OFF",
     "OPTIONS",
     "Obsidienne",
     "Oct",
@@ -2266,6 +2274,8 @@ static const char* const kI18nKeys[] = {
     "Résistance",
     "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie.",
     "Réveil",
+    "Réveil 2 · %s",
+    "Réveil 2 · 07:30",
     "Réveil actif",
     "Réveil éteint",
     "Réveiller",
@@ -2772,6 +2782,8 @@ static const char* const kI18n_en[] = {
     "Minor Magnet",  // "Aimant mineur"
     "Humid air",  // "Air humide"
     "Dry air",  // "Air sec"
+    "Alarm 1",  // "Alarme 1"
+    "Alarm 2",  // "Alarme 2"
     "Albums",  // "Albums"
     "Orange weather warning in progress! Stay safe.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Red weather warning in progress! Stay safe.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -3365,6 +3377,7 @@ static const char* const kI18n_en[] = {
     "Draw by mutual agreement",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Calm neon",  // "Néon calme"
+    "OFF",  // "OFF"
     "OPTIONS",  // "OPTIONS"
     "Obsidian",  // "Obsidienne"
     "Oct",  // "Oct"
@@ -3577,6 +3590,8 @@ static const char* const kI18n_en[] = {
     "Resistance",  // "Résistance"
     "Collect all 6 wedges, then reach the hub for the final question.\n\nRoll the die with the button, or shake the tablet.\nThen tap one of the highlighted spaces: you choose your direction,\nbut you can never turn back mid-move.\n\nCorrect answer: you roll again.   Wrong answer: next team.\n\nThe 6 large white-ringed spaces are the category headquarters:\nonly they award a wedge.\nA purple space with a white dot = Roll Again, roll the die right away.\nThe hub without all 6 wedges = a question in the category of your choice.\nThe hub with all 6 wedges = final: the next team picks the category,\nand a correct answer wins the game.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Alarm",  // "Réveil"
+    "Alarm 2 · %s",  // "Réveil 2 · %s"
+    "Alarm 2 · 07:30",  // "Réveil 2 · 07:30"
     "Alarm on",  // "Réveil actif"
     "Alarm off",  // "Réveil éteint"
     "Wake up",  // "Réveiller"
@@ -4083,6 +4098,8 @@ static const char* const kI18n_de[] = {
     "Kleiner Magnet",  // "Aimant mineur"
     "Feuchte Luft",  // "Air humide"
     "Trockene Luft",  // "Air sec"
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Alben",  // "Albums"
     "Unwetterwarnung Orange aktiv! Bleib vorsichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Unwetterwarnung Rot aktiv! Bleib vorsichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -4676,6 +4693,7 @@ static const char* const kI18n_de[] = {
     "Remis durch Einigung",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Ruhiges Neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "OPTIONEN",  // "OPTIONS"
     "Obsidian",  // "Obsidienne"
     "Okt",  // "Oct"
@@ -4888,6 +4906,8 @@ static const char* const kI18n_de[] = {
     "Widerstand",  // "Résistance"
     "Alle 6 Wissensecken sammeln, dann zur Finalfrage in die Mitte ziehen.\n\nWürfeln per Knopf oder durch Schütteln des Tablets.\nDann ein markiertes Feld antippen: Die Richtung ist frei wählbar,\naber während des Zugs wird nie umgekehrt.\n\nRichtige Antwort: nochmal würfeln.   Falsche Antwort: nächstes Team.\n\nDie 6 großen, weiß umrandeten Felder sind die Kategorie-Hauptfelder:\nnur sie bringen eine Wissensecke.\nEin lila Feld mit weißem Punkt = Nochmal: sofort erneut würfeln.\nDie Mitte ohne alle 6 Ecken = Frage aus einer Kategorie nach Wahl.\nDie Mitte mit allen 6 Ecken = Finale: Das nächste Team wählt die Kategorie,\nund eine richtige Antwort gewinnt das Spiel.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Wecker",  // "Réveil"
+    "Alarm 2 · %s",  // "Réveil 2 · %s" (repli en)
+    "Alarm 2 · 07:30",  // "Réveil 2 · 07:30" (repli en)
     "Wecker an",  // "Réveil actif"
     "Wecker aus",  // "Réveil éteint"
     "Aufwecken",  // "Réveiller"
@@ -5394,6 +5414,8 @@ static const char* const kI18n_nl[] = {
     "Kleine magneet",  // "Aimant mineur"
     "Vochtige lucht",  // "Air humide"
     "Droge lucht",  // "Air sec"
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Albums",  // "Albums"
     "Weeralarm code oranje! Wees voorzichtig.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Weeralarm code rood! Wees voorzichtig.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -5987,6 +6009,7 @@ static const char* const kI18n_nl[] = {
     "Remise in onderling overleg",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Rustig neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "OPTIES",  // "OPTIONS"
     "Obsidiaan",  // "Obsidienne"
     "Okt",  // "Oct"
@@ -6199,6 +6222,8 @@ static const char* const kI18n_nl[] = {
     "Weerstand",  // "Résistance"
     "Verzamel alle 6 partjes en ga dan naar het midden voor de slotvraag.\n\nGooi de dobbelsteen met de knop, of schud de tablet.\nTik dan op een van de gemarkeerde vakken: je kiest zelf je richting,\nmaar tijdens een zet mag je nooit omkeren.\n\nGoed antwoord: je gooit opnieuw.   Fout antwoord: volgende team.\n\nDe 6 grote wit omrande vakken zijn de hoofdvakken per categorie:\nalleen die leveren een partje op.\nEen paars vak met witte stip = Nog eens, gooi meteen opnieuw.\nHet midden zonder de 6 partjes = vraag uit een categorie naar keuze.\nHet midden met alle 6 partjes = finale: het volgende team kiest de categorie,\nen een goed antwoord wint het spel.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Wekker",  // "Réveil"
+    "Alarm 2 · %s",  // "Réveil 2 · %s" (repli en)
+    "Alarm 2 · 07:30",  // "Réveil 2 · 07:30" (repli en)
     "Wekker aan",  // "Réveil actif"
     "Wekker uit",  // "Réveil éteint"
     "Wekken",  // "Réveiller"
@@ -6705,6 +6730,8 @@ static const char* const kI18n_es[] = {
     "Imán menor",  // "Aimant mineur"
     "Aire húmedo",  // "Air humide"
     "Aire seco",  // "Air sec"
+    "Alarma 1",  // "Alarme 1"
+    "Alarma 2",  // "Alarme 2"
     "Álbumes",  // "Albums"
     "¡Alerta meteorológica naranja! Ten cuidado.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "¡Alerta meteorológica roja! Ten cuidado.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -7298,6 +7325,7 @@ static const char* const kI18n_es[] = {
     "Tablas por mutuo acuerdo",  // "Nulle par accord entre les joueurs"
     "Némesis",  // "Némésis"
     "Neón tranquilo",  // "Néon calme"
+    "APAGADO",  // "OFF"
     "OPCIONES",  // "OPTIONS"
     "Obsidiana",  // "Obsidienne"
     "Oct",  // "Oct"
@@ -7510,6 +7538,8 @@ static const char* const kI18n_es[] = {
     "Resistencia",  // "Résistance"
     "Reúne los 6 quesitos y luego ve al centro para la pregunta final.\n\nTira el dado con el botón o sacude la tableta.\nDespués toca una de las casillas resaltadas: tú eliges la dirección,\npero nunca puedes dar media vuelta durante el movimiento.\n\nAcierto: vuelves a tirar.   Fallo: turno del siguiente.\n\nLas 6 casillas grandes con borde blanco son las sedes de categoría:\nsolo ellas dan un quesito.\nCasilla violeta con punto blanco = Otra tirada: tira el dado de nuevo.\nEl centro sin los 6 quesitos = pregunta de la categoría que elijas.\nEl centro con los 6 quesitos = final: el equipo siguiente elige la categoría,\ny una respuesta correcta gana la partida.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Alarma",  // "Réveil"
+    "Alarma 2 · %s",  // "Réveil 2 · %s"
+    "Alarma 2 · 07:30",  // "Réveil 2 · 07:30"
     "Alarma activa",  // "Réveil actif"
     "Alarma apagada",  // "Réveil éteint"
     "Despertar",  // "Réveiller"
@@ -8016,6 +8046,8 @@ static const char* const kI18n_it[] = {
     "Magnete minore",  // "Aimant mineur"
     "Aria umida",  // "Air humide"
     "Aria secca",  // "Air sec"
+    "Sveglia 1",  // "Alarme 1"
+    "Sveglia 2",  // "Alarme 2"
     "Album",  // "Albums"
     "Allerta meteo arancione in corso! Fai attenzione.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Allerta meteo rossa in corso! Fai attenzione.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -8609,6 +8641,7 @@ static const char* const kI18n_it[] = {
     "Patta d'accordo tra i giocatori",  // "Nulle par accord entre les joueurs"
     "Nemesi",  // "Némésis"
     "Neon calmo",  // "Néon calme"
+    "SPENTO",  // "OFF"
     "OPZIONI",  // "OPTIONS"
     "Ossidiana",  // "Obsidienne"
     "Ott",  // "Oct"
@@ -8821,6 +8854,8 @@ static const char* const kI18n_it[] = {
     "Resistenza",  // "Résistance"
     "Raccogli i 6 spicchi, poi raggiungi il centro per la domanda finale.\n\nTira il dado con il pulsante, o scuoti il tablet.\nPoi tocca una delle caselle evidenziate: scegli tu la direzione,\nma senza mai tornare indietro durante lo spostamento.\n\nRisposta esatta: tiri ancora.   Risposta sbagliata: passi la mano.\n\nLe 6 grandi caselle cerchiate di bianco sono le sedi di categoria:\nsolo loro fanno vincere uno spicchio.\nUna casella viola con un punto bianco = Tira ancora, ritira subito il dado.\nIl centro senza i 6 spicchi = domanda della categoria che preferisci.\nIl centro con i 6 spicchi = finale: la squadra successiva sceglie la categoria,\ne una risposta esatta vince la partita.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Sveglia",  // "Réveil"
+    "Sveglia 2 · %s",  // "Réveil 2 · %s"
+    "Sveglia 2 · 07:30",  // "Réveil 2 · 07:30"
     "Sveglia attiva",  // "Réveil actif"
     "Sveglia spenta",  // "Réveil éteint"
     "Risveglia",  // "Réveiller"
@@ -9327,6 +9362,8 @@ static const char* const kI18n_tr[] = {
     "Küçük Mıknatıs",  // "Aimant mineur"
     "Nemli hava",  // "Air humide"
     "Kuru hava",  // "Air sec"
+    "Alarm 1",  // "Alarme 1" (repli en)
+    "Alarm 2",  // "Alarme 2" (repli en)
     "Albümler",  // "Albums"
     "Turuncu hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Orange en cours ! Restez prudent."
     "Kırmızı hava uyarısı sürüyor! Dikkatli ol.",  // "Alerte Météo Rouge en cours ! Restez prudent."
@@ -9920,6 +9957,7 @@ static const char* const kI18n_tr[] = {
     "Oyuncuların anlaşmasıyla beraberlik",  // "Nulle par accord entre les joueurs"
     "Nemesis",  // "Némésis"
     "Sakin neon",  // "Néon calme"
+    "OFF",  // "OFF" (repli en)
     "SEÇENEKLER",  // "OPTIONS"
     "Obsidyen",  // "Obsidienne"
     "Eki",  // "Oct"
@@ -10132,6 +10170,8 @@ static const char* const kI18n_tr[] = {
     "Direnç",  // "Résistance"
     "6 dilimi topla, sonra final sorusu için merkeze ulaş.\n\nZarı düğmeyle at ya da tableti salla.\nSonra vurgulanan karelerden birine dokun: yönü sen seçersin,\nama hareket sırasında asla geri dönemezsin.\n\nDoğru yanıt: tekrar atarsın.   Yanlış yanıt: sıra sonrakinde.\n\nBeyaz halkalı 6 büyük kare kategori merkezleridir:\nyalnız bunlar dilim kazandırır.\nBeyaz noktalı mor kare = Tekrar at, zarı hemen yeniden at.\n6 dilim yokken merkez = istediğin kategoriden soru.\n6 dilimle merkez = final: sıradaki takım kategoriyi seçer,\nve doğru yanıt oyunu kazandırır.",  // "Réunissez les 6 parts de camembert, puis rejoignez le centre pour la question finale.\n\nLancez le dé avec le bouton, ou secouez la tablette.\nTouchez ensuite l'une des cases surlignées : vous choisissez votre direction,\nmais jamais de demi-tour en cours de déplacement.\n\nBonne réponse : vous rejouez.   Mauvaise réponse : au suivant.\n\nLes 6 grandes cases cerclées de blanc sont les QG de catégorie :\nelles seules rapportent une part de camembert.\nUne case violette à point blanc = Rejouer, relancez immédiatement le dé.\nLe centre sans les 6 parts = question de la catégorie de votre choix.\nLe centre avec les 6 parts = finale : l'équipe suivante choisit la catégorie,\net une bonne réponse remporte la partie."
     "Alarm",  // "Réveil"
+    "Alarm 2 · %s",  // "Réveil 2 · %s" (repli en)
+    "Alarm 2 · 07:30",  // "Réveil 2 · 07:30" (repli en)
     "Alarm açık",  // "Réveil actif"
     "Alarm kapalı",  // "Réveil éteint"
     "Uyandır",  // "Réveiller"

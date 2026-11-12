@@ -96,7 +96,7 @@ What the screen was first made for: seeing at a glance whether rain is coming be
 
 Without compiling, since 3.0: a Tab5, a USB-C cable that carries data, Chrome or Edge on a computer, and Home Assistant. The [installation guide](docs/installation/README.md) takes you through seven steps:
 
-1. [Home Assistant files](docs/installation/home-assistant-files.md): unzip the archive attached to each release into the `config` folder of Home Assistant, add one line to `configuration.yaml`, restart. Or, from 3.7.0, let [HACS](docs/installation/home-assistant-files.md#with-hacs) install them and update them in one click.
+1. [Home Assistant files](docs/installation/home-assistant-files.md): unzip the archive attached to each release into the `config` folder of Home Assistant, add one line to `configuration.yaml`, restart. 
 2. [Install the firmware](docs/installation/flash.md) from the [install page](https://axellum.github.io/M5-Tab5-ESPHome-LVGL/install/): your display revision, the Stable channel, *Connect and install*.
 3. [Wi-Fi](docs/installation/wifi.md): from the same window, over USB, or with a phone on the open "Tab5 Fallback AP" network.
 4. [Add it to Home Assistant](docs/installation/add-to-home-assistant.md): the ESPHome device is discovered, *Configure*; Home Assistant gives it its key.
@@ -108,7 +108,7 @@ Without compiling, since 3.0: a Tab5, a USB-C cable that carries data, Chrome or
 
 ![The screen slots automation in the Home Assistant editor: the blueprint and its sections, Room 1 open](docs/images/installation/ha_blueprint_en.png)
 
-Updates then go through Home Assistant, in this order: the Home Assistant files first (in one click with HACS, otherwise by hand), then the firmware, from its « Firmware » entity ([updates](docs/installation/updates.md)). Over the air, the tablet only accepts a firmware signed with the project key. Every setting — theme, light or dark, language, alarm clock, screen to show: [tablet settings](docs/installation/settings.md). To change the firmware yourself: [build your own](docs/installation/build.md).
+Updates then go through Home Assistant, in this order: the Home Assistant files first (manually from the release archive), then the firmware, from its « Firmware » entity ([updates](docs/installation/updates.md)). Over the air, the tablet only accepts a firmware signed with the project key. Every setting — theme, light or dark, language, alarm clock, screen to show: [tablet settings](docs/installation/settings.md). To change the firmware yourself: [build your own](docs/installation/build.md).
 
 Just want to see it running first? The [demo mode](docs/demo_mode.md) pushes demo data to a flashed tablet with a small script: no Home Assistant, nothing left to clean up.
 
@@ -327,7 +327,7 @@ Ce pour quoi l'écran a d'abord été fait : voir d'un coup d'œil s'il va pleuv
 
 Sans compiler, depuis la 3.0 : une Tab5, un câble USB-C qui transmet les données, Chrome ou Edge sur un ordinateur, et Home Assistant. Le [guide d'installation](docs/installation/README.md#version-française) tient en sept étapes :
 
-1. [Fichiers Home Assistant](docs/installation/home-assistant-files.md#version-française) : décompressez l'archive jointe à chaque release dans le dossier `config` de Home Assistant, ajoutez une ligne à `configuration.yaml`, redémarrez. Ou, depuis la 3.7.0, laissez [HACS](docs/installation/home-assistant-files.md#avec-hacs) les installer et les mettre à jour en un clic.
+1. [Fichiers Home Assistant](docs/installation/home-assistant-files.md#version-française) : décompressez l'archive jointe à chaque release dans le dossier `config` de Home Assistant, ajoutez une ligne à `configuration.yaml`, redémarrez. 
 2. [Installer le firmware](docs/installation/flash.md#version-française) depuis la [page d'installation](https://axellum.github.io/M5-Tab5-ESPHome-LVGL/install/) : votre révision d'écran, le canal Stable, *Connecter et installer*.
 3. [Wi-Fi](docs/installation/wifi.md#version-française) : depuis la même fenêtre, par l'USB, ou avec un téléphone sur le réseau ouvert « Tab5 Fallback AP ».
 4. [L'ajouter à Home Assistant](docs/installation/add-to-home-assistant.md#version-française) : l'appareil ESPHome est découvert, *Configurer* ; Home Assistant lui donne sa clé.
@@ -339,7 +339,7 @@ Sans compiler, depuis la 3.0 : une Tab5, un câble USB-C qui transmet les donné
 
 ![L'automatisation des emplacements dans l'éditeur de Home Assistant : le blueprint et ses sections, Pièce 1 ouverte](docs/images/installation/ha_blueprint_fr.png)
 
-Les mises à jour passent ensuite par Home Assistant, dans cet ordre : les fichiers Home Assistant d'abord (en un clic avec HACS, sinon à la main), puis le firmware, par son entité « Firmware » ([mises à jour](docs/installation/updates.md#version-française)). Par le réseau, la tablette n'accepte qu'un firmware signé par la clé du projet. Chaque réglage — thème, clair ou sombre, langue, réveil, écran à afficher : [réglages de la tablette](docs/installation/settings.md#version-française). Pour modifier le firmware vous-même : [compiler le vôtre](docs/installation/build.md#version-française).
+Les mises à jour passent ensuite par Home Assistant, dans cet ordre : les fichiers Home Assistant d'abord (manuellement depuis l'archive de la release), puis le firmware, par son entité « Firmware » ([mises à jour](docs/installation/updates.md#version-française)). Par le réseau, la tablette n'accepte qu'un firmware signé par la clé du projet. Chaque réglage — thème, clair ou sombre, langue, réveil, écran à afficher : [réglages de la tablette](docs/installation/settings.md#version-française). Pour modifier le firmware vous-même : [compiler le vôtre](docs/installation/build.md#version-française).
 
 Envie de le voir tourner d'abord ? Le [mode démo](docs/demo_mode.md#version-française) pousse des données de démonstration vers une tablette flashée avec un petit script : sans Home Assistant, rien à nettoyer ensuite.
 

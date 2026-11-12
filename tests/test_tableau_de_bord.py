@@ -413,7 +413,11 @@ def test_entites_suffixees_par_ha():
     maison = _maison({"tab5": etats})
     references = verifier.entites_du_tableau(yaml.safe_load(_rendre(maison)))
     tablette = {e.entity_id for e in etats}
-    sans = {e for e in tablette if any(e.startswith(f"{d}.") and e.endswith(f"_{s}_2") for d, s in SANS_CARTE)}
+    # Les exceptions sans carte sont comparées au slug firmware, avant le suffixe
+    # numérique ajouté par HA (_2, _3…). Celui-ci est placé après le slug complet.
+    sans = {e for e in tablette if any(
+        e.startswith(f"{d}.") and re.search(rf"(?:^|_){re.escape(s)}_\d+$", e.split(".", 1)[1])
+        for d, s in SANS_CARTE)}
     assert tablette - sans <= references, sorted(tablette - sans - references)
 
 

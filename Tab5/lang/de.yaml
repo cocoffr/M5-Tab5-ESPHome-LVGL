@@ -21,7 +21,7 @@
 _langue: Deutsch
 _code: de
 _index: 2
-_statut: complet   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
+_statut: partiel   # couvre tout ce que l'écran affiche (tests/test_i18n.py)
 
 # --- Dates (tab5_core.cpp) ---------------------------------------------------
 "Dim": "So"

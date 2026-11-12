@@ -700,6 +700,8 @@ lvgl:
         - !include ../ui_components/serveur_ia_popup.yaml
         - !include ../ui_components/calendar_popup.yaml
         - !include ../ui_components/assistant_popup.yaml
+        # Accueil de chevet au-dessus des tuiles Axellum, sous les popups.
+        - !include ../ui_components/reveil_accueil.yaml
         - !include ../ui_components/alarm_popup.yaml
         # [AI-WARNING] Amorce du widget ligne : ne pas supprimer. ESPHome ne pose
         # `#define LV_USE_LINE 1` dans le lv_conf.h généré que si un widget `line:` est
@@ -722,3 +724,19 @@ lvgl:
         - !include ../ui_components/alarm_ring_overlay.yaml
         # Les 8 jeux et le sélecteur arcade ont leurs propres pages LVGL, déclarées par
         # le module des jeux (Tab5/paquets/tab5-arcade.yaml, ADR-0065), après celle-ci.
+
+# Rafraîchissement local : aucune dépendance à Home Assistant pour l'horloge.
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          auto now = id(sntp_time).now();
+          reveil_accueil_tick(
+              id(reveil_geant_heure), id(reveil_date),
+              id(reveil_luminosite_valeur), id(reveil_volume_valeur),
+              id(reveil_alarme1_etat), id(reveil_alarme2_etat),
+              now.is_valid(), now.hour, now.minute,
+              now.day_of_month, now.month, now.year,
+              id(backlight).current_values.get_brightness(),
+              id(tab5_alarm_volume).state,
+              id(tab5_alarm_enabled).state, id(tab5_alarm2_enabled).state);

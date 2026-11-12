@@ -43,3 +43,32 @@ HaAlertSlotUI g_ha_alert_slots[kHaAlertSlotCount];
 DayForecastData cal_jours_data[15];
 HourForecastData cal_heures_data[15];
 int32_t cal_jours_anchor_day = -1;  // jour local de cal_jours_data[0], -1 = inconnu
+
+void reveil_accueil_tick(lv_obj_t* heure, lv_obj_t* date_label,
+                        lv_obj_t* luminosite, lv_obj_t* volume,
+                        lv_obj_t* alarme1, lv_obj_t* alarme2,
+                        bool heure_valide, int hh, int mm, int jour, int mois, int annee,
+                        float luminosite_fraction, float volume_pourcent,
+                        bool alarme1_active, bool alarme2_active) {
+  char texte[48];
+  if (heure_valide) {
+    snprintf(texte, sizeof(texte), "%02d:%02d", hh, mm);
+    lv_label_set_text(heure, texte);
+    snprintf(texte, sizeof(texte), "%02d/%02d/%04d", jour, mois, annee);
+    lv_label_set_text(date_label, texte);
+  }
+  snprintf(texte, sizeof(texte), "%d/10",
+           std::max(1, std::min(10, static_cast<int>(roundf(luminosite_fraction * 10.0f)))));
+  lv_label_set_text(luminosite, texte);
+  snprintf(texte, sizeof(texte), "%d/10",
+           std::max(1, std::min(10, static_cast<int>(roundf(volume_pourcent / 10.0f)))));
+  lv_label_set_text(volume, texte);
+  lv_label_set_text(alarme1, alarme1_active ? "ON" : "OFF");
+  lv_label_set_text(alarme2, alarme2_active ? "ON" : "OFF");
+  lv_obj_set_style_text_color(alarme1,
+                              lv_color_hex(alarme1_active ? UIColor.SUCCESS : UIColor.TEXT_DIM),
+                              LV_PART_MAIN);
+  lv_obj_set_style_text_color(alarme2,
+                              lv_color_hex(alarme2_active ? UIColor.SUCCESS : UIColor.ERROR),
+                              LV_PART_MAIN);
+}
