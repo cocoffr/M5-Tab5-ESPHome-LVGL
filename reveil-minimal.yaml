@@ -2071,6 +2071,7 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_name_input));
+                  lv_obj_set_align(id(radio_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(radio_keyboard)->obj, 35, 250);
         - label:
             text: "URL"
@@ -2089,9 +2090,11 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));
+                  lv_obj_set_align(id(radio_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(radio_keyboard)->obj, 35, 250);
         - keyboard:
             id: radio_keyboard
+            align: TOP_LEFT
             x: 35
             y: 250
             width: 1200
@@ -3442,6 +3445,7 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_host_input));
+                  lv_obj_set_align(id(mqtt_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Port", x: 850, y: 104, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
@@ -3456,6 +3460,7 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_port_input));
+                  lv_obj_set_align(id(mqtt_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Login", x: 35, y: 184, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
@@ -3470,6 +3475,7 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_user_input));
+                  lv_obj_set_align(id(mqtt_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - label: { text: "Mot de passe", x: 775, y: 184, width: 260, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
@@ -3485,9 +3491,11 @@ lvgl:
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_password_input));
+                  lv_obj_set_align(id(mqtt_keyboard)->obj, LV_ALIGN_TOP_LEFT);
                   lv_obj_set_pos(id(mqtt_keyboard)->obj, 35, 250);
         - keyboard:
             id: mqtt_keyboard
+            align: TOP_LEFT
             x: 35
             y: 250
             width: 1200
