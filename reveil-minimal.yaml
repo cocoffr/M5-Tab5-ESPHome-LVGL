@@ -1328,7 +1328,7 @@ font:
   - file: "gfonts://Roboto"
     id: date_font
     size: 46
-    glyphs: "0123456789 abcdefghijklmnopqrstuvwxyzéèêûôàùîïçS.-"
+    glyphs: "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzéèêûôàùîïçS.-"
   - file: "gfonts://Roboto"
     id: clock_roboto_font
     size: 230
@@ -1352,7 +1352,7 @@ font:
   - file: "gfonts://Roboto"
     id: appearance_option_font
     size: 24
-    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-éèêàùûôîïçÉÈÊÀÇ,"
+    glyphs: "0123456789: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-\'éèêàùûôîïçÉÈÊÀÇ,"
   - file: "Tab5/fonts/jersey_10_400.ttf"
     id: preview_segments_font
     size: 80
@@ -2090,10 +2090,10 @@ lvgl:
             x: 35
             y: 245
             width: 1200
-            height: 350
+            height: 235
         - button:
             x: 180
-            y: 610
+            y: 505
             width: 360
             height: 85
             bg_color: 0x304458
@@ -2104,7 +2104,7 @@ lvgl:
               - label: { text: "Annuler", align: CENTER, text_font: control_font }
         - button:
             x: 700
-            y: 610
+            y: 505
             width: 360
             height: 85
             bg_color: 0x075BA8
@@ -3422,7 +3422,7 @@ lvgl:
             y: 20
             text_font: alarm_font
             text_color: 0xB5E8F4
-        - label: { text: "Serveur", x: 35, y: 104, text_font: label_font }
+        - label: { text: "Serveur", x: 35, y: 104, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_host_input
             x: 275
@@ -3434,19 +3434,19 @@ lvgl:
             text_font: label_font
             on_click:
               - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_host_input));'
-        - label: { text: "Port", x: 790, y: 104, text_font: label_font }
+        - label: { text: "Port", x: 850, y: 104, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_port_input
-            x: 960
+            x: 1040
             y: 95
-            width: 250
+            width: 175
             height: 65
             one_line: true
             max_length: 5
             text_font: label_font
             on_click:
               - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_port_input));'
-        - label: { text: "Login", x: 35, y: 184, text_font: label_font }
+        - label: { text: "Login", x: 35, y: 184, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_user_input
             x: 275
@@ -3458,12 +3458,12 @@ lvgl:
             text_font: label_font
             on_click:
               - lambda: 'lv_keyboard_set_textarea(id(mqtt_keyboard)->obj, id(mqtt_user_input));'
-        - label: { text: "Mot de passe", x: 790, y: 184, text_font: label_font }
+        - label: { text: "Mot de passe", x: 775, y: 184, width: 260, text_font: control_font, text_color: 0xFFFFFF }
         - textarea:
             id: mqtt_password_input
-            x: 960
+            x: 1040
             y: 175
-            width: 250
+            width: 175
             height: 65
             one_line: true
             password_mode: true
@@ -3474,22 +3474,22 @@ lvgl:
         - keyboard:
             id: mqtt_keyboard
             x: 35
-            y: 250
+            y: 245
             width: 1200
-            height: 295
+            height: 235
         - button:
             x: 170
-            y: 575
+            y: 505
             width: 370
             height: 82
             bg_color: 0x304458
             on_click:
               - lvgl.page.show: reveil_systeme_page
             widgets:
-              - label: { text: "Annuler", align: CENTER, text_font: label_font }
+              - label: { text: "Annuler", align: CENTER, text_font: control_font, text_color: 0xFFFFFF }
         - button:
             x: 680
-            y: 575
+            y: 505
             width: 420
             height: 82
             bg_color: 0x075BA8
@@ -3505,7 +3505,7 @@ lvgl:
               - delay: 1s
               - button.press: reveil_restart
             widgets:
-              - label: { text: "Enregistrer", align: CENTER, text_font: label_font }
+              - label: { text: "Enregistrer", align: CENTER, text_font: control_font, text_color: 0xFFFFFF }
     - id: reveil_systeme_page
       bg_color: 0x000000
       widgets:
@@ -4156,7 +4156,7 @@ lvgl:
               - label: { text: "+", align: CENTER, text_font: control_font }
         - button:
             x: 135
-            y: 610
+            y: 505
             width: 360
             height: 72
             bg_color: 0x075BA8
@@ -4448,6 +4448,16 @@ interval:
             snprintf(clock_text, sizeof(clock_text), "%02d:%02d", shown_hour, shown_minute);
             set_label_if_changed(visible, clock_valid ? clock_text : "--:--");
             lv_obj_set_style_text_color(visible, lv_color_hex(clock_color), LV_PART_MAIN);
+            // Adapter les polices normales à la largeur disponible.
+            // LVGL utilise une échelle de 256 pour le zoom (et non 100).
+            lv_obj_update_layout(visible);
+            const int natural_width = lv_obj_get_width(visible);
+            if (natural_width > 0) {
+              const int full_zoom = (256 * 1190) / natural_width;
+              const int zoom = 90 + (full_zoom - 90) * size_level / 10;
+              lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
+              lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
+            }
           }
           // Géométrie d'origine figée : ne jamais relire les coordonnées LVGL
           // lors du premier tick (elles peuvent ne pas être calculées).
