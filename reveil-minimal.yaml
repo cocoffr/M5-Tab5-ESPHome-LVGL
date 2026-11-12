@@ -1328,7 +1328,7 @@ font:
   - file: "gfonts://Roboto"
     id: date_font
     size: 46
-    glyphs: "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzéèêûôàùîïçS.-"
+    glyphs: "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzéèêûôàùîïç.-"
   - file: "gfonts://Roboto"
     id: clock_roboto_font
     size: 230
