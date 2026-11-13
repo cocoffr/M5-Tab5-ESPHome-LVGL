@@ -388,7 +388,7 @@ switch:
     id: reveil_battery_installed
     name: Batterie montée (déclaration)
     optimistic: true
-    restore_mode: RESTORE_DEFAULT_OFF
+    restore_mode: RESTORE_DEFAULT_ON
   - platform: template
     id: alarm_one_enabled
     name: Alarme 1
@@ -434,7 +434,7 @@ select:
     optimistic: true
     restore_value: true
     options: ["100 %", "80 %"]
-    initial_option: "100 %"
+    initial_option: "80 %"
   - platform: template
     id: reveil_charge_mode
     name: Mode de charge souhaité
@@ -4930,7 +4930,8 @@ interval:
             lv_obj_set_style_bg_color(id(alarm_two_button), lv_color_hex(two_enabled ? 0x00AD22 : 0x535B65), LV_PART_MAIN);
           }
           char value[16];
-          snprintf(value, sizeof(value), "%.0f/10", id(brightness_level).state);
+          // Afficher le rétroéclairage effectif, limité à 3/10 en mode économie.
+          snprintf(value, sizeof(value), "%d/10", effective_screen_pct / 10);
           set_label_if_changed(id(brightness_label), value);
           snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
           set_label_if_changed(id(volume_label), value);
