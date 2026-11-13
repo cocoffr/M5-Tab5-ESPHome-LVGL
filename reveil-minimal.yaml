@@ -471,7 +471,7 @@ number:
     set_action:
       - light.turn_on:
           id: backlight
-          brightness: !lambda 'const float curve[10] = {0.005f,0.01f,0.02f,0.04f,0.07f,0.12f,0.20f,0.35f,0.60f,1.0f}; return curve[std::max(0, std::min(9, (int)x - 1))];'
+          brightness: !lambda 'const float curve[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f}; return curve[std::max(0, std::min(9, (int)x - 1))];'
   - platform: template
     id: volume_level
     name: Volume 1 a 10
@@ -4732,8 +4732,8 @@ interval:
               lv_color_hex(id(reveil_ha_connected) ? 0x2196F3 : 0x535B65), LV_PART_MAIN);
           }
           // Contrôle manuel exclusif : aucun mode économie ne limite la luminosité.
-          // Courbe nocturne à gamma neutre, de 0,5 % à 100 % de PWM.
-          const float brightness_curve[10] = {0.005f,0.01f,0.02f,0.04f,0.07f,0.12f,0.20f,0.35f,0.60f,1.0f};
+          // Test LEDA à gamma neutre : paliers de 0,1 % à 100 % de PWM.
+          const float brightness_curve[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f};
           const int effective_level = std::max(1, std::min(10, (int)id(brightness_level).state));
           static int previous_screen_level = -1;
           if (effective_level != previous_screen_level) {
