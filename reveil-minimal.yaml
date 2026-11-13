@@ -326,8 +326,7 @@ output:
   - platform: ledc
     id: backlight_pwm
     pin: GPIO22
-    # Test materiel : frequence reduite pour verifier la plage de gradation.
-    frequency: 200Hz
+    frequency: 1000Hz
 light:
   - platform: monochromatic
     id: backlight
