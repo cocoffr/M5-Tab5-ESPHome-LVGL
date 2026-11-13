@@ -4794,7 +4794,7 @@ interval:
             set_label_if_changed(id(reveil_batt_tension), diag);
             set_label_if_changed(id(sys_batt), diag);
             set_label_if_changed(id(reveil_batt_etat), on_battery ? "Sur batterie" :
-              (id(reveil_battery_charging).state && activer ? "En charge" : "Sur USB"));
+              (id(reveil_battery_charging).state && activer ? "Sur USB (en charge)" : "Sur USB"));
             if (std::isfinite(id(reveil_batt_current).state)) {
               const float power = id(reveil_batt_voltage).state * id(reveil_batt_current).state;
               snprintf(diag, sizeof(diag), "%+.2f W", power);
