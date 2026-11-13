@@ -1448,7 +1448,7 @@ lvgl:
             id: clock_roboto_label
             text: "12:34"
             align: TOP_MID
-            y: 58
+            y: 70
             text_font: clock_roboto_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1456,7 +1456,7 @@ lvgl:
             id: clock_montserrat_label
             text: "12:34"
             align: TOP_MID
-            y: 48
+            y: 70
             text_font: clock_montserrat_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1464,7 +1464,7 @@ lvgl:
             id: clock_oswald_label
             text: "12:34"
             align: TOP_MID
-            y: 32
+            y: 70
             text_font: clock_oswald_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1472,7 +1472,7 @@ lvgl:
             id: clock_orbitron_label
             text: "12:34"
             align: TOP_MID
-            y: 55
+            y: 70
             text_font: clock_orbitron_font
             text_color: 0xB5E8F4
             hidden: true
@@ -1480,7 +1480,7 @@ lvgl:
             id: clock_rajdhani_label
             text: "12:34"
             align: TOP_MID
-            y: 38
+            y: 70
             text_font: clock_rajdhani_font
             text_color: 0xB5E8F4
             hidden: true
@@ -4481,8 +4481,17 @@ interval:
               const int zoom = 90 + (full_zoom - 90) * size_level / 10;
               lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
               lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
-               // Garder le haut des chiffres à la même hauteur malgré le zoom.
-               lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
+              lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
+              // Positionner les chiffres selon leurs métriques réelles et le zoom.
+              const lv_font_t *font = lv_obj_get_style_text_font(visible, LV_PART_MAIN);
+              lv_font_glyph_dsc_t glyph;
+              if (font && lv_font_get_glyph_dsc(font, &glyph, '8', 0)) {
+                const int glyph_top = (int)font->line_height - (int)font->base_line
+                                      - (int)glyph.ofs_y - (int)glyph.box_h;
+                const int glyph_center = glyph_top + (int)glyph.box_h / 2;
+                const int target_center_y = 269;
+                lv_obj_set_y(visible, target_center_y - (glyph_center * zoom) / 256);
+              }
             }
           }
           // Géométrie d'origine figée : ne jamais relire les coordonnées LVGL
