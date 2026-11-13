@@ -4436,16 +4436,27 @@ interval:
           const char *preview_names[] = {"Segments","Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
           char appearance_preview_time[8];
           snprintf(appearance_preview_time, sizeof(appearance_preview_time), "%02d:%02d", shown_hour, shown_minute);
-          for (int pi=0; pi<6; ++pi) {
-            const bool active = font_choice == preview_names[pi];
-            if (active) lv_obj_remove_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
-            else lv_obj_add_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
-            if (active) {
-              set_label_if_changed(previews[pi], appearance_preview_time);
-              lv_obj_set_style_text_color(previews[pi], lv_color_hex(clock_color), LV_PART_MAIN);
-              lv_obj_set_style_transform_zoom(previews[pi], 100 + size_level * 15, LV_PART_MAIN);
+          static int previous_preview_index = -1;
+          static int previous_preview_size = -1;
+          static uint32_t previous_preview_color = 0xFFFFFFFF;
+          int selected_preview_index = 0;
+          for (int pi=0; pi<6; ++pi)
+            if (font_choice == preview_names[pi]) selected_preview_index = pi;
+          if (selected_preview_index != previous_preview_index) {
+            for (int pi=0; pi<6; ++pi) {
+              if (pi == selected_preview_index) lv_obj_remove_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
+              else lv_obj_add_flag(previews[pi], LV_OBJ_FLAG_HIDDEN);
             }
           }
+          lv_obj_t *active_preview = previews[selected_preview_index];
+          set_label_if_changed(active_preview, appearance_preview_time);
+          if (selected_preview_index != previous_preview_index || clock_color != previous_preview_color)
+            lv_obj_set_style_text_color(active_preview, lv_color_hex(clock_color), LV_PART_MAIN);
+          if (selected_preview_index != previous_preview_index || size_level != previous_preview_size)
+            lv_obj_set_style_transform_zoom(active_preview, 100 + size_level * 15, LV_PART_MAIN);
+          previous_preview_index = selected_preview_index;
+          previous_preview_size = size_level;
+          previous_preview_color = clock_color;
           lv_obj_t *segments[] = {
             id(digit_0_0),id(digit_0_1),id(digit_0_2),id(digit_0_3),id(digit_0_4),id(digit_0_5),id(digit_0_6),
             id(digit_1_0),id(digit_1_1),id(digit_1_2),id(digit_1_3),id(digit_1_4),id(digit_1_5),id(digit_1_6),
@@ -4461,39 +4472,52 @@ interval:
           // transparente (créée en premier dans la page).
           lv_obj_t *font_labels[] = {id(clock_roboto_label),id(clock_montserrat_label),id(clock_oswald_label),id(clock_orbitron_label),id(clock_rajdhani_label)};
           const char *font_options[] = {"Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
-          lv_obj_t *visible = nullptr;
-          for (int fi=0;fi<5;++fi) {
-            if (!show_segments && font_choice == font_options[fi]) visible = font_labels[fi];
-            else lv_obj_add_flag(font_labels[fi], LV_OBJ_FLAG_HIDDEN);
+          static int previous_font_index = -2;
+          static int previous_font_size = -1;
+          static uint32_t previous_font_color = 0xFFFFFFFF;
+          int selected_font_index = -1;
+          for (int fi=0; fi<5; ++fi)
+            if (!show_segments && font_choice == font_options[fi]) selected_font_index = fi;
+          // Ne changer la visibilité qu'en cas de changement de police.
+          if (selected_font_index != previous_font_index) {
+            for (int fi=0; fi<5; ++fi) {
+              if (fi == selected_font_index) lv_obj_remove_flag(font_labels[fi], LV_OBJ_FLAG_HIDDEN);
+              else lv_obj_add_flag(font_labels[fi], LV_OBJ_FLAG_HIDDEN);
+            }
           }
-          if (visible) {
-            lv_obj_remove_flag(visible, LV_OBJ_FLAG_HIDDEN);
+          if (selected_font_index >= 0) {
+            lv_obj_t *visible = font_labels[selected_font_index];
             char clock_text[8];
             snprintf(clock_text, sizeof(clock_text), "%02d:%02d", shown_hour, shown_minute);
             set_label_if_changed(visible, clock_valid ? clock_text : "--:--");
-            lv_obj_set_style_text_color(visible, lv_color_hex(clock_color), LV_PART_MAIN);
-            // Adapter les polices normales à la largeur disponible.
-            // LVGL utilise une échelle de 256 pour le zoom (et non 100).
-            lv_obj_update_layout(visible);
-            const int natural_width = lv_obj_get_width(visible);
-            if (natural_width > 0) {
-              const int full_zoom = (256 * 1190) / natural_width;
-              const int zoom = 90 + (full_zoom - 90) * size_level / 10;
-              lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
-              lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
-              lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
-              // Positionner les chiffres selon leurs métriques réelles et le zoom.
-              const lv_font_t *font = lv_obj_get_style_text_font(visible, LV_PART_MAIN);
-              lv_font_glyph_dsc_t glyph;
-              if (font && lv_font_get_glyph_dsc(font, &glyph, '8', 0)) {
-                const int glyph_top = (int)font->line_height - (int)font->base_line
-                                      - (int)glyph.ofs_y - (int)glyph.box_h;
-                const int glyph_center = glyph_top + (int)glyph.box_h / 2;
-                const int target_center_y = 269;
-                lv_obj_set_y(visible, target_center_y - (glyph_center * zoom) / 256);
+            if (selected_font_index != previous_font_index || clock_color != previous_font_color)
+              lv_obj_set_style_text_color(visible, lv_color_hex(clock_color), LV_PART_MAIN);
+            // La mise en page et le zoom ne dépendent que de la police et
+            // de la taille. Ne surtout pas les recalculer à chaque seconde.
+            if (selected_font_index != previous_font_index || size_level != previous_font_size) {
+              lv_obj_update_layout(visible);
+              const int natural_width = lv_obj_get_width(visible);
+              if (natural_width > 0) {
+                const int full_zoom = (256 * 1190) / natural_width;
+                const int zoom = 90 + (full_zoom - 90) * size_level / 10;
+                lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
+                lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
+                lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
+                const lv_font_t *font = lv_obj_get_style_text_font(visible, LV_PART_MAIN);
+                lv_font_glyph_dsc_t glyph;
+                if (font && lv_font_get_glyph_dsc(font, &glyph, '8', 0)) {
+                  const int glyph_top = (int)font->line_height - (int)font->base_line
+                                        - (int)glyph.ofs_y - (int)glyph.box_h;
+                  const int glyph_center = glyph_top + (int)glyph.box_h / 2;
+                  const int target_center_y = 269;
+                  lv_obj_set_y(visible, target_center_y - (glyph_center * zoom) / 256);
+                }
               }
             }
           }
+          previous_font_index = selected_font_index;
+          previous_font_size = size_level;
+          previous_font_color = clock_color;
           // Géométrie d'origine figée : ne jamais relire les coordonnées LVGL
           // lors du premier tick (elles peuvent ne pas être calculées).
           // À 10/10, les segments gardent exactement les dimensions historiques.
