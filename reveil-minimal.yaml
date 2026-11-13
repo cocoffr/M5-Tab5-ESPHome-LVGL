@@ -4426,11 +4426,21 @@ interval:
           const int scale_pct = 40 + size_level * 6;
           lv_obj_t *font_buttons[] = {id(appearance_font_btn_0),id(appearance_font_btn_1),id(appearance_font_btn_2),id(appearance_font_btn_3),id(appearance_font_btn_4),id(appearance_font_btn_5)};
           const char *font_names[] = {"Segments","Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
-          for (int i=0; i<6; ++i)
-            lv_obj_set_style_bg_color(font_buttons[i], lv_color_hex(font_choice == font_names[i] ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          static int last_font_button = -1;
+          int selected_font_button = 0;
+          for (int i=0; i<6; ++i) if (font_choice == font_names[i]) selected_font_button = i;
+          if (selected_font_button != last_font_button) {
+            if (last_font_button >= 0) lv_obj_set_style_bg_color(font_buttons[last_font_button], lv_color_hex(0x304458), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(font_buttons[selected_font_button], lv_color_hex(0x075BA8), LV_PART_MAIN);
+            last_font_button = selected_font_button;
+          }
           lv_obj_t *size_buttons[] = {id(appearance_size_btn_0),id(appearance_size_btn_1),id(appearance_size_btn_2),id(appearance_size_btn_3),id(appearance_size_btn_4),id(appearance_size_btn_5),id(appearance_size_btn_6),id(appearance_size_btn_7),id(appearance_size_btn_8),id(appearance_size_btn_9)};
-          for (int i=0; i<10; ++i)
-            lv_obj_set_style_bg_color(size_buttons[i], lv_color_hex(size_level == i+1 ? 0x075BA8 : 0x304458), LV_PART_MAIN);
+          static int last_size_button = -1;
+          if (size_level != last_size_button) {
+            if (last_size_button >= 1) lv_obj_set_style_bg_color(size_buttons[last_size_button - 1], lv_color_hex(0x304458), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(size_buttons[size_level - 1], lv_color_hex(0x075BA8), LV_PART_MAIN);
+            last_size_button = size_level;
+          }
           // Aperçu instantané : une vraie police par choix et taille graduée.
           lv_obj_t *previews[] = {id(appearance_preview_segments),id(appearance_preview_roboto),id(appearance_preview_montserrat),id(appearance_preview_oswald),id(appearance_preview_orbitron),id(appearance_preview_rajdhani)};
           const char *preview_names[] = {"Segments","Roboto","Montserrat","Oswald","Orbitron","Rajdhani"};
@@ -4499,7 +4509,12 @@ interval:
               const int natural_width = lv_obj_get_width(visible);
               if (natural_width > 0) {
                 const int full_zoom = (256 * 1190) / natural_width;
-                const int zoom = 90 + (full_zoom - 90) * size_level / 10;
+                int zoom = 90 + (full_zoom - 90) * size_level / 10;
+              // Ajustement propre à chaque police, sans modifier les segments.
+              if (selected_font_index == 0) zoom = zoom * 105 / 100; // Roboto +5 %
+              if (selected_font_index == 2) zoom = zoom * 93 / 100;  // Oswald -7 %
+              if (selected_font_index == 3) zoom = zoom * 110 / 100; // Orbitron +10 %
+              if (selected_font_index == 4) zoom = zoom * 95 / 100;  // Rajdhani -5 %
                 lv_obj_set_style_transform_zoom(visible, zoom, LV_PART_MAIN);
                 lv_obj_set_style_transform_pivot_x(visible, natural_width / 2, LV_PART_MAIN);
                 lv_obj_set_style_transform_pivot_y(visible, 0, LV_PART_MAIN);
@@ -4540,15 +4555,21 @@ interval:
           // Rendu original 7 segments : les rectangles sont des objets LVGL,
           // pas des glyphes. Forcer explicitement opacité et ordre d'empilement.
           // Ne pas dépendre des drapeaux HIDDEN hérités des changements de police.
-          for (lv_obj_t *o : segments) {
-            lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_style_bg_opa(o, LV_OPA_COVER, LV_PART_MAIN);
-            lv_obj_set_style_opa(o, show_segments ? LV_OPA_COVER : LV_OPA_TRANSP, LV_PART_MAIN);
+          static int previous_segments_mode = -1;
+          if (previous_segments_mode != (int)show_segments) {
+            previous_segments_mode = (int)show_segments;
+            for (lv_obj_t *o : segments) {
+              lv_obj_remove_flag(o, LV_OBJ_FLAG_HIDDEN);
+              lv_obj_set_style_bg_opa(o, LV_OPA_COVER, LV_PART_MAIN);
+              lv_obj_set_style_opa(o, show_segments ? LV_OPA_COVER : LV_OPA_TRANSP, LV_PART_MAIN);
+            }
           }
           // Le séparateur doit rester deux points ronds, comme l'ancienne version.
-          lv_obj_set_style_bg_color(id(clock_colon_top), lv_color_hex(clock_color), LV_PART_MAIN);
-          lv_obj_set_style_bg_color(id(clock_colon_bottom), lv_color_hex(clock_color), LV_PART_MAIN);
           static uint32_t last_clock_color = 0;
+          if (last_clock_color != clock_color) {
+            lv_obj_set_style_bg_color(id(clock_colon_top), lv_color_hex(clock_color), LV_PART_MAIN);
+            lv_obj_set_style_bg_color(id(clock_colon_bottom), lv_color_hex(clock_color), LV_PART_MAIN);
+          }
           const bool color_changed = last_clock_color != clock_color;
           last_clock_color = clock_color;
           static int last_drawn_minute = -1;
@@ -4556,7 +4577,7 @@ interval:
           if (color_changed || (show_segments && !previous_segments_visible)) last_drawn_minute = -1;
           previous_segments_visible = show_segments;
           const int current_drawn_minute = clock_valid ? shown_hour * 60 + shown_minute : -1;
-          if (clock_valid) {
+          if (clock_valid && show_segments && last_drawn_minute != current_drawn_minute) {
             last_drawn_minute = current_drawn_minute;
             const uint8_t map[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
             int digits[4] = {shown_hour / 10, shown_hour % 10, shown_minute / 10, shown_minute % 10};
@@ -4738,14 +4759,26 @@ interval:
           // En l'absence de mesure fraîche, conserver le dernier état connu.
           static bool power_on_battery = false;
           if (mesures_fraiches && batt_present) power_on_battery = on_battery;
-          lv_label_set_text(id(reveil_power_icon), power_on_battery ? "\U000F0079" : "\U000F06A5");
-          lv_obj_set_style_text_color(id(reveil_power_icon),
-            lv_color_hex(power_on_battery ? 0x4DA6E8 : 0x00CC33), LV_PART_MAIN);
+          static int previous_power_icon_state = -1;
+          if (previous_power_icon_state != (int)power_on_battery) {
+            previous_power_icon_state = (int)power_on_battery;
+            lv_label_set_text(id(reveil_power_icon), power_on_battery ? "\U000F0079" : "\U000F06A5");
+            lv_obj_set_style_text_color(id(reveil_power_icon),
+              lv_color_hex(power_on_battery ? 0x4DA6E8 : 0x00CC33), LV_PART_MAIN);
+          }
           const bool wifi_ok = wifi::global_wifi_component != nullptr && wifi::global_wifi_component->is_connected();
-          lv_obj_set_style_text_color(id(reveil_wifi_icon),
-            lv_color_hex(wifi_ok ? 0x00CC33 : 0x535B65), LV_PART_MAIN);
-          lv_obj_set_style_text_color(id(reveil_ha_icon),
-            lv_color_hex(id(reveil_ha_connected) ? 0x2196F3 : 0x535B65), LV_PART_MAIN);
+          static int previous_wifi_icon_state = -1;
+          if (previous_wifi_icon_state != (int)wifi_ok) {
+            previous_wifi_icon_state = (int)wifi_ok;
+            lv_obj_set_style_text_color(id(reveil_wifi_icon),
+              lv_color_hex(wifi_ok ? 0x00CC33 : 0x535B65), LV_PART_MAIN);
+          }
+          static int previous_ha_icon_state = -1;
+          if (previous_ha_icon_state != (int)id(reveil_ha_connected)) {
+            previous_ha_icon_state = (int)id(reveil_ha_connected);
+            lv_obj_set_style_text_color(id(reveil_ha_icon),
+              lv_color_hex(id(reveil_ha_connected) ? 0x2196F3 : 0x535B65), LV_PART_MAIN);
+          }
           const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
