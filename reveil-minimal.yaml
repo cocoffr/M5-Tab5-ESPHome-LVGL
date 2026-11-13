@@ -477,7 +477,7 @@ number:
     set_action:
       - light.turn_on:
           id: backlight
-          brightness: !lambda 'return x / 10.0f;'
+          brightness: !lambda 'const float levels[10] = {0.01f,0.02f,0.04f,0.07f,0.12f,0.22f,0.35f,0.52f,0.74f,1.0f}; return levels[std::max(0, std::min(9, (int)x - 1))];'
   - platform: template
     id: volume_level
     name: Volume 1 a 10
@@ -4782,13 +4782,15 @@ interval:
           const std::string power_mode = id(reveil_power_save).current_option();
           const bool eco_screen = power_mode == "Toujours" ||
             (power_mode == "Sur batterie" && on_battery);
-          static int previous_screen_pct = -1;
-          const int requested_screen_pct = (int)(id(brightness_level).state * 10.0f);
-          const int effective_screen_pct = eco_screen ? std::min(requested_screen_pct, 30) : requested_screen_pct;
-          if (effective_screen_pct != previous_screen_pct) {
-            previous_screen_pct = effective_screen_pct;
+          // Courbe de rétroéclairage adaptée à la nuit : 1/10 = 1 % PWM.
+          const float brightness_curve[10] = {0.01f,0.02f,0.04f,0.07f,0.12f,0.22f,0.35f,0.52f,0.74f,1.0f};
+          const int requested_level = std::max(1, std::min(10, (int)id(brightness_level).state));
+          const int effective_level = eco_screen ? std::min(requested_level, 3) : requested_level;
+          static int previous_screen_level = -1;
+          if (effective_level != previous_screen_level) {
+            previous_screen_level = effective_level;
             auto call = id(backlight).turn_on();
-            call.set_brightness(effective_screen_pct / 100.0f);
+            call.set_brightness(brightness_curve[effective_level - 1]);
             call.perform();
           }
           // Wi-Fi éco conservé comme préférence : ne pas couper le réseau
@@ -4931,7 +4933,7 @@ interval:
           }
           char value[16];
           // Afficher le rétroéclairage effectif, limité à 3/10 en mode économie.
-          snprintf(value, sizeof(value), "%d/10", effective_screen_pct / 10);
+          snprintf(value, sizeof(value), "%d/10", effective_level);
           set_label_if_changed(id(brightness_label), value);
           snprintf(value, sizeof(value), "%.0f/10", id(volume_level).state);
           set_label_if_changed(id(volume_label), value);
