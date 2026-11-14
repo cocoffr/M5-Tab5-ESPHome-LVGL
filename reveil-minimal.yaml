@@ -469,9 +469,10 @@ number:
     restore_value: true
     initial_value: 5
     set_action:
-      - light.turn_on:
-          id: backlight
-          brightness: !lambda 'const float curve[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f}; return curve[std::max(0, std::min(9, (int)x - 1))];'
+      - lambda: |-
+          // Diagnostic : écriture directe sur LEDC, sans light ni gamma.
+          const float levels[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f};
+          id(backlight_pwm).set_level(levels[std::max(0, std::min(9, (int)x - 1))]);
   - platform: template
     id: volume_level
     name: Volume 1 a 10
@@ -4738,9 +4739,8 @@ interval:
           static int previous_screen_level = -1;
           if (effective_level != previous_screen_level) {
             previous_screen_level = effective_level;
-            auto call = id(backlight).turn_on();
-            call.set_brightness(brightness_curve[effective_level - 1]);
-            call.perform();
+            // Diagnostic : aucune transformation par le composant light.
+            id(backlight_pwm).set_level(brightness_curve[effective_level - 1]);
           }
           // Wi-Fi éco conservé comme préférence : ne pas couper le réseau
           // nécessaire à la synchronisation SNTP et à la radio.
