@@ -325,9 +325,7 @@ touchscreen:
 output:
   - platform: ledc
     id: backlight_pwm
-    pin:
-      number: GPIO22
-      inverted: true
+    pin: GPIO22
     frequency: 1000Hz
 light:
   - platform: monochromatic
