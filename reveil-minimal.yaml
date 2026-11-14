@@ -1,6 +1,7 @@
 # Firmware autonome expérimental ST7121 — sans l'application domotique.
 # Point d'entrée séparé : ne modifie pas tab5-ha-hmi.yaml.
 # Validation compilation : glyphes, largeur horloge et claviers tactiles.
+# Diagnostic PWM natif : inclusion du pilote LEDC dans Tab5/ecran/tab5_lien_c6.h.
 substitutions:
   device_name: reveil-tab5
 esphome:
