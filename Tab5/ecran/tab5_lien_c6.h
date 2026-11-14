@@ -8,5 +8,9 @@
  */
 #pragma once
 
+#ifdef ESP_PLATFORM
+#include "driver/ledc.h"  // API native ESP-IDF utilisée par le diagnostic PWM du réveil.
+#endif
+
 // true si esp_restart() finit bien par un reset CORE (tab5_lien_c6.cpp).
 bool lien_c6_demarrage();
