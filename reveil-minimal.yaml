@@ -21,6 +21,28 @@ esphome:
       - select.set:
           id: reveil_dac_output
           option: LINE1
+    - priority: -200
+      then:
+        - lambda: |-
+            // Diagnostic materiel : configurer explicitement LEDC en 13 bits.
+            // Sortie GPIO22, timer 0, canal 0, 1000 Hz.
+            ledc_timer_config_t timer = {};
+            timer.speed_mode = LEDC_LOW_SPEED_MODE;
+            timer.timer_num = LEDC_TIMER_0;
+            timer.duty_resolution = LEDC_TIMER_13_BIT;
+            timer.freq_hz = 1000;
+            timer.clk_cfg = LEDC_AUTO_CLK;
+            esp_err_t err_timer = ledc_timer_config(&timer);
+            ledc_channel_config_t channel = {};
+            channel.gpio_num = 22;
+            channel.speed_mode = LEDC_LOW_SPEED_MODE;
+            channel.channel = LEDC_CHANNEL_0;
+            channel.intr_type = LEDC_INTR_DISABLE;
+            channel.timer_sel = LEDC_TIMER_0;
+            channel.duty = 4096;
+            channel.hpoint = 0;
+            esp_err_t err_channel = ledc_channel_config(&channel);
+            ESP_LOGI("pwm_diag", "LEDC 13 bits timer=%s canal=%s", esp_err_to_name(err_timer), esp_err_to_name(err_channel));
   includes:
     - Tab5/ecran/tab5_lien_c6.h
     - Tab5/ecran/tab5_lien_c6.cpp
@@ -470,9 +492,12 @@ number:
     initial_value: 5
     set_action:
       - lambda: |-
-          // Diagnostic : écriture directe sur LEDC, sans light ni gamma.
-          const float levels[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f};
-          id(backlight_pwm).set_level(levels[std::max(0, std::min(9, (int)x - 1))]);
+          // Diagnostic : registre LEDC 13 bits directement (0..8191).
+          const uint32_t duty[10] = {8,16,41,82,164,410,819,2048,4096,8191};
+          const int idx = std::max(0, std::min(9, (int)x - 1));
+          esp_err_t e1 = ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty[idx]);
+          esp_err_t e2 = ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+          ESP_LOGI("pwm_diag", "Niveau %d / duty %u sur 8191, set=%s update=%s", idx + 1, (unsigned)duty[idx], esp_err_to_name(e1), esp_err_to_name(e2));
   - platform: template
     id: volume_level
     name: Volume 1 a 10
@@ -4732,15 +4757,14 @@ interval:
             lv_obj_set_style_text_color(id(reveil_ha_icon),
               lv_color_hex(id(reveil_ha_connected) ? 0x2196F3 : 0x535B65), LV_PART_MAIN);
           }
-          // Contrôle manuel exclusif : aucun mode économie ne limite la luminosité.
-          // Test LEDA à gamma neutre : paliers de 0,1 % à 100 % de PWM.
-          const float brightness_curve[10] = {0.001f,0.002f,0.005f,0.01f,0.02f,0.05f,0.10f,0.25f,0.50f,1.0f};
+          // Diagnostic LEDC matériel 13 bits, canal 0, timer 0.
+          const uint32_t duty[10] = {8,16,41,82,164,410,819,2048,4096,8191};
           const int effective_level = std::max(1, std::min(10, (int)id(brightness_level).state));
           static int previous_screen_level = -1;
           if (effective_level != previous_screen_level) {
             previous_screen_level = effective_level;
-            // Diagnostic : aucune transformation par le composant light.
-            id(backlight_pwm).set_level(brightness_curve[effective_level - 1]);
+            ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, duty[effective_level - 1]);
+            ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
           }
           // Wi-Fi éco conservé comme préférence : ne pas couper le réseau
           // nécessaire à la synchronisation SNTP et à la radio.
