@@ -588,7 +588,7 @@ media_player:
       speaker: reveil_media_speaker
       format: MP3
     volume_min: 0.05
-    volume_max: 0.6
+    volume_max: 1.0
 text:
   - platform: template
     id: radio_name_1
