@@ -60,12 +60,17 @@ psram:
   mode: hex
   speed: 200MHz
 logger:
-  level: VERBOSE
+  level: DEBUG
   logs:
-    media_player: VERBOSE
+    media_player: DEBUG
     speaker: DEBUG
     i2s_audio: DEBUG
     esp_http_client: DEBUG
+    i2c: WARN
+    lvgl: WARN
+    touchscreen: WARN
+    sensor: WARN
+    mqtt: WARN
 # MQTT local : l'horloge et les alarmes restent autonomes sans broker.
 mqtt:
   id: mqtt_client
