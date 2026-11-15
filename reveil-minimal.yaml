@@ -567,15 +567,13 @@ speaker:
     i2s_dout_pin: GPIO26
     audio_dac: alarm_dac
     dac_type: external
-    channel: stereo
-    sample_rate: 44100
+    channel: mono
+    sample_rate: 48000
     bits_per_sample: 16bit
-    buffer_duration: 2000ms
+    buffer_duration: 100ms
   - platform: mixer
     id: reveil_mixer
     output_speaker: alarm_speaker
-    # Test sans reechantillonnage : lecture successive des flux de frequences differentes.
-    queue_mode: true
     source_speakers:
       - id: reveil_announcement_speaker
       - id: reveil_media_speaker
@@ -590,7 +588,7 @@ media_player:
       speaker: reveil_media_speaker
       format: MP3
     volume_min: 0.05
-    volume_max: 1.0
+    volume_max: 0.6
 text:
   - platform: template
     id: radio_name_1
