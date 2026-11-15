@@ -60,6 +60,12 @@ psram:
   mode: hex
   speed: 200MHz
 logger:
+  level: DEBUG
+  logs:
+    media_player: VERBOSE
+    speaker: DEBUG
+    i2s_audio: DEBUG
+    esp_http_client: DEBUG
 # MQTT local : l'horloge et les alarmes restent autonomes sans broker.
 mqtt:
   id: mqtt_client
@@ -571,21 +577,12 @@ speaker:
     sample_rate: 48000
     bits_per_sample: 16bit
     buffer_duration: 100ms
-  - platform: mixer
-    id: reveil_mixer
-    output_speaker: alarm_speaker
-    source_speakers:
-      - id: reveil_announcement_speaker
-      - id: reveil_media_speaker
 media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
-    announcement_pipeline:
-      speaker: reveil_announcement_speaker
-      format: MP3
     media_pipeline:
-      speaker: reveil_media_speaker
+      speaker: alarm_speaker
       format: MP3
     volume_min: 0.05
     volume_max: 1.0
