@@ -577,15 +577,26 @@ speaker:
     source_speakers:
       - id: reveil_announcement_speaker
       - id: reveil_media_speaker
+  # Essai isolé : adapter les deux flux audio à 48 kHz avant le mixeur.
+  - platform: resampler
+    id: reveil_announcement_resampler
+    output_speaker: reveil_announcement_speaker
+    sample_rate: 48000
+    bits_per_sample: 16
+  - platform: resampler
+    id: reveil_media_resampler
+    output_speaker: reveil_media_speaker
+    sample_rate: 48000
+    bits_per_sample: 16
 media_player:
   - platform: speaker
     id: radio_player
     name: Radio Reveil
     announcement_pipeline:
-      speaker: reveil_announcement_speaker
+      speaker: reveil_announcement_resampler
       format: MP3
     media_pipeline:
-      speaker: reveil_media_speaker
+      speaker: reveil_media_resampler
       format: MP3
     volume_min: 0.05
     volume_max: 1.0
