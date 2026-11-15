@@ -2109,7 +2109,8 @@ lvgl:
             height: 75
             one_line: true
             max_length: 255
-            text_font: label_font
+            # Police LVGL ASCII complete : ?, &, =, _, %, #, etc. visibles dans les URL.
+            text_font: montserrat_28
             on_click:
               - lambda: |-
                   lv_keyboard_set_textarea(id(radio_keyboard)->obj, id(radio_url_input));
