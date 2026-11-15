@@ -4163,9 +4163,9 @@ lvgl:
               - label: { text: "+", align: CENTER, text_font: control_font }
         - button:
             x: 135
-            y: 505
+            y: 610
             width: 360
-            height: 72
+            height: 65
             bg_color: 0x075BA8
             on_click:
               - script.execute: test_alarm
