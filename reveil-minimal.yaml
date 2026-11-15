@@ -60,7 +60,7 @@ psram:
   mode: hex
   speed: 200MHz
 logger:
-  level: DEBUG
+  level: VERBOSE
   logs:
     media_player: VERBOSE
     speaker: DEBUG
